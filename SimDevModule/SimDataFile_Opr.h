@@ -21,11 +21,19 @@ typedef struct
 
 typedef struct
 {
+    uint32_t size;
+    uint8_t *p_buf;
+} SimDataFileStream_TypeDef;
+
+typedef struct
+{
     bool (*create)(SimDataFileObj_TypeDef *data_obj, const char *file_n, uint8_t mb_size);
     bool (*search)(SimDataFileObj_TypeDef *data_obj, const char *file_n);
 
     uint16_t (*write)(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
     uint16_t (*read)(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
+
+    SimDataFileStream_TypeDef (*dump_file)(SimDataFileObj_TypeDef *data_obj);
 } SimDataFile_TypeDef;
 
 extern SimDataFile_TypeDef SimDataFile;

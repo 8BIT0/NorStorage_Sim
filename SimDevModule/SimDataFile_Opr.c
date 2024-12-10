@@ -11,9 +11,13 @@
 #define Mb(x)  (x * Kb(1024))
 #endif
 
+/* internal function */
+static bool SimDataFile_CreateFolder(const char *path);
+
 /* external function */
 static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *file_n, uint8_t mb_size);
 static bool SimDataFile_Search(SimDataFileObj_TypeDef *data_obj, const char *file_n);
+static SimDataFileStream_TypeDef SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj);
 
 SimDataFile_TypeDef SimDataFile = {
     .create = SimDataFile_Create,
@@ -60,10 +64,17 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
         (fclose(data_obj->p_file) <= 0))
         return false;
 
-    data_obj->free(data_obj->p_buf);
-    data_obj->p_buf = NULL;
-
+    memset(data_obj->p_buf, 0x00, data_obj->size);
     return true;
+}
+
+static bool SimDataFile_CreateFolder(const char *path)
+{
+    /* get app path */
+    if ((path == NULL) || (strlen(path) == 0))
+        return false;
+
+    return false;
 }
 
 static bool SimDataFile_Search(SimDataFileObj_TypeDef *data_obj, const char *file_n)
@@ -106,4 +117,17 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
     /* close file */
     
     return 0;
+}
+
+static SimDataFileStream_TypeDef SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj)
+{
+    SimDataFileStream_TypeDef stream_tmp;
+    memset(&stream_tmp, 0, sizeof(SimDataFileStream_TypeDef));
+
+    if ((data_obj != NULL) && (data_obj->p_buf != NULL) && (data_obj->size != 0) && (data_obj->p_file != NULL))
+    {
+
+    }
+
+    return stream_tmp;
 }
