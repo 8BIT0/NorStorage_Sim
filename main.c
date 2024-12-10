@@ -7,7 +7,7 @@
 /* internal function */
 static bool SimModule_Init(void);
 
-int main(const char* arg)
+int main(int arg)
 {
     SimDataFileObj_TypeDef obj;
     memset(&obj, 0, sizeof(SimDataFileObj_TypeDef));
@@ -17,6 +17,7 @@ int main(const char* arg)
     SimDataFile.create(&obj, "test", 1);
 
     SimModule_Init();
+    return 0;
 }
 
 static bool SimModule_Init(void)
