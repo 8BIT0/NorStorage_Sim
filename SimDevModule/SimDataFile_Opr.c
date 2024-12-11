@@ -75,8 +75,8 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
     memset(data_obj->p_buf, '\0', file_name_size);
 
     /* check file in selected folder */
-    sprintf(data_obj->p_buf, "%s%s", file_n, SimDataFile_Extend);
-    if (SimDataFile_CheckFile(data_obj, data_obj->p_buf))
+    sprintf((char *)data_obj->p_buf, "%s%s", file_n, SimDataFile_Extend);
+    if (SimDataFile_CheckFile(data_obj, (char *)data_obj->p_buf))
     {
         data_obj->free(data_obj->p_buf);
         data_obj->p_buf = NULL;
@@ -86,7 +86,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
     memset(data_obj->p_buf, '\0', file_name_size);
 
     /* create sim data file */
-    sprintf(data_obj->p_buf, "%s\\%s%s", data_obj->simdata_path_str, file_n, SimDataFile_Extend);
+    sprintf((char *)data_obj->p_buf, "%s\\%s%s", data_obj->simdata_path_str, file_n, SimDataFile_Extend);
     SIMDATA_PRINT("create SimData file", "%s", data_obj->p_buf);
     data_obj->size = Mb(mb_size); data_obj->simdata_file = fopen((const char *)data_obj->p_buf, "w+b");
     data_obj->free(data_obj->p_buf);
@@ -136,7 +136,7 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj)
 
     if (data_obj->simdata_path_str == NULL)
     {
-        app_dir = dirname(_pgmptr);
+        // app_dir = dirname(_pgmptr);
         path_offset = NULL;
 
         /* create sub folder in the same path of application*/
@@ -155,7 +155,7 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj)
         memset(data_obj->simdata_path_str, '\0', path_len - strlen(SimDataFile_MKDIR));
         memset(data_obj->p_buf, '\0', path_len);
         
-        path_offset = data_obj->p_buf + strlen(SimDataFile_MKDIR);
+        path_offset = (char *)(data_obj->p_buf + strlen(SimDataFile_MKDIR));
         strcpy(path_offset, app_dir);
         strcat(path_offset, SimDataFile_Folder);
         memcpy(data_obj->p_buf, SimDataFile_MKDIR, strlen(SimDataFile_MKDIR));

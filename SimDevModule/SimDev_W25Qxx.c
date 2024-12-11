@@ -84,6 +84,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
     }
 
     dev->start_time = dev->systick();
+    return SimDevW25Qxx_Ok;
 }
 
 static SimDev_Info_TypeDef SimDevW25Qxx_GetInfo(SimDevW25QxxObj_TypeDef *dev)

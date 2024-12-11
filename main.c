@@ -2,35 +2,39 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "SimDataFile_Opr.h"
 
 /* internal function */
 static bool SimModule_Init(void);
 
-int main(int arg)
+int main(int argc, char **argv)
 {
     SimDataFileObj_TypeDef obj;
     memset(&obj, 0, sizeof(SimDataFileObj_TypeDef));
     obj.malloc = malloc;
     obj.free = free;
     
-    SimDataFile.create(&obj, "test", 1);
-    
+    // SimDataFile.create(&obj, "test", 1);
+    printf("argv %s\r\n", argv[0]);
+
     SimModule_Init();
     return 0;
 }
 
 static bool SimModule_Init(void)
 {
-    int8_t num = -1;
+    int num = -1;
 
     while (num < 0)
     {
         scanf("%d", &num);
     }
+
+    return false;
 }
 
 static bool Create_SimData()
 {
-
+    return false;
 }
