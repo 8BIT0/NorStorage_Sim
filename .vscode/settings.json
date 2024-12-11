@@ -1,5 +1,8 @@
 {
     "files.associations": {
-        "simdatafile_opr.h": "c"
+        "simdatafile_opr.h": "c",
+        "util.h": "c",
+        "cstdlib": "cpp",
+        "typeinfo": "cpp"
     }
 }

@@ -7,13 +7,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <libgen.h>
 
 typedef struct
 {
     uint32_t size;
     uint8_t *p_buf;
     char *name;
-    FILE *p_file;
+    char *simdata_path;
+    FILE *simdata_file;
+    DIR *simdata_dir;
 
     void *(*malloc)(size_t size);
     void (*free)(void *ptr);
