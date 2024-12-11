@@ -15,7 +15,7 @@ int main(int arg)
     obj.free = free;
     
     SimDataFile.create(&obj, "test", 1);
-
+    
     SimModule_Init();
     return 0;
 }

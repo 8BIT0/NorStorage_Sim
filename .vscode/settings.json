@@ -3,6 +3,11 @@
         "simdatafile_opr.h": "c",
         "util.h": "c",
         "cstdlib": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "libgen.h": "c",
+        "crtdefs.h": "c",
+        "corecrt.h": "c",
+        "stdlib.h": "c",
+        "dirent.h": "c"
     }
 }

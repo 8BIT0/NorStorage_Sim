@@ -13,8 +13,9 @@ typedef struct
 {
     uint32_t size;
     uint8_t *p_buf;
-    char *name;
-    char *simdata_path;
+    
+    char *simdata_path_str;
+
     FILE *simdata_file;
     DIR *simdata_dir;
 
@@ -31,7 +32,6 @@ typedef struct
 typedef struct
 {
     bool (*create)(SimDataFileObj_TypeDef *data_obj, const char *file_n, uint8_t mb_size);
-    bool (*search)(SimDataFileObj_TypeDef *data_obj, const char *file_n);
 
     uint16_t (*write)(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
     uint16_t (*read)(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);

@@ -1,6 +1,6 @@
 project(Storage_Sim)
 SET(CMAKE_BUILD_TYPE "Debug")
-SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -g)
+SET(CMAKE_C_FLAGS"${CMAKE_C_FLAGS} -g -O0")
 include_directories(Dep SimDevModule Storage_Port)
 aux_source_directory(SimDevModule SOURCE)
 aux_source_directory(Dep SOURCE)
