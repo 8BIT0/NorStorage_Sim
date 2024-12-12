@@ -101,7 +101,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     memset(data_obj->p_buf, '\0', file_name_size);
 
     /* create sim data file */
-    sprintf((char *)data_obj->p_buf, "%s\\%s%s", data_obj->simdata_path_str, file_n, SimDataFile_Extend);
+    sprintf((char *)data_obj->p_buf, "%s%s%s%s", data_obj->simdata_path_str, Folder_Split, file_n, SimDataFile_Extend);
     SIMDATA_PRINT("create SimData file", "%s", data_obj->p_buf);
     data_obj->simdata_file = fopen((const char *)data_obj->p_buf, "w+b");
     data_obj->free(data_obj->p_buf);

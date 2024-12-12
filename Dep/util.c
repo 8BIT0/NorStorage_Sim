@@ -17,5 +17,5 @@ void Debug_Print(const char *tag, const char *stage, const char *fmt, ...)
     strcat(ptr_tmp, "\r\n");
     va_end(ap);
 
-    printf(fmt_buf);
+    printf("%s", fmt_buf);
 }
