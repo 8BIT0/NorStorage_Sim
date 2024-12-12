@@ -2,7 +2,7 @@
 
 #define PRINT_BUF_SIZE 4096
 
-void Debug_Print(const char *tag, const char *stage, const char *fmt, ...)
+void Debug_Print(char *tag, const char *stage, const char *fmt, ...)
 {
     va_list ap;
     char fmt_buf[PRINT_BUF_SIZE];
