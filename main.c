@@ -25,15 +25,12 @@ static bool SimModule_Init(void)
 {
     int num = -1;
 
-    while (num < 0)
-    {
-        scanf("%d", &num);
-    }
+    // while (num < 0)
+    // {
+    //     scanf("%d", &num);
+    // }
 
     return false;
 }
 
-static bool Create_SimData()
-{
-    return false;
-}
+
