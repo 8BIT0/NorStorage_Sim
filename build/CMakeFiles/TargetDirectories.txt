@@ -1,3 +1,0 @@
-C:/Users/HUAV/Desktop/8B!T0/NorSim_Storage/build/CMakeFiles/Storage_Sim.dir
-C:/Users/HUAV/Desktop/8B!T0/NorSim_Storage/build/CMakeFiles/edit_cache.dir
-C:/Users/HUAV/Desktop/8B!T0/NorSim_Storage/build/CMakeFiles/rebuild_cache.dir
