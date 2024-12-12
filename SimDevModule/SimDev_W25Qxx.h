@@ -107,8 +107,8 @@ typedef struct
     uint32_t start_time;
     uint32_t opr_time;
 
-    uint16_t (*bus_read)(uint8_t *p_data, uint16_t size, uint16_t time_out);
-    uint16_t (*bus_write)(uint8_t *p_data, uint16_t size, uint16_t time_out);
+    uint16_t (*bus_read)(uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
+    uint16_t (*bus_write)(uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
 } SimDevW25QxxObj_TypeDef;
 
 typedef struct

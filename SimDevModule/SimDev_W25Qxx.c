@@ -1,14 +1,25 @@
 #include "SimDev_W25Qxx.h"
 
+#define W25QXX_TIMEOUT  100  /* unit:ms */
+#define DEFAULT_DATA    0xFF
+
 /* external function */
 static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev);
 static SimDev_Info_TypeDef SimDevW25Qxx_GetInfo(SimDevW25QxxObj_TypeDef *dev);
 static int32_t SimDevW25Qxx_Get_SectionByDataAddress(SimDevW25QxxObj_TypeDef *dev, uint32_t addr);
+static SimDevW25Qxx_Error_List SimDevW25Qxx_WriteSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr, uint8_t *tx, uint32_t size);
+static SimDevW25Qxx_Error_List SimDevW25Qxx_ReadSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr, uint8_t *rx, uint32_t size);
+static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr);
+static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseChip(SimDevW25QxxObj_TypeDef *dev);
 
 SimDevW25Qxx_TypeDef SimDevW25Qxx = {
     .init = SimDevW25Qxx_Init,
     .info = SimDevW25Qxx_GetInfo,
     .get_section_start_addr = SimDevW25Qxx_Get_SectionByDataAddress,
+    .write_sector = SimDevW25Qxx_WriteSector,
+    .read_sector = SimDevW25Qxx_ReadSector,
+    .erase_sector = SimDevW25Qxx_EraseSector,
+    .erase_chip = SimDevW25Qxx_EraseChip,
 };
 
 static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
@@ -105,4 +116,71 @@ static int32_t SimDevW25Qxx_Get_SectionByDataAddress(SimDevW25QxxObj_TypeDef *de
         return -1;
 
     return (addr / dev->info.sector_size);
+}
+
+/* only support write or read whole sector with whole size from the first byte */
+static SimDevW25Qxx_Error_List SimDevW25Qxx_WriteSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr, uint8_t *tx, uint32_t size)
+{
+    uint16_t ret = 0;
+
+    if ((dev == NULL) || \
+        (dev->start_time == 0) || \
+        (dev->bus_write == NULL) || \
+        (addr % dev->info.sector_size) || \
+        (tx == NULL) || (dev->info.sector_size != size))
+        return SimDevW25Qxx_Error;
+
+    ret = dev->bus_write(addr, tx, size, W25QXX_TIMEOUT);
+    if (ret == 0)
+        return SimDevW25Qxx_Error;
+
+    return SimDevW25Qxx_Ok;
+}
+
+static SimDevW25Qxx_Error_List SimDevW25Qxx_ReadSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr, uint8_t *rx, uint32_t size)
+{
+    uint16_t ret = 0;
+
+    if ((dev == NULL) || \
+        (dev->start_time == 0) || \
+        (dev->bus_read == NULL) || \
+        (addr % dev->info.sector_size) || \
+        (rx == NULL) || (dev->info.sector_size != size))
+        return SimDevW25Qxx_Error;
+    
+    ret = dev->bus_read(addr, rx, size, W25QXX_TIMEOUT);
+    if (ret == 0)
+        return SimDevW25Qxx_Error;
+
+    return SimDevW25Qxx_Ok;
+}
+
+static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr)
+{
+    if ((dev == NULL) || \
+        (dev->start_time == 0) || \
+        (dev->bus_write == NULL) || \
+        (addr % dev->info.sector_size))
+        return SimDevW25Qxx_Error;
+    
+    uint8_t tmp_buf[dev->info.sector_size];
+    memset(tmp_buf, DEFAULT_DATA, dev->info.sector_size);
+
+    /* write 0xFF to target sector */
+    return SimDevW25Qxx_WriteSector(dev, addr, tmp_buf, dev->info.sector_size);
+}
+
+static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseChip(SimDevW25QxxObj_TypeDef *dev)
+{
+    if ((dev == NULL) || \
+        (dev->start_time == 0))
+        return SimDevW25Qxx_Error;
+
+    for (uint16_t i = 0; i < dev->info.sector_size; i ++)
+    {
+        if (SimDevW25Qxx_EraseSector(dev, (i * dev->info.sector_size)) != SimDevW25Qxx_Ok)
+            return SimDevW25Qxx_Error;
+    }
+
+    return SimDevW25Qxx_Ok;
 }

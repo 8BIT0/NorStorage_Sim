@@ -14,6 +14,7 @@ typedef struct
     uint32_t size;
     uint8_t *p_buf;
     
+    char *file_name;
     char *simdata_path_str;
 
     FILE *simdata_file;
