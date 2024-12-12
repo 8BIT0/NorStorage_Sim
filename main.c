@@ -15,8 +15,7 @@ int main(int argc, char **argv)
     obj.malloc = malloc;
     obj.free = free;
     
-    // SimDataFile.create(&obj, "test", 1);
-    printf("argv %s\r\n", argv[0]);
+    SimDataFile.create(&obj, argv[0], "test", 1);
 
     SimModule_Init();
     return 0;

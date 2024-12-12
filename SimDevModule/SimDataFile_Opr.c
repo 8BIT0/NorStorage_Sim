@@ -1,7 +1,12 @@
 #include "SimDataFile_Opr.h"
 #include "util.h"
 
-#define SimDataFile_Folder  "\\SimData"
+#if defined WIN
+#define Folder_Split  "\\"
+#elif defined MAC || defined LINUX
+#define Folder_Split  "/"
+#endif
+#define SimDataFile_Folder  "SimData"
 #define SimDataFile_Extend  ".sim"
 #define SimDataFile_MKDIR   "mkdir "
 
@@ -9,12 +14,12 @@
 #define SIMDATA_PRINT(stage, fmt, ...) Debug_Print(SIMDATA_TAG, stage, fmt, ##__VA_ARGS__) 
 
 /* internal function */
-static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj);
+static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const char *app_path);
 static bool SimDataFile_CheckFile(SimDataFileObj_TypeDef *data_obj, char *file_name);
 static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj);
 
 /* external function */
-static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *file_n, uint8_t mb_size);
+static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
 static SimDataFileStream_TypeDef SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj);
 
 SimDataFile_TypeDef SimDataFile = {
@@ -39,7 +44,7 @@ static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj)
     }
 }
 
-static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *file_n, uint8_t mb_size)
+static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size)
 {
     uint16_t file_name_size = 0;
     uint32_t write_size = 0;
@@ -53,7 +58,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
     }
 
     /* check folder */
-    if (!SimDataFile_CreateFolder(data_obj))
+    if (!SimDataFile_CreateFolder(data_obj, app_path))
         return false;
 
     if (data_obj->p_buf != NULL)
@@ -63,6 +68,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
     }
 
     /* create sim data file */
+    SIMDATA_PRINT("create SimData file", "start");
     file_name_size = strlen(file_n) + strlen(SimDataFile_Extend) + strlen(data_obj->simdata_path_str);
     data_obj->p_buf = data_obj->malloc(file_name_size);
     data_obj->simdata_file = NULL;
@@ -82,7 +88,6 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
         data_obj->p_buf = NULL;
         return true;
     }
-
     memset(data_obj->p_buf, '\0', file_name_size);
 
     /* create sim data file */
@@ -127,7 +132,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *fil
     return true;
 }
 
-static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj)
+static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const char *app_path)
 {
     char *path_offset = data_obj->simdata_path_str;
     uint16_t path_len = 0;
@@ -136,13 +141,13 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj)
 
     if (data_obj->simdata_path_str == NULL)
     {
-        // app_dir = dirname(_pgmptr);
+        app_dir = dirname((char *)app_path);
         path_offset = NULL;
 
         /* create sub folder in the same path of application*/
         /* create path name string */
         SIMDATA_PRINT("application path", "%s", app_dir);
-        path_len = strlen(app_dir) + strlen(SimDataFile_Folder);
+        path_len = strlen(app_dir) + strlen(Folder_Split) + strlen(SimDataFile_Folder);
         data_obj->simdata_path_str = data_obj->malloc(path_len);
         path_len += strlen(SimDataFile_MKDIR);
         data_obj->p_buf = data_obj->malloc(path_len);
@@ -157,6 +162,7 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj)
         
         path_offset = (char *)(data_obj->p_buf + strlen(SimDataFile_MKDIR));
         strcpy(path_offset, app_dir);
+        strcat(path_offset, Folder_Split);
         strcat(path_offset, SimDataFile_Folder);
         memcpy(data_obj->p_buf, SimDataFile_MKDIR, strlen(SimDataFile_MKDIR));
         strcpy(data_obj->simdata_path_str, path_offset);
