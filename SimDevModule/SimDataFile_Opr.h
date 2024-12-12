@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <libgen.h>
+#include "SysCommon.h"
 
 typedef struct
 {
@@ -26,18 +27,12 @@ typedef struct
 
 typedef struct
 {
-    uint32_t size;
-    uint8_t *p_buf;
-} SimDataFileStream_TypeDef;
-
-typedef struct
-{
     bool (*create)(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
 
     uint16_t (*write)(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
     uint16_t (*read)(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
 
-    SimDataFileStream_TypeDef (*dump_file)(SimDataFileObj_TypeDef *data_obj);
+    bool (*dump_file)(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
 } SimDataFile_TypeDef;
 
 extern SimDataFile_TypeDef SimDataFile;

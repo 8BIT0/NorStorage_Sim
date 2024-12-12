@@ -21,11 +21,13 @@ static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj);
 /* external function */
 static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
 static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
-static SimDataFileStream_TypeDef SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj);
+static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
+static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
 
 SimDataFile_TypeDef SimDataFile = {
     .create = SimDataFile_Create,
     .write = SimDataFile_WriteSize,
+    .read = SimDataFile_ReadSize,
 };
 
 static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj)
@@ -300,13 +302,13 @@ static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t
         return 0;
     }
 
+    /* close file */
     if (fseek(data_obj->simdata_file, 0, 0) != 0)
     {
         SIMDATA_PRINT("write file", "seek to start failed");
         return 0;
     }
 
-    /* close file */
     if (fclose(data_obj->simdata_file) != 0)
     {
         SIMDATA_PRINT("write file", "Close file failed");
@@ -325,26 +327,59 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
         (data_obj->file_name == NULL) || \
         (p_data == NULL) || (size == 0))
         return 0;
+    
+    memset(name_buf, '\0', (strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name)));
+    strcpy(name_buf, data_obj->simdata_path_str);
+    strcat(name_buf, Folder_Split);
+    strcat(name_buf, data_obj->file_name);
 
     /* open file */
+    if ((data_obj->simdata_file = fopen(name_buf, "rb+")) == NULL)
+    {
+        SIMDATA_PRINT("write file", "Open file %s failed", data_obj->file_name);
+        return 0;
+    }
+
+    if (fseek(data_obj->simdata_file, data_addr, 0) != 0)
+    {
+        SIMDATA_PRINT("write file", "seek to %d failed", data_addr);
+        return 0;
+    }
+
+    /* read file */
+    if (fread(p_data, sizeof(uint8_t), size, data_obj->simdata_file) <= 0)
+    {
+        SIMDATA_PRINT("read file", "failed");
+        return 0;
+    }
 
     /* close file */
-    
+   if (fseek(data_obj->simdata_file, 0, 0) != 0)
+    {
+        SIMDATA_PRINT("write file", "seek to start failed");
+        return 0;
+    }
+
+    if (fclose(data_obj->simdata_file) != 0)
+    {
+        SIMDATA_PRINT("write file", "Close file failed");
+        return 0;
+    }
+
     return 0;
 }
 
-static SimDataFileStream_TypeDef SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj)
+static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream)
 {
-    SimDataFileStream_TypeDef stream_tmp;
     memset(&stream_tmp, 0, sizeof(SimDataFileStream_TypeDef));
 
     if ((data_obj != NULL) && \
-        (data_obj->p_buf != NULL) && \
-        (data_obj->size != 0) && \
-        (data_obj->simdata_file != NULL))
+        (data_obj->simdata_file != NULL) && \
+        (stream != NULL) &&
+        (stream->p_buf != NULL))
     {
 
     }
 
-    return stream_tmp;
+    return false;
 }
