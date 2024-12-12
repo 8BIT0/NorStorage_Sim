@@ -371,8 +371,6 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
 
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream)
 {
-    memset(&stream_tmp, 0, sizeof(SimDataFileStream_TypeDef));
-
     if ((data_obj != NULL) && \
         (data_obj->simdata_file != NULL) && \
         (stream != NULL) &&
