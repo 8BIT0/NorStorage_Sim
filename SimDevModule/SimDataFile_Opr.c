@@ -369,6 +369,19 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
     return 0;
 }
 
+/* still in developping */
+static uint32_t SimDataFile_GetSize(SimDataFileObj_TypeDef *data_obj)
+{
+    if ((data_obj == NULL) || \
+        (data_obj->file_name == NULL) || \
+        (strlen(data_obj->file_name) == 0) || \
+        (data_obj->simdata_path_str == NULL) || \
+        (strlen(data_obj->simdata_path_str) == 0))
+        return 0;
+
+    return 0;
+}
+
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream)
 {
     if ((data_obj != NULL) && \
