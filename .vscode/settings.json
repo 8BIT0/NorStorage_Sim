@@ -8,6 +8,7 @@
         "crtdefs.h": "c",
         "corecrt.h": "c",
         "stdlib.h": "c",
-        "dirent.h": "c"
+        "dirent.h": "c",
+        "storage_dev_port.h": "c"
     }
 }

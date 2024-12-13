@@ -68,7 +68,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
         SIMDATA_PRINT("create SimData", "Invalid parameter");
         return false;
     }
-    data_obj->size = Mb(mb_size);
+    data_obj->size = (mb_size Mb);
 
     /* check folder */
     if (!SimDataFile_CreateFolder(data_obj, app_path))

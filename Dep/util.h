@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define Kb(x)  (x * 1024)
-#define Mb(x)  (x * Kb(1024))
+#define Kb   * 1024
+#define Mb   * 1024 Kb
 
 void Debug_Print(const char *tag, const char *stage, const char *fmt, ...);
 
