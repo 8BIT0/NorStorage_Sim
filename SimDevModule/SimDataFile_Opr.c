@@ -17,12 +17,14 @@
 static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const char *app_path);
 static bool SimDataFile_CheckFile(SimDataFileObj_TypeDef *data_obj, char *file_name);
 static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj);
+static uint32_t SimDataFile_GetSize(SimDataFileObj_TypeDef *data_obj);
 
 /* external function */
 static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
 static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
 static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
+static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
 
 SimDataFile_TypeDef SimDataFile = {
     .create = SimDataFile_Create,
@@ -366,12 +368,14 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
         return 0;
     }
 
-    return 0;
+    return size;
 }
 
-/* still in developping */
 static uint32_t SimDataFile_GetSize(SimDataFileObj_TypeDef *data_obj)
 {
+    char name_buf[strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name) + strlen(Folder_Split)];
+    uint32_t file_size = 0;
+
     if ((data_obj == NULL) || \
         (data_obj->file_name == NULL) || \
         (strlen(data_obj->file_name) == 0) || \
@@ -379,17 +383,86 @@ static uint32_t SimDataFile_GetSize(SimDataFileObj_TypeDef *data_obj)
         (strlen(data_obj->simdata_path_str) == 0))
         return 0;
 
-    return 0;
+    memset(name_buf, '\0', (strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name)));
+    strcpy(name_buf, data_obj->simdata_path_str);
+    strcat(name_buf, Folder_Split);
+    strcat(name_buf, data_obj->file_name);
+
+    /* open file */
+    if ((data_obj->simdata_file = fopen(name_buf, "rb+")) == NULL)
+    {
+        SIMDATA_PRINT("write file", "Open file %s failed", data_obj->file_name);
+        return 0;
+    }
+
+    if (fseek(data_obj->simdata_file, 0, SEEK_END) != 0)
+    {
+        SIMDATA_PRINT("write file", "seek to end failed");
+        return 0;
+    }
+
+    file_size = ftell(data_obj->simdata_file);
+
+   if (fseek(data_obj->simdata_file, 0, SEEK_SET) != 0)
+    {
+        SIMDATA_PRINT("write file", "seek to start failed");
+        return 0;
+    }
+
+    /* close file */
+    if (fclose(data_obj->simdata_file) != 0)
+    {
+        SIMDATA_PRINT("write file", "Close file failed");
+        return 0;
+    }
+
+    return file_size;
 }
 
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream)
 {
+    uint32_t file_size = SimDataFile_GetSize(data_obj);
+    char name_buf[strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name) + strlen(Folder_Split)];
+
     if ((data_obj != NULL) && \
         (data_obj->simdata_file != NULL) && \
-        (stream != NULL) &&
+        (stream != NULL) && \
+        (stream->size == file_size) && \
         (stream->p_buf != NULL))
     {
+        memset(name_buf, '\0', (strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name)));
+        strcpy(name_buf, data_obj->simdata_path_str);
+        strcat(name_buf, Folder_Split);
+        strcat(name_buf, data_obj->file_name);
+        
+        /* open file */
+        if ((data_obj->simdata_file = fopen(name_buf, "rb+")) == NULL)
+        {
+            SIMDATA_PRINT("dump file", "Open file %s failed", name_buf);
+            return false;
+        }
+        
+        if (fseek(data_obj->simdata_file, 0, 0) != 0)
+        {
+            SIMDATA_PRINT("dump file", "seek to start failed");
+            return false;
+        }
 
+        /* read file */
+        if (fread(stream->p_buf, sizeof(uint8_t), file_size, data_obj->simdata_file) <= 0)
+        {
+            SIMDATA_PRINT("dump file", "failed");
+            return false;
+        }
+
+        /* close file */
+        if (fclose(data_obj->simdata_file) != 0)
+        {
+            SIMDATA_PRINT("dump file", "Close file failed");
+            return false;
+        }
+    
+        return true;
     }
 
     return false;
