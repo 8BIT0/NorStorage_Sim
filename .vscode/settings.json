@@ -9,6 +9,7 @@
         "corecrt.h": "c",
         "stdlib.h": "c",
         "dirent.h": "c",
-        "storage_dev_port.h": "c"
+        "storage_dev_port.h": "c",
+        "storage_bus_port.h": "c"
     }
 }
