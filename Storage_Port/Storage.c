@@ -111,7 +111,7 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
     }
 
     Storage_Monitor.ExtDev_ptr = ExtDev;
-    Storage_Monitor.ExternalFlash_ReInit_cnt = ExternalModule_ReInit_Cnt;
+    Storage_Monitor.ExternalFlash_ReInit_cnt = Module_ReInit_Cnt;
 
 reinit_external_flash_module:
     Storage_Monitor.ExternalFlash_Error_Code = Storage_Error_None;
@@ -129,7 +129,7 @@ reinit_external_flash_module:
     }
 
     /* set external flash device read write base address */
-    Storage_Monitor.external_info.base_addr = ExtFlash_Start_Addr;
+    Storage_Monitor.external_info.base_addr = Flash_Start_Addr;
     Storage_Monitor.ExternalFlash_Format_cnt = Format_Retry_Cnt;
 reupdate_external_flash_info:
     /* get storage info */
@@ -142,7 +142,7 @@ reformat_external_flash_info:
             if (!Storage_Format())
             {
                 Storage_Monitor.ExternalFlash_Format_cnt --;
-                Storage_Monitor.external_info.base_addr = ExtFlash_Start_Addr;
+                Storage_Monitor.external_info.base_addr = Flash_Start_Addr;
                 if (Storage_Monitor.ExternalFlash_Format_cnt == 0)
                     return false;
                     
@@ -194,10 +194,10 @@ static bool Storage_Format(void)
     uint32_t addr_offset = From_Start_Address;
         
     size = Storage_TabSize;
-    default_data = ExtFlash_Storage_DefaultData;
-    remain_size = ExtFlash_Storage_TotalSize;
-    read_time = ExtFlash_Storage_TotalSize / Storage_TabSize;
-    if (ExtFlash_Storage_TotalSize % Storage_TabSize)
+    default_data = Flash_Storage_DefaultData;
+    remain_size = Flash_Storage_TotalSize;
+    read_time = Flash_Storage_TotalSize / Storage_TabSize;
+    if (Flash_Storage_TotalSize % Storage_TabSize)
         read_time ++;
 
     for(uint32_t i = 0; i < read_time; i++)
@@ -1422,11 +1422,11 @@ static bool Storage_Build_StorageInfo(void)
     memset(&Info_Rx, 0, sizeof(Storage_FlashInfo_TypeDef));
     memcpy(Info.tag, EXTERNAL_STORAGE_PAGE_TAG, EXTERNAL_PAGE_TAG_SIZE);
 
-    Info.total_size = ExtFlash_Storage_TotalSize;
+    Info.total_size = Flash_Storage_TotalSize;
     Info.base_addr = Storage_Monitor.external_info.base_addr;
     
     BaseInfo_start_addr = Info.base_addr;
-    page_num = Storage_ExtFlash_Max_Capacity / (ExtFlash_Storage_TabSize / StorageItem_Size);
+    page_num = Storage_ExtFlash_Max_Capacity / (Flash_Storage_TabSize / StorageItem_Size);
     if (page_num == 0)
         return false;
     

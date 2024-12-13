@@ -17,7 +17,7 @@ extern "C" {
 #define Storage_Assert(x)               while(x)
 
 #define Format_Retry_Cnt                5
-#define ExternalModule_ReInit_Cnt       5
+#define Module_ReInit_Cnt               5
 
 #define Storage_ErrorCode_ToStr(x)      #x
 
@@ -32,7 +32,6 @@ extern "C" {
 #define Storage_ExtFlash_Max_Capacity   (1 Kb)
 
 #define EXTERNAL_STORAGE_PAGE_TAG       "[ExternalFlash Storage]"
-#define INTERNAL_PAGE_TAG_SIZE          strlen(INTERNAL_STORAGE_PAGE_TAG)
 #define EXTERNAL_PAGE_TAG_SIZE          strlen(EXTERNAL_STORAGE_PAGE_TAG)
 
 #define STORAGE_NAME_LEN                41
@@ -43,6 +42,10 @@ extern "C" {
 #define STORAGE_DATA_ALIGN              4
 #define STORAGE_MIN_BYTE_SIZE           1
 #define STORAGE_FREEITEM_NAME           "Item_Avaliable"
+
+#define Flash_Start_Addr                0
+#define Flash_Storage_DefaultData       0xFF
+#define Flash_Storage_TotalSize         (4 Mb)
 
 #ifdef __cplusplus
 }
