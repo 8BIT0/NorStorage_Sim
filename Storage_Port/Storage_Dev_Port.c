@@ -77,8 +77,6 @@ static bool Storage_Dev_Set(StorageDevObj_TypeDef *ext_dev)
         To_DevW25Qxx_OBJ(ext_dev->obj)->bus_tx    = StoragePort_Api.bus_tx;
         To_DevW25Qxx_OBJ(ext_dev->obj)->bus_rx    = StoragePort_Api.bus_rx;
         To_DevW25Qxx_OBJ(ext_dev->obj)->delay_ms  = SrvOsCommon.delay_ms;
-
-        STORAGE_DEV_INFO(" W25Qxx selected\r\n");
         return true;
     }
     
@@ -99,7 +97,6 @@ static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, u
             (To_DevW25Qxx_API(ext_dev->api)->info == NULL))
             return false;
 
-        STORAGE_DEV_INFO(" W25Qxx initializing\r\n");
         init_state = To_DevW25Qxx_API(ext_dev->api)->init(To_DevW25Qxx_OBJ(ext_dev->obj));
         *p_type = To_DevW25Qxx_API(ext_dev->api)->info(To_DevW25Qxx_OBJ(ext_dev->obj)).prod_type;
         *p_code = To_DevW25Qxx_API(ext_dev->api)->info(To_DevW25Qxx_OBJ(ext_dev->obj)).prod_code;

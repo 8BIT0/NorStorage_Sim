@@ -21,9 +21,9 @@ static uint32_t SimDataFile_GetSize(SimDataFileObj_TypeDef *data_obj);
 
 /* external function */
 static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
-static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
+static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint8_t *p_data, uint16_t size);
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
-static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size);
+static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint8_t *p_data, uint16_t size);
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
 
 SimDataFile_TypeDef SimDataFile = {
@@ -269,7 +269,7 @@ static bool SimDataFile_CheckFile(SimDataFileObj_TypeDef *data_obj, char *file_n
     return false;
 }
 
-static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size)
+static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint8_t *p_data, uint16_t size)
 {
     char name_buf[strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name) + strlen(Folder_Split)];
 
@@ -288,15 +288,18 @@ static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t
     if ((data_obj->simdata_file = fopen(name_buf, "rb+")) == NULL)
     {
         SIMDATA_PRINT("write file", "Open file %s failed", data_obj->file_name);
+        data_obj->opr_addr = 0;
         return 0;
     }
 
-    if (fseek(data_obj->simdata_file, data_addr, 0) != 0)
+    if (fseek(data_obj->simdata_file, data_obj->opr_addr, 0) != 0)
     {
-        SIMDATA_PRINT("write file", "seek to %d failed", data_addr);
+        SIMDATA_PRINT("write file", "seek to %d failed", data_obj->opr_addr);
+        data_obj->opr_addr = 0;
         return 0;
     }
 
+    data_obj->opr_addr = 0;
     /* write to file */
     if (fwrite(p_data, sizeof(uint8_t), size, data_obj->simdata_file) <= 0)
     {
@@ -320,7 +323,7 @@ static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t
     return size;
 }
 
-static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t data_addr, uint8_t *p_data, uint16_t size)
+static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint8_t *p_data, uint16_t size)
 {
     char name_buf[strlen(data_obj->simdata_path_str) + strlen(data_obj->file_name) + strlen(Folder_Split)];
     
@@ -339,15 +342,18 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
     if ((data_obj->simdata_file = fopen(name_buf, "rb+")) == NULL)
     {
         SIMDATA_PRINT("write file", "Open file %s failed", data_obj->file_name);
+        data_obj->opr_addr = 0;
         return 0;
     }
 
-    if (fseek(data_obj->simdata_file, data_addr, 0) != 0)
+    if (fseek(data_obj->simdata_file, data_obj->opr_addr, 0) != 0)
     {
-        SIMDATA_PRINT("write file", "seek to %d failed", data_addr);
+        SIMDATA_PRINT("write file", "seek to %d failed", data_obj->opr_addr);
+        data_obj->opr_addr = 0;
         return 0;
     }
 
+    data_obj->opr_addr = 0;
     /* read file */
     if (fread(p_data, sizeof(uint8_t), size, data_obj->simdata_file) <= 0)
     {

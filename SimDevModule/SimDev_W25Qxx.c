@@ -125,12 +125,12 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_WriteSector(SimDevW25QxxObj_TypeDef 
 
     if ((dev == NULL) || \
         (dev->start_time == 0) || \
-        (dev->bus_write == NULL) || \
+        (dev->bus_tx == NULL) || \
         (addr % dev->info.sector_size) || \
         (tx == NULL) || (dev->info.sector_size != size))
         return SimDevW25Qxx_Error;
 
-    ret = dev->bus_write(addr, tx, size, W25QXX_TIMEOUT);
+    ret = dev->bus_tx(dev->bus_obj, addr, tx, size, W25QXX_TIMEOUT);
     if (ret == 0)
         return SimDevW25Qxx_Error;
 
@@ -143,12 +143,12 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_ReadSector(SimDevW25QxxObj_TypeDef *
 
     if ((dev == NULL) || \
         (dev->start_time == 0) || \
-        (dev->bus_read == NULL) || \
+        (dev->bus_rx == NULL) || \
         (addr % dev->info.sector_size) || \
         (rx == NULL) || (dev->info.sector_size != size))
         return SimDevW25Qxx_Error;
     
-    ret = dev->bus_read(addr, rx, size, W25QXX_TIMEOUT);
+    ret = dev->bus_rx(dev->bus_obj, addr, rx, size, W25QXX_TIMEOUT);
     if (ret == 0)
         return SimDevW25Qxx_Error;
 
@@ -159,7 +159,6 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseSector(SimDevW25QxxObj_TypeDef 
 {
     if ((dev == NULL) || \
         (dev->start_time == 0) || \
-        (dev->bus_write == NULL) || \
         (addr % dev->info.sector_size))
         return SimDevW25Qxx_Error;
     

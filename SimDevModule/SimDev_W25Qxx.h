@@ -9,6 +9,7 @@
 #define To_DevW25Qxx_API(x)     ((SimDevW25Qxx_TypeDef *)x)
 #define To_DevW25Qxx_OBJ(x)     ((SimDevW25QxxObj_TypeDef *)x)
 
+#define W25QXX_BASE_ADDRESS     0x00000000
 #define W25QXX_PAGE_SIZE        0x100
 #define W25QXX_SECTOR_SIZE      0x1000
 #define W25QXX_BLOCK_SIZE       0x10000
@@ -85,6 +86,7 @@ typedef enum
 typedef struct
 {
     SimDevW25Qxx_Type_List prod_type;
+    uint16_t prod_code;
     const char *name;
 
     uint32_t start_addr;
@@ -107,8 +109,9 @@ typedef struct
     uint32_t start_time;
     uint32_t opr_time;
 
-    uint16_t (*bus_read)(uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
-    uint16_t (*bus_write)(uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
+    void *bus_obj;
+    uint16_t (*bus_rx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
+    uint16_t (*bus_tx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
 } SimDevW25QxxObj_TypeDef;
 
 typedef struct
