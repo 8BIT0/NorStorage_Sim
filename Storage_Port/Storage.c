@@ -7,8 +7,9 @@
  * 
  * NOTICED: STORAGE MODULE ONLY SUPPORT NOR-FLASH
  */
+#include <stdlib.h>
 #include "Storage.h"
-#include "util.h"
+#include "../Dep/util.h"
 #include "Storage_Bus_Port.h"
 #include "Storage_Dev_Port.h"
 
@@ -24,7 +25,7 @@
 
 /* internal vriable */
 Storage_Monitor_TypeDef Storage_Monitor;
-static uint8_t page_data_tmp[Storage_TabSize * 2] __attribute__((aligned(4))) = {0};
+static uint8_t page_data_tmp[(Storage_TabSize * 2)] __attribute__((aligned(4))) = {0};
 
 static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num);
 static bool Storage_Establish_Tab(Storage_ParaClassType_List class);
@@ -49,13 +50,6 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
 static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List _class, storage_handle data_slot_hdl, uint8_t *p_data, uint16_t size);
 static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List _class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t size);
 static Storage_ErrorCode_List Storage_Get_DevInfo(StorageDevObj_TypeDef *info);
-static bool Storage_Write_Section(uint32_t addr, uint8_t *p_data, uint16_t len);
-static bool Storage_Read_Section(uint32_t addr, uint8_t *p_data, uint16_t len);
-static bool Storage_Erase_Section(uint32_t addr, uint16_t len);
-
-static bool Storage_Firmware_Format(void);
-static bool Storage_Frimware_Read(uint32_t addr_offset, uint8_t *p_data, uint16_t size);
-static bool Storage_Firmware_Write(Storage_MediumType_List medium, uint32_t addr_offset, uint8_t *p_data, uint16_t size);
 
 Storage_TypeDef Storage = {
     .init = Storage_Init,
@@ -65,13 +59,13 @@ Storage_TypeDef Storage = {
     .update = Storage_SlotData_Update,
     .get_dev_info = Storage_Get_DevInfo,
 
-    .write_section = Storage_Write_Section,
-    .read_section = Storage_Read_Section,
-    .erase_section = Storage_Erase_Section,
+    .write_section = NULL,
+    .read_section = NULL,
+    .erase_section = NULL,
 
-    .format_firmware = Storage_Firmware_Format,
-    .read_firmware = Storage_Frimware_Read,
-    .write_firmware = Storage_Firmware_Write,
+    .format_firmware = NULL,
+    .read_firmware = NULL,
+    .write_firmware = NULL,
 };
 
 static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)

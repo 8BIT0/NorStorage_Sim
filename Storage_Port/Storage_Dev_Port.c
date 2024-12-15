@@ -1,3 +1,4 @@
+#include "Storage_Bus_Port.h"
 #include "Storage_Dev_Port.h"
 #include "Storage_Def.h"
 
@@ -5,7 +6,8 @@
 /* add you own headers on this file */
 
 /* only when sim use this header */
-#include "SimDataFile_Opr.h"
+#include "../Dep/Runtime.h"
+#include "../SimDevModule/SimDataFile_Opr.h"
 #include "SimDev_W25Qxx.h"
 
 #define Storage_Dev_GetSstsTick SrvOsCommon.get_os_ms
@@ -72,11 +74,11 @@ static bool Storage_Dev_Set(StorageDevObj_TypeDef *ext_dev)
         if (ext_dev->obj == NULL)
             return false;
 
-        To_DevW25Qxx_OBJ(ext_dev->obj)->systick   = Storage_Dev_GetSstsTick;
-        To_DevW25Qxx_OBJ(ext_dev->obj)->cs_ctl    = StoragePort_Api.cs_ctl;
+        To_DevW25Qxx_OBJ(ext_dev->obj)->systick   = Runtime.get_ms;
+        To_DevW25Qxx_OBJ(ext_dev->obj)->cs_ctl    = NULL;
         To_DevW25Qxx_OBJ(ext_dev->obj)->bus_tx    = StoragePort_Api.bus_tx;
         To_DevW25Qxx_OBJ(ext_dev->obj)->bus_rx    = StoragePort_Api.bus_rx;
-        To_DevW25Qxx_OBJ(ext_dev->obj)->delay_ms  = SrvOsCommon.delay_ms;
+        To_DevW25Qxx_OBJ(ext_dev->obj)->delay_ms  = NULL;
         return true;
     }
     

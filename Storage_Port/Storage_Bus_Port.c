@@ -9,8 +9,8 @@
 
 /* external function */
 static void *Storage_External_Chip_Bus_Init(StorageBus_Malloc_Callback p_malloc, StorageBus_Free_Callback p_free);
-static uint16_t Storage_External_Chip_BusTx(uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
-static uint16_t Storage_External_Chip_BusRx(uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
+static uint16_t Storage_External_Chip_BusTx(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
+static uint16_t Storage_External_Chip_BusRx(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
 
 StorageBusApi_TypeDef StoragePort_Api = {
     .init = Storage_External_Chip_Bus_Init,
@@ -43,21 +43,21 @@ static void* Storage_External_Chip_Bus_Init(StorageBus_Malloc_Callback p_malloc,
     return file_obj;
 }
 
-static uint16_t Storage_External_Chip_BusTx(uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out)
+static uint16_t Storage_External_Chip_BusTx(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out)
 {
     if (p_data && len)
     {
-        SimDataFile.write();
+        SimDataFile.write((SimDataFileObj_TypeDef *)bus_obj, addr, p_data, len);
     }
 
     return 0;
 }
 
-static uint16_t Storage_External_Chip_BusRx(uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out)
+static uint16_t Storage_External_Chip_BusRx(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out)
 {
     if (p_data && len)
     {
-        SimDataFile.read();
+        SimDataFile.read((SimDataFileObj_TypeDef *)bus_obj, addr, p_data, len);
     }
 
     return 0;

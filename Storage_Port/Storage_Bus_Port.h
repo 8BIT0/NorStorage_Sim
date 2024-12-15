@@ -16,8 +16,8 @@ typedef struct
 {
     void* (*init)(StorageBus_Malloc_Callback p_malloc, StorageBus_Free_Callback p_free);
     bool (*cs_ctl)(bool en);
-    uint16_t (*bus_tx)(uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
-    uint16_t (*bus_rx)(uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
+    uint16_t (*bus_tx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
+    uint16_t (*bus_rx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out);
     uint16_t (*bus_trans)(uint8_t *tx, uint8_t *rx, uint16_t len, uint32_t time_out);
 } StorageBusApi_TypeDef;
 

@@ -15,8 +15,6 @@ typedef struct
     uint32_t size;
     uint8_t *p_buf;
     
-    uint32_t opr_addr;
-
     char *file_name;
     char *simdata_path_str;
 
@@ -31,8 +29,8 @@ typedef struct
 {
     bool (*create)(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
 
-    uint16_t (*write)(SimDataFileObj_TypeDef *data_obj, uint8_t *p_data, uint16_t size);
-    uint16_t (*read)(SimDataFileObj_TypeDef *data_obj, uint8_t *p_data, uint16_t size);
+    uint16_t (*write)(SimDataFileObj_TypeDef *data_obj, uint32_t addr, uint8_t *p_data, uint16_t size);
+    uint16_t (*read)(SimDataFileObj_TypeDef *data_obj, uint32_t addr, uint8_t *p_data, uint16_t size);
 
     bool (*dump_file)(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
 } SimDataFile_TypeDef;
