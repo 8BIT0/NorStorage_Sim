@@ -197,10 +197,8 @@ static bool Storage_Format(void)
         if ((remain_size != 0) && (remain_size < size))
             size = remain_size;
 
-        if (!StorageDev.param_erase(Storage_Monitor.ExtDev_ptr, Storage_Monitor.external_info.base_addr, addr_offset, size))
-            return false;
-
-        if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, Storage_Monitor.external_info.base_addr, addr_offset, page_data_tmp, size))
+        if (!StorageDev.param_erase(Storage_Monitor.ExtDev_ptr, Storage_Monitor.external_info.base_addr, addr_offset, size) || \
+            !StorageDev.param_read(Storage_Monitor.ExtDev_ptr, Storage_Monitor.external_info.base_addr, addr_offset, page_data_tmp, size))
             return false;
 
         for(uint32_t j = 0; j < size; j++)

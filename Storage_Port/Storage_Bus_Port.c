@@ -46,9 +46,7 @@ static void* Storage_External_Chip_Bus_Init(StorageBus_Malloc_Callback p_malloc,
 static uint16_t Storage_External_Chip_BusTx(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out)
 {
     if (p_data && len)
-    {
-        SimDataFile.write((SimDataFileObj_TypeDef *)bus_obj, addr, p_data, len);
-    }
+        return SimDataFile.write((SimDataFileObj_TypeDef *)bus_obj, addr, p_data, len);
 
     return 0;
 }
@@ -56,9 +54,7 @@ static uint16_t Storage_External_Chip_BusTx(void *bus_obj, uint32_t addr, uint8_
 static uint16_t Storage_External_Chip_BusRx(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t len, uint32_t time_out)
 {
     if (p_data && len)
-    {
-        SimDataFile.read((SimDataFileObj_TypeDef *)bus_obj, addr, p_data, len);
-    }
+        return SimDataFile.read((SimDataFileObj_TypeDef *)bus_obj, addr, p_data, len);
 
     return 0;
 }
