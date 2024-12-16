@@ -23,11 +23,14 @@ extern "C" {
 typedef enum
 {
     Storage_Chip_None = 0,
+    /* Winband Serials */
     Storage_ChipType_W25Q08,
     Storage_ChipType_W25Q16,
     Storage_ChipType_W25Q32,
     Storage_ChipType_W25Q64,
     Storage_ChipType_W25Q128,
+
+    /* GD25 Serials */
     Storage_ChipType_All,
 } Storage_ExtFlashChipType_List;
 

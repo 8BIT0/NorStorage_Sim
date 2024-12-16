@@ -21,15 +21,7 @@ static void Sim_Free(void *ptr);
 
 int main(int argc, char **argv)
 {
-    memset(&SimDev, 0, sizeof(StorageDevObj_TypeDef));
-
-    SimDev.chip_type = Storage_ChipType_W25Q128;
-
-    /* create sim file */
     SimModule_Init(argv[0]);
-
-    /* storage module init */
-    Storage.init(&SimDev);
 
     /* main logic run */
     while (true)
@@ -47,9 +39,15 @@ static bool SimModule_Init(char *app_path)
     const char* folder_path = NULL;
     const char* sim_name = NULL;
     uint32_t file_size = 0;
+    bool module_init = false;
 
+    memset(&SimDev, 0, sizeof(StorageDevObj_TypeDef));
+    
     SimObj.malloc = Sim_Malloc;
     SimObj.free = Sim_Free;
+
+    SimDev.chip_type = Storage_ChipType_W25Q128;
+    SimDev.api = &SimDevW25Qxx;
     
     /* wait input sim type */
     while (true)
@@ -110,7 +108,16 @@ static bool SimModule_Init(char *app_path)
             sleep(10);
         }
 
-        return SimDataFile.create(&SimObj, app_path, sim_name, file_size);
+        if (SimDataFile.create(&SimObj, app_path, sim_name, file_size))
+        {
+            /* storage module init */
+            module_init = Storage.init(&SimDev);
+            
+            SIMULATION_PRINT("module init", "state %s", module_init ? "true" : "false");
+            return module_init;
+        }
+        
+        break;
     }
 
     return false;

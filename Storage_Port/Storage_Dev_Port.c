@@ -88,12 +88,12 @@ static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, u
         /* need to set simulation device type */
         switch (ext_dev->chip_type)
         {
-            case Storage_ChipType_W25Q08:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = Storage_ChipType_W25Q08;  break;
-            case Storage_ChipType_W25Q16:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = Storage_ChipType_W25Q16;  break;
-            case Storage_ChipType_W25Q32:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = Storage_ChipType_W25Q32;  break;
-            case Storage_ChipType_W25Q64:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = Storage_ChipType_W25Q64;  break;
-            case Storage_ChipType_W25Q128: To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = Storage_ChipType_W25Q128; break;
-            default: To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = Storage_ChipType_W25Q128; break;
+            case Storage_ChipType_W25Q08:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q08;  break;
+            case Storage_ChipType_W25Q16:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q16;  break;
+            case Storage_ChipType_W25Q32:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q32;  break;
+            case Storage_ChipType_W25Q64:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q64;  break;
+            case Storage_ChipType_W25Q128: To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q128; break;
+            default: To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q128; break;
         }
 
         init_state = To_DevW25Qxx_API(ext_dev->api)->init(To_DevW25Qxx_OBJ(ext_dev->obj));
