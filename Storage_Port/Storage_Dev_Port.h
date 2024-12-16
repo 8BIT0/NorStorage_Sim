@@ -9,8 +9,16 @@ extern "C" {
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include "../Dep/util.h"
+#include "SimDev_W25Qxx.h"
 
 #define To_StorageDevObj_Ptr(x) ((StorageDevObj_TypeDef *)x)
+
+#define Dev_W25Q08_MSize    W25Q08FV_FLASH_SIZE
+#define Dev_W25Q16_MSize    W25Q16FV_FLASH_SIZE
+#define Dev_W25Q32_MSize    W25Q32FV_FLASH_SIZE
+#define Dev_W25Q64_MSize    W25Q64FV_FLASH_SIZE
+#define Dev_W25Q128_MSize   W25Q128FV_FLASH_SIZE
 
 typedef enum
 {

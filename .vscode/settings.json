@@ -10,6 +10,9 @@
         "stdlib.h": "c",
         "dirent.h": "c",
         "storage_dev_port.h": "c",
-        "storage_bus_port.h": "c"
+        "storage_bus_port.h": "c",
+        "wououi.h": "c",
+        "storage.h": "c",
+        "runtime.h": "c"
     }
 }

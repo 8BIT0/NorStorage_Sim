@@ -20,7 +20,7 @@ static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj);
 static uint32_t SimDataFile_GetSize(SimDataFileObj_TypeDef *data_obj);
 
 /* external function */
-static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size);
+static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint32_t mb_size);
 static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t addr, uint8_t *p_data, uint16_t size);
 static bool SimDataFile_Dump(SimDataFileObj_TypeDef *data_obj, Stream_TypeDef *stream);
 static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t addr, uint8_t *p_data, uint16_t size);
@@ -56,7 +56,7 @@ static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj)
     }
 }
 
-static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint8_t mb_size)
+static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint32_t mb_size)
 {
     uint16_t file_name_size = 0;
     uint32_t write_size = 0;
@@ -68,7 +68,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
         SIMDATA_PRINT("create SimData", "Invalid parameter");
         return false;
     }
-    data_obj->size = (mb_size Mb);
+    data_obj->size = mb_size;
 
     /* check folder */
     if (!SimDataFile_CreateFolder(data_obj, app_path))

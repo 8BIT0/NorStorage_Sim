@@ -37,8 +37,6 @@ static bool Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free
 static Storage_ErrorCode_List Storage_ItemSlot_Update(uint32_t tab_addr, uint8_t item_index, Storage_BaseSecInfo_TypeDef *p_Sec, Storage_Item_TypeDef item);
 static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num);
 static bool Storage_Establish_Tab(Storage_ParaClassType_List class);
-static void* Storage_Malloc(uint32_t size);
-static void Storage_Free(void *ptr);
 
 /* external function */
 static bool Storage_Init(StorageDevObj_TypeDef *ExtDev);
@@ -77,6 +75,8 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
     if (ExtDev == NULL)
         return false;
 
+    /* doing bus init on your hardware platform */
+    /*
     Storage_Monitor.ExtDev_ptr = NULL;
     bus_cfg = StoragePort_Api.init(Storage_Malloc, Storage_Free);
     if (bus_cfg == NULL)
@@ -88,6 +88,7 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
 
     STORAGE_INFO("Bus init", "accomplished");
     Storage_Monitor.ExtBusCfg_Ptr = bus_cfg;
+    */
 
     if (ExtDev->chip_type >= Storage_ChipType_All)
     {
@@ -1555,15 +1556,4 @@ static Storage_BaseSecInfo_TypeDef* Storage_Get_SecInfo(Storage_FlashInfo_TypeDe
         case Para_User: return &(info->user_sec);
         default:        return NULL;
     }
-}
-
-/******************************************************************* Sim Only *****************************************************************/
-static void* Storage_Malloc(uint32_t size)
-{
-    return malloc(size);
-}
-
-static void Storage_Free(void *ptr)
-{
-    free(ptr);
 }

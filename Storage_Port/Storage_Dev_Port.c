@@ -8,7 +8,6 @@
 /* only when sim use this header */
 #include "../Dep/Runtime.h"
 #include "../SimDevModule/SimDataFile_Opr.h"
-#include "SimDev_W25Qxx.h"
 
 #define Storage_Dev_GetSstsTick SrvOsCommon.get_os_ms
 #define Storage_Dev_Malloc(x)   malloc(x)
