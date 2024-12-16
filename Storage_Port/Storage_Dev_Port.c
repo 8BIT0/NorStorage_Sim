@@ -155,9 +155,9 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
 
     while(true)
     {
-        /* circumstances 1: store data size less than flash sector size and only none multiple sector read is needed */
-        /* circumstances 2: store data size less than flash sector length but need to read from the end of the sector N to the start of the sector N + 1 */
-        /* circumstances 3: store data size large than flash sector length */
+        /* circumstances 1: store data size not bigger than flash sector size and only none multiple sector write is needed */
+        /* circumstances 2: store data size not bigger than flash sector length but need to write from the end of the sector N to the start of the sector N + 1 */
+        /* circumstances 3: store data size large than flash sector length multiple sector write is needed */
         if (read_offset + read_len > section_size)
             read_len = section_size - read_offset;
 
@@ -222,9 +222,9 @@ static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t base_
 
     while(true)
     {
-        /* circumstances 1: store data size less than flash sector size and only none multiple sector write is needed */
+        /* circumstances 1: store data size not bigger than flash sector size and only none multiple sector write is needed */
         /* circumstances 2: store data size not bigger than flash sector length but need to write from the end of the sector N to the start of the sector N + 1 */
-        /* circumstances 3: store data size large than flash sector length */
+        /* circumstances 3: store data size large than flash sector length multiple sector write is needed */
         /* read whole section */
         if (To_DevW25Qxx_API(p_dev->api)->read_sector(To_DevW25Qxx_OBJ(p_dev->obj), section_start_addr, write_tmp, section_size) != SimDevW25Qxx_Ok)
             return false;
