@@ -27,7 +27,8 @@ int main(int argc, char **argv)
     /* main logic run */
     while (true)
     {
-        
+        Runtime.tick();
+        sleep(10);
     }
 
     return 0;
@@ -56,8 +57,7 @@ static bool SimModule_Init(char *app_path)
         {
             scanf("%d", &type);
             /* check input type */
-            if ((type >= Storage_ChipType_W25Q08) && \
-                (type <= Storage_ChipType_W25Q128))
+            if ((type >= Storage_ChipType_W25Q08) && (type <= Storage_ChipType_W25Q128))
             {
                 switch (type)
                 {
