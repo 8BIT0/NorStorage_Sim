@@ -12,6 +12,7 @@
 
 /* internal vriable */
 static SimDataFileObj_TypeDef SimObj;
+static StorageDevObj_TypeDef SimDev;
 
 /* internal function */
 static bool SimModule_Init(char *app_path);
@@ -20,9 +21,15 @@ static void Sim_Free(void *ptr);
 
 int main(int argc, char **argv)
 {
+    memset(&SimDev, 0, sizeof(StorageDevObj_TypeDef));
+
+    SimDev.chip_type = Storage_ChipType_W25Q128;
+
+    /* create sim file */
     SimModule_Init(argv[0]);
 
     /* storage module init */
+    Storage.init(&SimDev);
 
     /* main logic run */
     while (true)

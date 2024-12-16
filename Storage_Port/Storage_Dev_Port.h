@@ -51,8 +51,6 @@ typedef struct
     uint32_t sector_num;
     uint32_t sector_size;
 
-    uint32_t bad_block_num;
-
     void *obj;
     void *api;
 } StorageDevObj_TypeDef;

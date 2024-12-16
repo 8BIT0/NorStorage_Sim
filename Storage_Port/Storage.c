@@ -75,9 +75,9 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
     if (ExtDev == NULL)
         return false;
 
+    Storage_Monitor.ExtDev_ptr = NULL;
     /* doing bus init on your hardware platform */
     /*
-    Storage_Monitor.ExtDev_ptr = NULL;
     bus_cfg = StoragePort_Api.init(Storage_Malloc, Storage_Free);
     if (bus_cfg == NULL)
     {
