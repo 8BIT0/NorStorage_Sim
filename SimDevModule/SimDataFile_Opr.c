@@ -97,7 +97,6 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     sprintf((char *)data_obj->p_buf, "%s%s", file_n, SimDataFile_Extend);
     if (SimDataFile_CheckFile(data_obj, (char *)data_obj->p_buf))
     {
-        SIMDATA_PRINT("Create SimData file", "file pointer 0x%08X", data_obj->simdata_file);
         data_obj->free(data_obj->p_buf);
         data_obj->p_buf = NULL;
         return true;
@@ -185,8 +184,9 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const cha
     }
     
     /* check folder */
-    if ((data_obj->simdata_dir = opendir(path_offset)) == NULL)
+    if ((data_obj->simdata_dir = opendir(data_obj->simdata_path_str)) == NULL)
     {
+        SIMDATA_PRINT("path no found", "%s", data_obj->simdata_path_str);
         /* create path string */
         SIMDATA_PRINT("create SimData path", "%s", data_obj->p_buf);
         if (system((const char *)data_obj->p_buf) != 0)
