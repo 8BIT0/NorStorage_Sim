@@ -10,7 +10,7 @@
 #define MS_PER_S    1000
 #define US_PER_MS   1000
 
-typedef uint64_t SysTime_t;
+typedef uint32_t SysTime_t;
 
 typedef struct
 {

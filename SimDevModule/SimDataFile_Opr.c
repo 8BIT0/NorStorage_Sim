@@ -293,7 +293,7 @@ static uint16_t SimDataFile_WriteSize(SimDataFileObj_TypeDef *data_obj, uint32_t
 
     if (fseek(data_obj->simdata_file, addr, 0) != 0)
     {
-        SIMDATA_PRINT("write file", "seek to %d failed", data_obj->opr_addr);
+        SIMDATA_PRINT("write file", "seek to %d failed", addr);
         return 0;
     }
 
@@ -344,7 +344,7 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
 
     if (fseek(data_obj->simdata_file, addr, 0) != 0)
     {
-        SIMDATA_PRINT("write file", "seek to %d failed", data_obj->opr_addr);
+        SIMDATA_PRINT("write file", "seek to %d failed", addr);
         return 0;
     }
 

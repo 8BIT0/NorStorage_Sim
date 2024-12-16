@@ -21,7 +21,7 @@ typedef struct
     FILE *simdata_file;
     DIR *simdata_dir;
 
-    void *(*malloc)(size_t size);
+    void *(*malloc)(uint32_t size);
     void (*free)(void *ptr);
 } SimDataFileObj_TypeDef;
 

@@ -26,10 +26,9 @@ extern "C" {
 #define BootSection_Block_Size          (4 Kb)
 #define BootTab_Num 1
 
-#define Storage_OnChip_Max_Capacity     256
 #define Storage_ReserveBlock_Size       128
 
-#define Storage_ExtFlash_Max_Capacity   (1 Kb)
+#define Storage_Para_Max_Capacity       (1 Kb)
 
 #define EXTERNAL_STORAGE_PAGE_TAG       "[ExternalFlash Storage]"
 #define EXTERNAL_PAGE_TAG_SIZE          strlen(EXTERNAL_STORAGE_PAGE_TAG)
@@ -46,6 +45,11 @@ extern "C" {
 #define Flash_Start_Addr                0
 #define Flash_Storage_DefaultData       0xFF
 #define Flash_Storage_TotalSize         (4 Mb)
+
+#define FLash_ProtectSec_Size           (4 Kb)
+#define Flash_BootDataSec_Size          (64 Kb)
+#define Flash_SysDataSec_Size           (64 Kb)
+#define Flash_UserDataSec_Size          (Flash_Storage_TotalSize - (FLash_ProtectSec_Size * 3) - Flash_BootDataSec_Size - Flash_SysDataSec_Size)
 
 #ifdef __cplusplus
 }

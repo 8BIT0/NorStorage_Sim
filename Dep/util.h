@@ -12,5 +12,6 @@
 #define Mb   * (1024 Kb)
 
 void Debug_Print(const char *tag, const char *stage, const char *fmt, ...);
+int16_t Common_CRC16(const uint8_t *pBuf, const uint32_t len);
 
 #endif

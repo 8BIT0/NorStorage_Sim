@@ -16,9 +16,6 @@
 #define STORAGE_TAG                     "Storage"
 #define STORAGE_INFO(stage, fmt, ...)   Debug_Print(STORAGE_TAG, stage, fmt, ##__VA_ARGS__)
 
-#define Storage_Malloc(size)            malloc(size)
-#define Storage_Free(ptr)               free(ptr)
-
 #define STORAGE_DEBUG                   1
 
 #define Item_Capacity_Per_Tab           (Storage_TabSize / sizeof(Storage_Item_TypeDef))
@@ -26,9 +23,6 @@
 /* internal vriable */
 Storage_Monitor_TypeDef Storage_Monitor;
 static uint8_t page_data_tmp[(Storage_TabSize * 2)] __attribute__((aligned(4))) = {0};
-
-static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num);
-static bool Storage_Establish_Tab(Storage_ParaClassType_List class);
 
 /* internal function */
 static bool Storage_Build_StorageInfo(void);
@@ -41,6 +35,10 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
 static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, Storage_FreeSlot_TypeDef *slot_info, Storage_BaseSecInfo_TypeDef *p_Sec);
 static bool Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free_addr, uint32_t new_free_addr, Storage_FreeSlot_TypeDef *new_free_slot);
 static Storage_ErrorCode_List Storage_ItemSlot_Update(uint32_t tab_addr, uint8_t item_index, Storage_BaseSecInfo_TypeDef *p_Sec, Storage_Item_TypeDef item);
+static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num);
+static bool Storage_Establish_Tab(Storage_ParaClassType_List class);
+static void* Storage_Malloc(uint32_t size);
+static void Storage_Free(void *ptr);
 
 /* external function */
 static bool Storage_Init(StorageDevObj_TypeDef *ExtDev);
@@ -80,7 +78,7 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
         return false;
 
     Storage_Monitor.ExtDev_ptr = NULL;
-    bus_cfg = StoragePort_Api.init(malloc, free);
+    bus_cfg = StoragePort_Api.init(Storage_Malloc, Storage_Free);
     if (bus_cfg == NULL)
     {
         STORAGE_INFO("Bus Init", "Failed");
@@ -1420,29 +1418,29 @@ static bool Storage_Build_StorageInfo(void)
     Info.base_addr = Storage_Monitor.external_info.base_addr;
     
     BaseInfo_start_addr = Info.base_addr;
-    page_num = Storage_ExtFlash_Max_Capacity / (Flash_Storage_TabSize / StorageItem_Size);
+    page_num = Storage_Para_Max_Capacity / (Flash_Storage_TabSize / StorageItem_Size);
     if (page_num == 0)
         return false;
     
     Info.boot_sec.tab_addr = Storage_InfoPageSize;
     Info.boot_sec.tab_size = BootSection_Block_Size * BootTab_Num;
     Info.boot_sec.page_num = BootTab_Num;
-    Info.boot_sec.data_sec_size = ExternalFlash_BootDataSec_Size;
+    Info.boot_sec.data_sec_size = Flash_BootDataSec_Size;
     Info.boot_sec.para_size = 0;
     Info.boot_sec.para_num = 0;
     tab_addr_offset = (Info.boot_sec.tab_addr + Info.boot_sec.tab_size) + Storage_ReserveBlock_Size;
 
     Info.sys_sec.tab_addr = tab_addr_offset;
-    Info.sys_sec.tab_size = page_num * ExtFlash_Storage_TabSize;
-    Info.sys_sec.data_sec_size = ExternalFlash_SysDataSec_Size;
+    Info.sys_sec.tab_size = page_num * Flash_Storage_TabSize;
+    Info.sys_sec.data_sec_size = Flash_SysDataSec_Size;
     Info.sys_sec.page_num = page_num;
     Info.sys_sec.para_size = 0;
     Info.sys_sec.para_num = 0;
     tab_addr_offset += Info.sys_sec.tab_size + Storage_ReserveBlock_Size;
         
     Info.user_sec.tab_addr = tab_addr_offset;
-    Info.user_sec.tab_size = page_num * ExtFlash_Storage_TabSize;
-    Info.user_sec.data_sec_size = ExternalFlash_UserDataSec_Size;
+    Info.user_sec.tab_size = page_num * Flash_Storage_TabSize;
+    Info.user_sec.data_sec_size = Flash_UserDataSec_Size;
     Info.user_sec.page_num = page_num;
     Info.user_sec.para_size = 0;
     Info.user_sec.para_num = 0;
@@ -1465,15 +1463,15 @@ static bool Storage_Build_StorageInfo(void)
 
     /* get data sec addr */
     Info.boot_sec.data_sec_addr = tab_addr_offset;
-    tab_addr_offset += ExternalFlash_BootDataSec_Size;
+    tab_addr_offset += Flash_BootDataSec_Size;
     tab_addr_offset += Storage_ReserveBlock_Size;
 
     Info.sys_sec.data_sec_addr = tab_addr_offset;
-    tab_addr_offset += ExternalFlash_SysDataSec_Size;
+    tab_addr_offset += Flash_SysDataSec_Size;
     tab_addr_offset += Storage_ReserveBlock_Size;
 
     Info.user_sec.data_sec_addr = tab_addr_offset;
-    tab_addr_offset += ExternalFlash_UserDataSec_Size;
+    tab_addr_offset += Flash_UserDataSec_Size;
     tab_addr_offset += Storage_ReserveBlock_Size;
 
     Storage_Monitor.external_info = Info;
@@ -1559,4 +1557,15 @@ static Storage_BaseSecInfo_TypeDef* Storage_Get_SecInfo(Storage_FlashInfo_TypeDe
         case Para_User: return &(info->user_sec);
         default:        return NULL;
     }
+}
+
+/******************************************************************* Sim Only *****************************************************************/
+static void* Storage_Malloc(uint32_t size)
+{
+    return malloc(size);
+}
+
+static void Storage_Free(void *ptr)
+{
+    free(ptr);
 }

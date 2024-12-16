@@ -112,8 +112,8 @@ typedef struct
     void *bus_obj;
     bool (*cs_ctl)(bool state);
     void (*delay_ms)(uint32_t ms);
-    uint16_t (*bus_rx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
-    uint16_t (*bus_tx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t size, uint16_t time_out);
+    uint16_t (*bus_rx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t size, uint32_t time_out);
+    uint16_t (*bus_tx)(void *bus_obj, uint32_t addr, uint8_t *p_data, uint16_t size, uint32_t time_out);
 } SimDevW25QxxObj_TypeDef;
 
 typedef struct
