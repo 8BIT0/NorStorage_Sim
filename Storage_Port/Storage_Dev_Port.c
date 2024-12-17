@@ -63,11 +63,15 @@ static bool Storage_Dev_Set(StorageDevObj_TypeDef *ext_dev)
     if (ext_dev->obj == NULL)
         return false;
 
+    memset(ext_dev->obj, 0, sizeof(SimDevW25QxxObj_TypeDef));
     To_DevW25Qxx_OBJ(ext_dev->obj)->systick   = Runtime.get_ms;
     To_DevW25Qxx_OBJ(ext_dev->obj)->cs_ctl    = NULL;
     To_DevW25Qxx_OBJ(ext_dev->obj)->bus_tx    = StoragePort_Api.bus_tx;
     To_DevW25Qxx_OBJ(ext_dev->obj)->bus_rx    = StoragePort_Api.bus_rx;
     To_DevW25Qxx_OBJ(ext_dev->obj)->delay_ms  = NULL;
+    
+    /* simulation only */
+    To_DevW25Qxx_OBJ(ext_dev->obj)->bus_obj   = ext_dev->dev_obj;
     return true;
 }
 
@@ -97,7 +101,7 @@ static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, u
             default: To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q128; break;
         }
 
-        STORAGE_DEV_INFO("api", "init");
+        STORAGE_DEV_INFO("api", "Init");
         init_state = To_DevW25Qxx_API(ext_dev->api)->init(To_DevW25Qxx_OBJ(ext_dev->obj));
         /* only when you use some hardware platform */
         // *p_type = To_DevW25Qxx_API(ext_dev->api)->info(To_DevW25Qxx_OBJ(ext_dev->obj)).prod_type;
@@ -139,22 +143,28 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
     section_size = To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).sector_size;
     /* get w25qxx device info */
     /* address check */
-    flash_end_addr = To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr;
-    if (flash_end_addr > read_start_addr)
+    if (read_start_addr < To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr)
+    {
+        STORAGE_DEV_INFO("read", "Bad read start addr");
         return false;
+    }
 
     /* range check */
+    flash_end_addr = To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr;
     flash_end_addr += To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).flash_size;
-    if ((len + read_start_addr) > flash_end_addr)
+    if (((len + read_start_addr) > flash_end_addr) || (section_size == 0))
+    {
+        STORAGE_DEV_INFO("read", "Size over range");
         return false;
+    }
 
-    if (section_size == 0)
-        return false;
-        
     section_start_addr = To_DevW25Qxx_API(p_dev->api)->get_section_start_addr(To_DevW25Qxx_OBJ(p_dev->obj), read_start_addr);
     read_offset = read_start_addr - section_start_addr;
     if (section_size > sizeof(read_tmp))
+    {
+        STORAGE_DEV_INFO("read", "Buff over range");
         return false;
+    }
 
     while(true)
     {
@@ -166,8 +176,11 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
 
         /* read whole section */
         if (To_DevW25Qxx_API(p_dev->api)->read_sector(To_DevW25Qxx_OBJ(p_dev->obj), section_start_addr, read_tmp, section_size) != SimDevW25Qxx_Ok)
+        {
+            printf("------------------------ %d -----------------------\r\n", section_size);
             return false;
-    
+        }
+
         memcpy(p_data, read_tmp + read_offset, read_len);
         memset(read_tmp, 0, section_size);
 

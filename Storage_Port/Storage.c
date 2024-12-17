@@ -208,16 +208,23 @@ static bool Storage_Format(void)
         for(uint32_t j = 0; j < size; j++)
         {
             if (page_data_tmp[i] != default_data)
+            {
+                STORAGE_INFO("format", "Default data error");
                 return false;
+            }
         }
 
         addr_offset += size;
         remain_size -= size;
 
         if (remain_size == 0)
+        {
+            STORAGE_INFO("format", "Done");
             return true;
+        }
     }
     
+    STORAGE_INFO("format", "Failed");
     return false;
 }
 
@@ -337,11 +344,19 @@ static bool Storage_Get_StorageInfo(void)
     p_Info = &Storage_Monitor.info;
     
     if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, From_Start_Address, page_data_tmp, Storage_TabSize))
+    {
+        STORAGE_INFO("read", "base 0x%08X offset 0x%08X %d size data failed", Storage_Monitor.info.base_addr, From_Start_Address, Storage_TabSize);
         return false;
+    }
 
     /* check internal storage tag */
     Info_r = *(Storage_FlashInfo_TypeDef *)page_data_tmp;
     
+    STORAGE_INFO("info", "tag %s", Info_r.tag);
+    STORAGE_INFO("info", "boot tab addr 0x%08X", Info_r.boot_sec.tab_addr);
+    STORAGE_INFO("info", "sys  tab addr 0x%08X", Info_r.sys_sec.tab_addr);
+    STORAGE_INFO("info", "user tab addr 0x%08X", Info_r.user_sec.tab_addr);
+
     /* check storage tag */
     /* check boot / sys / user  start addr */
     if ((strcmp((const char *)Info_r.tag, flash_tag) != 0) || \

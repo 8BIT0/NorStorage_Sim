@@ -47,7 +47,8 @@ static bool SimModule_Init(char *app_path)
     SimObj.free = Sim_Free;
 
     SimDev.chip_type = Storage_ChipType_W25Q128;
-    SimDev.api = &SimDevW25Qxx;
+    SimDev.api = (void *)(&SimDevW25Qxx);
+    SimDev.dev_obj = (void *)(&SimObj);
 
     /* wait input sim type */
     while (true)

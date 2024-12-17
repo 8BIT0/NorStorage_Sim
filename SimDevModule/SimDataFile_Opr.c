@@ -338,13 +338,13 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
     /* open file */
     if ((data_obj->simdata_file = fopen(name_buf, "rb+")) == NULL)
     {
-        SIMDATA_PRINT("write file", "Open file %s failed", data_obj->file_name);
+        SIMDATA_PRINT("read file", "Open file %s failed", data_obj->file_name);
         return 0;
     }
 
     if (fseek(data_obj->simdata_file, addr, 0) != 0)
     {
-        SIMDATA_PRINT("write file", "seek to %d failed", addr);
+        SIMDATA_PRINT("read file", "seek to %d failed", addr);
         return 0;
     }
 
@@ -358,13 +358,13 @@ static uint16_t SimDataFile_ReadSize(SimDataFileObj_TypeDef *data_obj, uint32_t 
     /* close file */
    if (fseek(data_obj->simdata_file, 0, 0) != 0)
     {
-        SIMDATA_PRINT("write file", "seek to start failed");
+        SIMDATA_PRINT("read file", "seek to start failed");
         return 0;
     }
 
     if (fclose(data_obj->simdata_file) != 0)
     {
-        SIMDATA_PRINT("write file", "Close file failed");
+        SIMDATA_PRINT("read file", "Close file failed");
         return 0;
     }
 

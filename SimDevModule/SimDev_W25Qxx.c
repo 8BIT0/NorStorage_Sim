@@ -30,9 +30,11 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
         (dev->type >= SimDev_All))
         return SimDevW25Qxx_Error;
 
-    dev->start_time = 0;
-    dev->info.prod_type = dev->type;
+    if (dev->init)
+        return SimDevW25Qxx_Ok;
 
+    dev->info.prod_type = dev->type;
+    dev->info.start_addr  = W25QXX_BASE_ADDRESS;
     /* set device info */
     switch ((uint8_t)dev->type)
     {
@@ -98,8 +100,8 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
 
         default: return SimDevW25Qxx_Error;
     }
-
-    dev->start_time = dev->systick();
+    
+    dev->init = true;
     return SimDevW25Qxx_Ok;
 }
 
@@ -109,7 +111,7 @@ static SimDev_Info_TypeDef SimDevW25Qxx_GetInfo(SimDevW25QxxObj_TypeDef *dev)
 
     memset(&info_tmp, 0, sizeof(SimDev_Info_TypeDef));
 
-    if (dev && dev->start_time)
+    if (dev)
         info_tmp = dev->info;
 
     return info_tmp;
@@ -117,7 +119,7 @@ static SimDev_Info_TypeDef SimDevW25Qxx_GetInfo(SimDevW25QxxObj_TypeDef *dev)
 
 static int32_t SimDevW25Qxx_Get_SectionByDataAddress(SimDevW25QxxObj_TypeDef *dev, uint32_t addr)
 {
-    if ((dev == NULL) || (dev->start_time == 0))
+    if ((dev == NULL) || !dev->init)
         return -1;
 
     return (addr / dev->info.sector_size);
@@ -129,7 +131,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_WriteSector(SimDevW25QxxObj_TypeDef 
     uint16_t ret = 0;
 
     if ((dev == NULL) || \
-        (dev->start_time == 0) || \
+        !dev->init || \
         (dev->bus_tx == NULL) || \
         (addr % dev->info.sector_size) || \
         (tx == NULL) || (dev->info.sector_size != size))
@@ -147,12 +149,17 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_ReadSector(SimDevW25QxxObj_TypeDef *
     uint16_t ret = 0;
 
     if ((dev == NULL) || \
-        (dev->start_time == 0) || \
+        !dev->init || \
         (dev->bus_rx == NULL) || \
         (addr % dev->info.sector_size) || \
         (rx == NULL) || (dev->info.sector_size != size))
+   {
+        printf("----------------------- addr 0x%08X ----------------------------\r\n", addr);
+        printf("----------------------- sector size %d -------------------------\r\n", dev->info.sector_size);
+        printf("----------------------- size %d --------------------------------\r\n", size);
         return SimDevW25Qxx_Error;
-    
+    }
+
     ret = dev->bus_rx(dev->bus_obj, addr, rx, size, W25QXX_TIMEOUT);
     if (ret == 0)
         return SimDevW25Qxx_Error;
@@ -163,7 +170,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_ReadSector(SimDevW25QxxObj_TypeDef *
 static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseSector(SimDevW25QxxObj_TypeDef *dev, uint32_t addr)
 {
     if ((dev == NULL) || \
-        (dev->start_time == 0) || \
+        !dev->init || \
         (addr % dev->info.sector_size))
         return SimDevW25Qxx_Error;
     
@@ -176,8 +183,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseSector(SimDevW25QxxObj_TypeDef 
 
 static SimDevW25Qxx_Error_List SimDevW25Qxx_EraseChip(SimDevW25QxxObj_TypeDef *dev)
 {
-    if ((dev == NULL) || \
-        (dev->start_time == 0))
+    if ((dev == NULL) || !dev->init)
         return SimDevW25Qxx_Error;
 
     for (uint16_t i = 0; i < dev->info.sector_size; i ++)

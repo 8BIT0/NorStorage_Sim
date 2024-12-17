@@ -56,6 +56,9 @@ typedef struct
 
     void *obj;
     void *api;
+
+    /* simulation only */
+    void *dev_obj;
 } StorageDevObj_TypeDef;
 
 typedef struct
