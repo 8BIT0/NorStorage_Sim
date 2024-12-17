@@ -45,6 +45,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
             dev->info.sector_num  = W25Q08FV_SECTOR_NUM;
             dev->info.sector_size = W25Q08FV_SECTOR_SIZE;
             dev->info.flash_size  = W25Q08FV_FLASH_SIZE;
+            dev->info.prod_type   = SimDev_W25Q08;
             break;
     
         case SimDev_W25Q16:
@@ -56,6 +57,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
             dev->info.sector_num  = W25Q16FV_SECTOR_NUM;
             dev->info.sector_size = W25Q16FV_SECTOR_SIZE;
             dev->info.flash_size  = W25Q16FV_FLASH_SIZE;
+            dev->info.prod_type   = SimDev_W25Q16;
             break;
 
         case SimDev_W25Q32:
@@ -67,6 +69,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
             dev->info.sector_num  = W25Q32FV_SECTOR_NUM;
             dev->info.sector_size = W25Q32FV_SECTOR_SIZE;
             dev->info.flash_size  = W25Q32FV_FLASH_SIZE;
+            dev->info.prod_type   = SimDev_W25Q32;
             break;
 
         case SimDev_W25Q64:
@@ -78,6 +81,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
             dev->info.sector_num  = W25Q64FV_SECTOR_NUM;
             dev->info.sector_size = W25Q64FV_SECTOR_SIZE;
             dev->info.flash_size  = W25Q64FV_FLASH_SIZE;
+            dev->info.prod_type   = SimDev_W25Q64;
             break;
 
         case SimDev_W25Q128:
@@ -89,6 +93,7 @@ static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
             dev->info.sector_num  = W25Q128FV_SECTOR_NUM;
             dev->info.sector_size = W25Q128FV_SECTOR_SIZE;
             dev->info.flash_size  = W25Q128FV_FLASH_SIZE;
+            dev->info.prod_type   = SimDev_W25Q128;
             break;
 
         default: return SimDevW25Qxx_Error;

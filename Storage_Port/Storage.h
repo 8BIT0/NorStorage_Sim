@@ -151,18 +151,14 @@ typedef struct
 
 typedef struct
 {
-    uint8_t InternalFlash_Format_cnt;
-    uint8_t ExternalFlash_Format_cnt;
-    uint8_t ExternalFlash_ReInit_cnt;
+    uint8_t Flash_Format_cnt;
+    uint8_t Flash_ReInit_cnt;
+    uint8_t Flash_BuildTab_cnt;
+    uint8_t Flash_Error_Code;
+    uint8_t Flash_Init_Error;   /* use for trace the place where the error occur */
 
-    uint8_t InternalFlash_BuildTab_cnt;
-    uint8_t ExternalFlash_BuildTab_cnt;
-    
-    uint8_t ExternalFlash_Error_Code;
-    uint8_t ExternalFlash_Init_Error; /* use for trace the place where the error occur */
-
-    void *ExtDev_ptr;       /* external flash chip device obj pointer */
-    void *ExtBusCfg_Ptr;    /* external flash chip hardware bus config data pointer */
+    void *ExtDev_ptr;           /* external flash chip device obj pointer */
+    void *ExtBusCfg_Ptr;        /* external flash chip hardware bus config data pointer */
 
     bool init_state;
     uint8_t inuse;
@@ -170,7 +166,7 @@ typedef struct
     uint16_t module_prod_type;
     uint16_t module_prod_code;
 
-    Storage_FlashInfo_TypeDef external_info;
+    Storage_FlashInfo_TypeDef info;
 } Storage_Monitor_TypeDef;
 
 typedef struct

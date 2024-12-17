@@ -75,27 +75,29 @@ static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, u
 {
     uint8_t init_state = 0;
 
-    if (ext_dev == NULL)
-        return false;
-
-    if ((ext_dev->chip_type >= Storage_ChipType_W25Q08) || \
+    if ((ext_dev != NULL) && \
+        (ext_dev->chip_type >= Storage_ChipType_W25Q08) && \
         (ext_dev->chip_type <= Storage_ChipType_W25Q128))
     {
         if ((To_DevW25Qxx_API(ext_dev->api)->init == NULL) || \
             (To_DevW25Qxx_API(ext_dev->api)->info == NULL))
+        {
+            STORAGE_DEV_INFO("init", "API Invalid");
             return false;
+        }
 
         /* need to set simulation device type */
         switch (ext_dev->chip_type)
         {
-            case Storage_ChipType_W25Q08:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q08;  break;
-            case Storage_ChipType_W25Q16:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q16;  break;
-            case Storage_ChipType_W25Q32:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q32;  break;
-            case Storage_ChipType_W25Q64:  To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q64;  break;
-            case Storage_ChipType_W25Q128: To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q128; break;
-            default: To_DevW25Qxx_OBJ(ext_dev->obj)->info.prod_type = SimDev_W25Q128; break;
+            case Storage_ChipType_W25Q08:To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q08;    break;
+            case Storage_ChipType_W25Q16:To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q16;    break;
+            case Storage_ChipType_W25Q32:To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q32;    break;
+            case Storage_ChipType_W25Q64:To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q64;    break;
+            case Storage_ChipType_W25Q128: To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q128; break;
+            default: To_DevW25Qxx_OBJ(ext_dev->obj)->type = SimDev_W25Q128; break;
         }
 
+        STORAGE_DEV_INFO("api", "init");
         init_state = To_DevW25Qxx_API(ext_dev->api)->init(To_DevW25Qxx_OBJ(ext_dev->obj));
         /* only when you use some hardware platform */
         // *p_type = To_DevW25Qxx_API(ext_dev->api)->info(To_DevW25Qxx_OBJ(ext_dev->obj)).prod_type;
@@ -108,9 +110,11 @@ static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, u
         ext_dev->page_num    = To_DevW25Qxx_API(ext_dev->api)->info(To_DevW25Qxx_OBJ(ext_dev->obj)).page_num;
         ext_dev->page_size   = To_DevW25Qxx_API(ext_dev->api)->info(To_DevW25Qxx_OBJ(ext_dev->obj)).page_size;
 
+        STORAGE_DEV_INFO("api", "Init %s", ((SimDevW25Qxx_Error_List)init_state == SimDevW25Qxx_Ok) ? "done" : "failed");
         return ((SimDevW25Qxx_Error_List)init_state == SimDevW25Qxx_Ok) ? true : false;
     }
 
+    STORAGE_DEV_INFO("init", "Invalid parameter");
     return false;
 }
 

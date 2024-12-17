@@ -48,7 +48,7 @@ static bool SimModule_Init(char *app_path)
 
     SimDev.chip_type = Storage_ChipType_W25Q128;
     SimDev.api = &SimDevW25Qxx;
-    
+
     /* wait input sim type */
     while (true)
     {

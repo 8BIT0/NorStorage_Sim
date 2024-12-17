@@ -63,8 +63,11 @@ void Debug_Print(const char *tag, const char *stage, const char *fmt, ...)
     char *ptr_tmp = NULL;
 
     memset(fmt_buf, '\0', PRINT_BUF_SIZE);
-    sprintf(fmt_buf, "[ %s %s ]\t", tag, stage);
+    sprintf(fmt_buf, "[ %s %s ]", tag, stage);
+    uint8_t align_size = 32 - strlen(fmt_buf);
     ptr_tmp = fmt_buf + strlen(fmt_buf);
+    memset(ptr_tmp, ' ', align_size);
+    ptr_tmp = ptr_tmp + align_size;
 
     va_start(ap, fmt);
     vsprintf(ptr_tmp, fmt, ap);
