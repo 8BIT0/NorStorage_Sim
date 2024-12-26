@@ -139,13 +139,17 @@ reformat_external_flash_info:
                 Storage_Monitor.Flash_Format_cnt --;
                 Storage_Monitor.info.base_addr = Flash_Start_Addr;
                 if (Storage_Monitor.Flash_Format_cnt == 0)
+                {
+                    STORAGE_INFO("init", "Format failed");
                     return false;
-                    
+                }
+
                 goto reformat_external_flash_info;
             }
 
             /* external flash module format successed */
             /* build storage tab */
+            STORAGE_INFO("init", "Build info");
             if (Storage_Build_StorageInfo())
             {
                 Storage_Monitor.Flash_BuildTab_cnt ++;
@@ -201,6 +205,7 @@ static bool Storage_Format(void)
         if ((remain_size != 0) && (remain_size < size))
             size = remain_size;
 
+        STORAGE_INFO("format", "addr 0x%08x", (Storage_Monitor.info.base_addr + addr_offset));
         if (!StorageDev.param_erase(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, addr_offset, size) || \
             !StorageDev.param_read(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, addr_offset, page_data_tmp, size))
             return false;
@@ -1342,10 +1347,21 @@ static bool Storage_Establish_Tab(Storage_ParaClassType_List class)
     Storage_FreeSlot_TypeDef free_slot;
     uint16_t crc = 0;
 
+    switch ((uint8_t)class)
+    {
+        case Para_Boot: STORAGE_INFO("establish tab", "Building %s Tab", "Boot"); break;
+        case Para_Sys:  STORAGE_INFO("establish tab", "Building %s Tab", "Sys"); break;
+        case Para_User: STORAGE_INFO("establish tab", "Building %s Tab", "User"); break;
+        default: STORAGE_INFO("establish tab", "Unknow type"); return false;
+    }
+
     p_Flash = &Storage_Monitor.info;
     p_SecInfo = Storage_Get_SecInfo(p_Flash, class);
     if (p_SecInfo == NULL)
+    {
+        STORAGE_INFO("establish tab", "Get section info failed");
         return false;
+    }
 
     if (p_SecInfo->tab_addr && Storage_Clear_Tab(p_SecInfo->tab_addr, p_SecInfo->page_num))
     {
@@ -1462,19 +1478,23 @@ static bool Storage_Build_StorageInfo(void)
     Info.user_sec.para_size = 0;
     Info.user_sec.para_num = 0;
     tab_addr_offset += Info.user_sec.tab_size + Storage_ReserveBlock_Size;
-    
+
+    STORAGE_INFO("build info", "total size 0x%08x", Info.total_size);
+    STORAGE_INFO("build info", "tab addr offset 0x%08x", tab_addr_offset);
     /* get the remaining size of rom space has left */
     if (Info.total_size < tab_addr_offset)
         return false;
-    
+
     remain_data_sec_size = Info.total_size - tab_addr_offset;
     data_sec_size += Info.boot_sec.data_sec_size + Storage_ReserveBlock_Size;
     data_sec_size += Info.sys_sec.data_sec_size + Storage_ReserveBlock_Size;
     data_sec_size += Info.user_sec.data_sec_size + Storage_ReserveBlock_Size;
 
+    STORAGE_INFO("build info", "Avilable size 0x%08x", remain_data_sec_size);
+    STORAGE_INFO("build info", "Assigned size 0x%08x", data_sec_size);
     if (remain_data_sec_size < data_sec_size)
         return false;
-        
+
     Info.remain_size = remain_data_sec_size - data_sec_size;
     Info.data_sec_size = Info.boot_sec.data_sec_size + Info.sys_sec.data_sec_size + Info.user_sec.data_sec_size;
 

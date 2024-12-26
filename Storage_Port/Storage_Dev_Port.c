@@ -177,7 +177,7 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
         /* read whole section */
         if (To_DevW25Qxx_API(p_dev->api)->read_sector(To_DevW25Qxx_OBJ(p_dev->obj), section_start_addr, read_tmp, section_size) != SimDevW25Qxx_Ok)
         {
-            printf("------------------------ %d -----------------------\r\n", section_size);
+            STORAGE_DEV_INFO("read", "Failed");
             return false;
         }
 

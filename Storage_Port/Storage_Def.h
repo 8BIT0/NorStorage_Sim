@@ -26,7 +26,7 @@ extern "C" {
 #define BootSection_Block_Size          (4 Kb)
 #define BootTab_Num 1
 
-#define Storage_ReserveBlock_Size       128
+#define Storage_ReserveBlock_Size       (4 Kb)
 
 #define Storage_Para_Max_Capacity       (1 Kb)
 
@@ -49,7 +49,7 @@ extern "C" {
 #define FLash_ProtectSec_Size           (4 Kb)
 #define Flash_BootDataSec_Size          (64 Kb)
 #define Flash_SysDataSec_Size           (64 Kb)
-#define Flash_UserDataSec_Size          (Flash_Storage_TotalSize - (FLash_ProtectSec_Size * 3) - Flash_BootDataSec_Size - Flash_SysDataSec_Size)
+#define Flash_UserDataSec_Size          (3 Mb)
 
 #ifdef __cplusplus
 }

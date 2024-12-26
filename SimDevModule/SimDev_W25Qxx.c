@@ -122,7 +122,7 @@ static int32_t SimDevW25Qxx_Get_SectionByDataAddress(SimDevW25QxxObj_TypeDef *de
     if ((dev == NULL) || !dev->init)
         return -1;
 
-    return (addr / dev->info.sector_size);
+    return (addr / dev->info.sector_size) * dev->info.sector_size;
 }
 
 /* only support write or read whole sector with whole size from the first byte */
