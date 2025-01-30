@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.25)
 project(Storage_Sim)
 SET(CMAKE_BUILD_TYPE "Debug")
 SET(CMAKE_C_FLAGS"${CMAKE_C_FLAGS} -g -O0")
@@ -8,8 +9,23 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 elseif(CMAKE_SYSTEM_NAME MATCHES "Windows")
     add_definitions(-DWIN)
 endif()
+
+find_package(Python3 3.11 COMPONENTS Interpreter Development REQUIRED)
+if (Python3_FOUND)
+    message("python include dir : " ${Python3_INCLUDE_DIRS})
+    message("python version     : " ${Python3_VERSION})
+    include_directories(${Python3_INCLUDE_DIRS})
+    
+    aux_source_directory(PY_Tool SOURCE)
+    include_directories(PY_Tool)
+endif (Python3_FOUND)
+
 include_directories(Dep SimDevModule Storage_Port)
 aux_source_directory(SimDevModule SOURCE)
 aux_source_directory(Dep SOURCE)
 aux_source_directory(Storage_Port SOURCE)
 add_executable(Storage_Sim main.c ${SOURCE})
+
+if (Python3_FOUND)
+    target_link_libraries(Storage_Sim ${Python3_LIBRARIES})
+endif (Python3_FOUND)

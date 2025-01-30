@@ -1,0 +1,6 @@
+
+KB = 1024
+MB = (KB * KB)
+
+STORAGE_TAB_SIZE = (4 * KB)
+STORAGE_INFOPAGE_SIZE = (1 * KB)

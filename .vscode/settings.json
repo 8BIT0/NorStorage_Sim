@@ -13,6 +13,10 @@
         "storage_bus_port.h": "c",
         "wououi.h": "c",
         "storage.h": "c",
-        "runtime.h": "c"
+        "runtime.h": "c",
+        "storage_def.h": "c",
+        "stdint.h": "c",
+        "python.h": "c",
+        "py_dsp_tool.h": "c"
     }
 }

@@ -6,8 +6,9 @@
 #include "SimDevModule/SimDataFile_Opr.h"
 #include "Storage_Port/Storage.h"
 #include "Dep/Runtime.h"
+#include "py_dsp_tool.h"
 
-#define SIMULATION_TAG "Simulation"
+#define SIMULATION_TAG "SIM"
 #define SIMULATION_PRINT(stage, fmt, ...) Debug_Print(SIMULATION_TAG, stage, fmt, ##__VA_ARGS__) 
 
 /* internal vriable */
@@ -21,7 +22,14 @@ static void Sim_Free(void *ptr);
 
 int main(int argc, char **argv)
 {
-    SimModule_Init(argv[0]);
+    Runtime.init();
+    SIMULATION_PRINT("Visual Module Init", "%s", PY_Visualize.init() ? "True" : "False");
+
+    if (SimModule_Init(argv[0]))
+    {
+        /* module init successed */
+
+    }
 
     /* main logic run */
     while (true)

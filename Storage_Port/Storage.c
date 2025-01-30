@@ -358,18 +358,14 @@ static bool Storage_Get_StorageInfo(void)
     Info_r = *(Storage_FlashInfo_TypeDef *)page_data_tmp;
     
     STORAGE_INFO("info", "tag %s", Info_r.tag);
-    STORAGE_INFO("info", "boot tab addr 0x%08X", Info_r.boot_sec.tab_addr);
     STORAGE_INFO("info", "sys  tab addr 0x%08X", Info_r.sys_sec.tab_addr);
     STORAGE_INFO("info", "user tab addr 0x%08X", Info_r.user_sec.tab_addr);
 
     /* check storage tag */
     /* check boot / sys / user  start addr */
     if ((strcmp((const char *)Info_r.tag, flash_tag) != 0) || \
-        (Info_r.boot_sec.tab_addr == 0) || \
         (Info_r.sys_sec.tab_addr == 0) || \
         (Info_r.user_sec.tab_addr == 0) || \
-        (Info_r.boot_sec.tab_addr == Info_r.sys_sec.tab_addr) || \
-        (Info_r.boot_sec.tab_addr == Info_r.user_sec.tab_addr) || \
         (Info_r.sys_sec.tab_addr == Info_r.user_sec.tab_addr))
         return false;
 
@@ -380,11 +376,9 @@ static bool Storage_Get_StorageInfo(void)
         return false;
 
     memset(page_data_tmp, 0, Storage_TabSize);
-    /* check  boot  section tab & free slot info & stored item */
     /* check system section tab & free slot info & stored item */
     /* check  user  section tab & free slot info & stored item */
-    if (Storage_Check_Tab(&Info_r.boot_sec) && \
-        Storage_Check_Tab(&Info_r.sys_sec) && \
+    if (Storage_Check_Tab(&Info_r.sys_sec) && \
         Storage_Check_Tab(&Info_r.user_sec))
     {
         memcpy(p_Info, &Info_r, sizeof(Storage_FlashInfo_TypeDef));
@@ -1349,7 +1343,6 @@ static bool Storage_Establish_Tab(Storage_ParaClassType_List class)
 
     switch ((uint8_t)class)
     {
-        case Para_Boot: STORAGE_INFO("establish tab", "Building %s Tab", "Boot"); break;
         case Para_Sys:  STORAGE_INFO("establish tab", "Building %s Tab", "Sys"); break;
         case Para_User: STORAGE_INFO("establish tab", "Building %s Tab", "User"); break;
         default: STORAGE_INFO("establish tab", "Unknow type"); return false;
@@ -1455,14 +1448,6 @@ static bool Storage_Build_StorageInfo(void)
     if (page_num == 0)
         return false;
     
-    Info.boot_sec.tab_addr = Storage_InfoPageSize;
-    Info.boot_sec.tab_size = BootSection_Block_Size * BootTab_Num;
-    Info.boot_sec.page_num = BootTab_Num;
-    Info.boot_sec.data_sec_size = Flash_BootDataSec_Size;
-    Info.boot_sec.para_size = 0;
-    Info.boot_sec.para_num = 0;
-    tab_addr_offset = (Info.boot_sec.tab_addr + Info.boot_sec.tab_size) + Storage_ReserveBlock_Size;
-
     Info.sys_sec.tab_addr = tab_addr_offset;
     Info.sys_sec.tab_size = page_num * Flash_Storage_TabSize;
     Info.sys_sec.data_sec_size = Flash_SysDataSec_Size;
@@ -1486,7 +1471,6 @@ static bool Storage_Build_StorageInfo(void)
         return false;
 
     remain_data_sec_size = Info.total_size - tab_addr_offset;
-    data_sec_size += Info.boot_sec.data_sec_size + Storage_ReserveBlock_Size;
     data_sec_size += Info.sys_sec.data_sec_size + Storage_ReserveBlock_Size;
     data_sec_size += Info.user_sec.data_sec_size + Storage_ReserveBlock_Size;
 
@@ -1496,13 +1480,9 @@ static bool Storage_Build_StorageInfo(void)
         return false;
 
     Info.remain_size = remain_data_sec_size - data_sec_size;
-    Info.data_sec_size = Info.boot_sec.data_sec_size + Info.sys_sec.data_sec_size + Info.user_sec.data_sec_size;
+    Info.data_sec_size = Info.sys_sec.data_sec_size + Info.user_sec.data_sec_size;
 
     /* get data sec addr */
-    Info.boot_sec.data_sec_addr = tab_addr_offset;
-    tab_addr_offset += Flash_BootDataSec_Size;
-    tab_addr_offset += Storage_ReserveBlock_Size;
-
     Info.sys_sec.data_sec_addr = tab_addr_offset;
     tab_addr_offset += Flash_SysDataSec_Size;
     tab_addr_offset += Storage_ReserveBlock_Size;
@@ -1539,8 +1519,7 @@ static bool Storage_Build_StorageInfo(void)
     if (memcmp(&Info_Rx, &Info, sizeof(Storage_FlashInfo_TypeDef)) != 0)
         return false;
 
-    if (!Storage_Establish_Tab(Para_Boot) || \
-        !Storage_Establish_Tab(Para_Sys)  || \
+    if (!Storage_Establish_Tab(Para_Sys)  || \
         !Storage_Establish_Tab(Para_User))
         return false;
 
@@ -1589,7 +1568,6 @@ static Storage_BaseSecInfo_TypeDef* Storage_Get_SecInfo(Storage_FlashInfo_TypeDe
 
     switch(class)
     {
-        case Para_Boot: return &(info->boot_sec);
         case Para_Sys:  return &(info->sys_sec);
         case Para_User: return &(info->user_sec);
         default:        return NULL;

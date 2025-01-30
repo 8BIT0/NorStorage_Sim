@@ -59,7 +59,6 @@ typedef enum
 
 typedef enum
 {
-    Para_Boot = 0,
     Para_Sys,
     Para_User,
 } Storage_ParaClassType_List;
@@ -136,7 +135,6 @@ typedef struct
     uint32_t remain_size;
     uint32_t data_sec_size;
 
-    Storage_BaseSecInfo_TypeDef boot_sec;
     Storage_BaseSecInfo_TypeDef sys_sec;
     Storage_BaseSecInfo_TypeDef user_sec;
 } Storage_FlashInfo_TypeDef;
