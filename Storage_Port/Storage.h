@@ -175,16 +175,6 @@ typedef struct
     Storage_ErrorCode_List (*update)(Storage_ParaClassType_List _class, uint32_t addr , uint8_t *p_data, uint16_t size);
     Storage_ErrorCode_List (*get)(Storage_ParaClassType_List _class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t size);
     Storage_ErrorCode_List (*get_dev_info)(StorageDevObj_TypeDef *info);
-
-    /* blackbox section */
-    bool (*write_section)(uint32_t addr, uint8_t *p_data, uint16_t len);
-    bool (*read_section)(uint32_t addr, uint8_t *p_data, uint16_t len);
-    bool (*erase_section)(uint32_t addr, uint16_t len);
-
-    /* firmware section */
-    bool (*format_firmware)(void);
-    bool (*read_firmware)(uint32_t addr_offset, uint8_t *p_date, uint16_t size);
-    bool (*write_firmware)(Storage_MediumType_List medium, uint32_t addr_offset, uint8_t *p_data, uint16_t size);
 } Storage_TypeDef;
 
 extern Storage_TypeDef Storage;

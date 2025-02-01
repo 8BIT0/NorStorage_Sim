@@ -1,11 +1,6 @@
 #include "SimDataFile_Opr.h"
 #include "util.h"
 
-#if defined WIN
-#define Folder_Split  "\\"
-#elif defined MAC || defined LINUX
-#define Folder_Split  "/"
-#endif
 #define SimDataFile_Folder  "SimData"
 #define SimDataFile_Extend  ".sim"
 #define SimDataFile_MKDIR   "mkdir "

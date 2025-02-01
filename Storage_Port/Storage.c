@@ -54,14 +54,6 @@ Storage_TypeDef Storage = {
     .get = Storage_Get_Data,
     .update = Storage_SlotData_Update,
     .get_dev_info = Storage_Get_DevInfo,
-
-    .write_section = NULL,
-    .read_section = NULL,
-    .erase_section = NULL,
-
-    .format_firmware = NULL,
-    .read_firmware = NULL,
-    .write_firmware = NULL,
 };
 
 static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
