@@ -9,7 +9,7 @@ extern "C" {
 
 #define Flash_MaxRWSize                 (2 Kb)
 #define Flash_Storage_TabSize           (4 Kb)
-#define Flash_Storage_InfoPageSize      (1 Kb)
+#define Flash_Storage_InfoPageSize      (4 Kb)
 
 #define Storage_TabSize                 Flash_Storage_TabSize
 #define Storage_InfoPageSize            Flash_Storage_InfoPageSize
@@ -23,12 +23,9 @@ extern "C" {
 
 #define From_Start_Address              0
 
-#define BootSection_Block_Size          (4 Kb)
-#define BootTab_Num 1
-
 #define Storage_ReserveBlock_Size       (4 Kb)
 
-#define Storage_Para_Max_Capacity       (1 Kb)
+#define Storage_Item_Capacity           (1 Kb)
 
 #define EXTERNAL_STORAGE_PAGE_TAG       "[ExternalFlash Storage]"
 #define EXTERNAL_PAGE_TAG_SIZE          strlen(EXTERNAL_STORAGE_PAGE_TAG)

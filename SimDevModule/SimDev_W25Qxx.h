@@ -106,7 +106,6 @@ typedef struct
     SimDevW25Qxx_Type_List type;
     SimDev_Info_TypeDef info;
     bool init;
-    uint32_t (*systick)(void);
     uint32_t opr_time;
 
     void *bus_obj;

@@ -5,11 +5,35 @@
 #include <string.h>
 #include <stdint.h>
 
+typedef enum
+{
+    Opr_Idle = 0,
+    Opr_Create_Item,
+    Opr_Write_Item,
+    Opr_Read_Item,
+    Opr_Delete_Item,
+} VisualOpera_Type_List;
+
 typedef struct
 {
-    bool (*init)(void);
-    bool (*update)(uint8_t *p_data, uint16_t size);
+    /* data */
+    uint8_t Opr_Type;
+    char *item_name;
+
+    struct
+    {
+        /* data */
+        uint8_t *data;
+        uint16_t len;
+    } stream;
+} SimInput_TypeDef;
+
+typedef struct
+{
+    bool (*init)(char *simfile_dir, char *file_name);
+    bool (*update)(void);
     bool (*clear_all)(void);
+    void (*set_input_callback)();
 } PyDsp_TypeDef;
 
 extern PyDsp_TypeDef PY_Visualize;

@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include "SimDevModule/SimDataFile_Opr.h"
 #include "Storage_Port/Storage.h"
-#include "Dep/Runtime.h"
 #include "py_dsp_tool.h"
 
 #define SIMULATION_TAG "SIM"
@@ -22,19 +21,23 @@ static void Sim_Free(void *ptr);
 
 int main(int argc, char **argv)
 {
-    Runtime.init();
-    SIMULATION_PRINT("Visual Module Init", "%s", PY_Visualize.init() ? "True" : "False");
-
     if (SimModule_Init(argv[0]))
     {
-        /* module init successed */
-
+        /* storage module init successed */
+        /* init python tool -> visualize module */
+        if (!PY_Visualize.init(SimObj.simdata_path_str, SimObj.file_name))
+            return 0;
+    }
+    else
+    {
+        /* module init filed */
+        SIMULATION_PRINT("Storage Module", "init failed");
+        return 0;
     }
 
     /* main logic run */
     while (true)
     {
-        Runtime.tick();
         sleep(10);
     }
 

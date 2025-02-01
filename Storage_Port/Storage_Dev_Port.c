@@ -6,7 +6,6 @@
 /* add you own headers on this file */
 
 /* only when sim use this header */
-#include "../Dep/Runtime.h"
 #include "../SimDevModule/SimDataFile_Opr.h"
 
 #define Storage_Dev_GetSstsTick SrvOsCommon.get_os_ms
@@ -64,7 +63,6 @@ static bool Storage_Dev_Set(StorageDevObj_TypeDef *ext_dev)
         return false;
 
     memset(ext_dev->obj, 0, sizeof(SimDevW25QxxObj_TypeDef));
-    To_DevW25Qxx_OBJ(ext_dev->obj)->systick   = Runtime.get_ms;
     To_DevW25Qxx_OBJ(ext_dev->obj)->cs_ctl    = NULL;
     To_DevW25Qxx_OBJ(ext_dev->obj)->bus_tx    = StoragePort_Api.bus_tx;
     To_DevW25Qxx_OBJ(ext_dev->obj)->bus_rx    = StoragePort_Api.bus_rx;

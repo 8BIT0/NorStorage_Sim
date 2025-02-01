@@ -25,7 +25,6 @@ SimDevW25Qxx_TypeDef SimDevW25Qxx = {
 static SimDevW25Qxx_Error_List SimDevW25Qxx_Init(SimDevW25QxxObj_TypeDef *dev)
 {
     if ((dev == NULL) || \
-        (dev->systick == NULL) || \
         (dev->type <= SimDev_None) || \
         (dev->type >= SimDev_All))
         return SimDevW25Qxx_Error;

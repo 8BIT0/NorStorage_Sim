@@ -1444,11 +1444,11 @@ static bool Storage_Build_StorageInfo(void)
     Info.base_addr = Storage_Monitor.info.base_addr;
     
     BaseInfo_start_addr = Info.base_addr;
-    page_num = Storage_Para_Max_Capacity / (Flash_Storage_TabSize / StorageItem_Size);
+    page_num = Storage_Item_Capacity / (Flash_Storage_TabSize / StorageItem_Size);
     if (page_num == 0)
         return false;
-    
-    Info.sys_sec.tab_addr = tab_addr_offset;
+
+    Info.sys_sec.tab_addr = Storage_InfoPageSize;
     Info.sys_sec.tab_size = page_num * Flash_Storage_TabSize;
     Info.sys_sec.data_sec_size = Flash_SysDataSec_Size;
     Info.sys_sec.page_num = page_num;
