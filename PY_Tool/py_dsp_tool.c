@@ -10,12 +10,13 @@ typedef struct
 {
     PyObject *p_Name;
     PyObject *p_Module;
-    PyObject *p_Dict;
     PyObject *p_Class;
 } VisualMonitor_TypeDef;
 
 /* internal vriable */
 static VisualMonitor_TypeDef MonitorObj;
+
+/* internal function */
 
 /* external function */
 static bool PyDspTool_Init(char *simfile_dir, char *file_name);
@@ -28,19 +29,17 @@ static bool PyDspTool_Init(char *simfile_dir, char *file_name)
 {
     char py_file_path[1024] = {'\0'};
     PyObject *prj_path = NULL;
+    memset(&MonitorObj, 0, sizeof(VisualMonitor_TypeDef));
     
     if (getcwd(py_file_path, 1024) == NULL)
+    {
+        VISUAL_PRINT("Get file path", "Failed");
         return false;
-    
+    }
+
     strcat(py_file_path, Folder_Split);
     strcat(py_file_path, "PY_Tool");
 
-    if ((prj_path = PySys_GetObject((const char *)"path")) == NULL)
-        return false;
-
-    PyList_Append(prj_path, PyUnicode_DecodeFSDefault((const char *)py_file_path));
-
-    memset(&MonitorObj, 0, sizeof(VisualMonitor_TypeDef));
     Py_Initialize();
 
     if (!Py_IsInitialized() || \
@@ -48,8 +47,19 @@ static bool PyDspTool_Init(char *simfile_dir, char *file_name)
         (file_name == NULL) || \
         (strlen(simfile_dir) == 0) || \
         (strlen(file_name) == 0))
+    {
+        VISUAL_PRINT("Parameter", "Error");
         return false;
+    }
 
+    if ((prj_path = PySys_GetObject((const char *)"path")) == NULL)
+    {
+        VISUAL_PRINT("Get PySys Obj", "Failed");
+        return false;
+    }
+
+    PyList_Append(prj_path, PyUnicode_DecodeFSDefault((const char *)py_file_path));
+    
     /* import module */
     if (((MonitorObj.p_Name = PyUnicode_DecodeFSDefault("StructureDisplay")) == NULL) || \
         ((MonitorObj.p_Module = PyImport_Import(MonitorObj.p_Name)) == NULL))
@@ -59,15 +69,22 @@ static bool PyDspTool_Init(char *simfile_dir, char *file_name)
     }
 
     Py_DECREF(MonitorObj.p_Name);
-    if ((MonitorObj.p_Dict = PyModule_GetDict(MonitorObj.p_Module)) != NULL)
+    MonitorObj.p_Class = PyObject_GetAttrString(MonitorObj.p_Module, "StructureDisplay");
+    if ((MonitorObj.p_Class == NULL) || (PyCallable_Check(MonitorObj.p_Class) == 0))
     {
-        MonitorObj.p_Class = PyDict_GetItemString(MonitorObj.p_Dict, "StructureDisplay");
-        if (!PyCallable_Check(MonitorObj.p_Class))
-        {
-            return false;
-        }
+        VISUAL_PRINT("Class check", "Uncallable");
+        return false;
     }
 
-    return false;
+    /* init python class */
+    PyObject *p_ClassArg = Py_BuildValue("ss", simfile_dir, file_name);
+    if (p_ClassArg == NULL)
+        return false;
+    
+    PyObject_CallObject(MonitorObj.p_Class, p_ClassArg);
+    Py_DECREF(p_ClassArg);
+
+    return true;
 }
+
 

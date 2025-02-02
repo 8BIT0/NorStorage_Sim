@@ -20,6 +20,9 @@
 
 #define Item_Capacity_Per_Tab           (Storage_TabSize / sizeof(Storage_Item_TypeDef))
 
+__attribute__((weak)) void* Storage_Malloc(uint32_t size) {return malloc(size);}
+__attribute__((weak)) void Storage_Free(void *ptr) {free(ptr);}
+
 /* internal vriable */
 Storage_Monitor_TypeDef Storage_Monitor;
 static uint8_t page_data_tmp[(Storage_TabSize * 2)] __attribute__((aligned(4))) = {0};
@@ -69,18 +72,16 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
 
     Storage_Monitor.ExtDev_ptr = NULL;
     /* doing bus init on your hardware platform */
-    /*
     bus_cfg = StoragePort_Api.init(Storage_Malloc, Storage_Free);
     if (bus_cfg == NULL)
     {
         STORAGE_INFO("Bus Init", "Failed");
-        Storage_Monitor.ExternalFlash_Error_Code = Storage_BusInit_Error;
+        Storage_Monitor.Flash_Error_Code = Storage_BusInit_Error;
         return false;
     }
 
     STORAGE_INFO("Bus init", "accomplished");
     Storage_Monitor.ExtBusCfg_Ptr = bus_cfg;
-    */
 
     if (ExtDev->chip_type >= Storage_ChipType_All)
     {

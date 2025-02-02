@@ -7,7 +7,6 @@ extern "C" {
 
 #include "util.h"
 
-#define Flash_MaxRWSize                 (2 Kb)
 #define Flash_Storage_TabSize           (4 Kb)
 #define Flash_Storage_InfoPageSize      (4 Kb)
 
@@ -27,7 +26,7 @@ extern "C" {
 
 #define Storage_Item_Capacity           (1 Kb)
 
-#define EXTERNAL_STORAGE_PAGE_TAG       "[ExternalFlash Storage]"
+#define EXTERNAL_STORAGE_PAGE_TAG       "[Storage]"
 #define EXTERNAL_PAGE_TAG_SIZE          strlen(EXTERNAL_STORAGE_PAGE_TAG)
 
 #define STORAGE_NAME_LEN                41

@@ -21,17 +21,18 @@ static void Sim_Free(void *ptr);
 
 int main(int argc, char **argv)
 {
-    if (SimModule_Init(argv[0]))
-    {
-        /* storage module init successed */
-        /* init python tool -> visualize module */
-        if (!PY_Visualize.init(SimObj.simdata_path_str, SimObj.file_name))
-            return 0;
-    }
-    else
+    if (!SimModule_Init(argv[0]))
     {
         /* module init filed */
-        SIMULATION_PRINT("Storage Module", "init failed");
+        SIMULATION_PRINT("Storage", "init failed");
+        return 0;
+    }
+
+    /* storage module init successed */
+    /* init python tool -> visualize module */
+    if (!PY_Visualize.init(SimObj.simdata_path_str, SimObj.file_name))
+    {
+        SIMULATION_PRINT("Visualize", "init failed");
         return 0;
     }
 
