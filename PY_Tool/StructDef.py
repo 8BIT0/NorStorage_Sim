@@ -48,15 +48,15 @@ class Storage_BaseSecInfo_Def(Structure):
         return len(Storage_BaseSecInfo_Def._fields_)
     
     def format_str(self):
-        t_str  = '[ tab_addr ]        ' + hex(Storage_BaseSecInfo_Def.tag_addr)        + '\r\n'
-        t_str += '[ data_sec_addr ]   ' + hex(Storage_BaseSecInfo_Def.data_sec_addr)   + '\r\n'
-        t_str += '[ data_sec_size ]   ' + hex(Storage_BaseSecInfo_Def.data_sec_size)   + '\r\n'
-        t_str += '[ page_num ]        ' + hex(Storage_BaseSecInfo_Def.page_num)        + '\r\n'
-        t_str += '[ tab_size ]        ' + hex(Storage_BaseSecInfo_Def.tab_size)        + '\r\n'
-        t_str += '[ free_slot_addr ]  ' + hex(Storage_BaseSecInfo_Def.free_slot_addr)  + '\r\n'
-        t_str += '[ free_space_size ] ' + hex(Storage_BaseSecInfo_Def.free_space_size) + '\r\n'
-        t_str += '[ para_size ]       ' + hex(Storage_BaseSecInfo_Def.para_size)       + '\r\n'
-        t_str += '[ para_num ]        ' + hex(Storage_BaseSecInfo_Def.para_num)        + '\r\n'
+        t_str  = '[ tab_addr ]        ' + hex(Storage_BaseSecInfo_Def._fields_.tab_addr)        + '\r\n'
+        t_str += '[ data_sec_addr ]   ' + hex(Storage_BaseSecInfo_Def._fields_.data_sec_addr)   + '\r\n'
+        t_str += '[ data_sec_size ]   ' + hex(Storage_BaseSecInfo_Def._fields_.data_sec_size)   + '\r\n'
+        t_str += '[ page_num ]        ' + hex(Storage_BaseSecInfo_Def._fields_.page_num)        + '\r\n'
+        t_str += '[ tab_size ]        ' + hex(Storage_BaseSecInfo_Def._fields_.tab_size)        + '\r\n'
+        t_str += '[ free_slot_addr ]  ' + hex(Storage_BaseSecInfo_Def._fields_.free_slot_addr)  + '\r\n'
+        t_str += '[ free_space_size ] ' + hex(Storage_BaseSecInfo_Def._fields_.free_space_size) + '\r\n'
+        t_str += '[ para_size ]       ' + hex(Storage_BaseSecInfo_Def._fields_.para_size)       + '\r\n'
+        t_str += '[ para_num ]        ' + hex(Storage_BaseSecInfo_Def._fields_.para_num)        + '\r\n'
         return t_str
 
 class Storage_FlashInfo_Def(Structure):
@@ -74,10 +74,25 @@ class Storage_FlashInfo_Def(Structure):
     ]
 
     def size(self):
-        return len(Storage_FlashInfo_Def._fields_)
+        return len(self._fields_)
 
     def format_str(self):
-        pass
+        max_name_len = 0
+        name_list = []
+        value_list = []
+        for field in self._fields_:
+            val = eval('self.' + field[0])
+            name_list.append(field[0])
+
+            if len(field[0]) >= max_name_len:
+                max_name_len = len(field[0])
+
+            if type(val) == bytes:
+                value_list.append(val.decode('UTF-8'))
+            if type(val) == int:
+                value_list.append(hex(val))
+            if type(val) == Storage_BaseSecInfo_Def:
+                pass
 
 class Storage_Item_Def(Structure):
     _pack_ = 1

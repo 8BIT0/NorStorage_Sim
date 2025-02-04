@@ -40,9 +40,7 @@ class StructureDisplay:
         self._flash_info = Storage_FlashInfo_Def.from_buffer_copy(self._sim_data)
 
         # temporary test
-        print("flash info tag        ", self._flash_info.tag.decode("UTF-8"))
-        print("flash info base addr  ", hex(self._flash_info.base_addr))
-        print("flash info total size ", hex(self._flash_info.total_size))
+        print("Base Info\r\n", self._flash_info.format_str())
 
     def update_simdata(self):
         if not self.init_state:
