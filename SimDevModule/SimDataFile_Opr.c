@@ -33,13 +33,13 @@ static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj)
         return;
 
     if (data_obj->p_buf)
-        data_obj->free((void *)&(data_obj->p_buf));
+        data_obj->free((void **)&(data_obj->p_buf));
 
     if (data_obj->simdata_path_str)
-        data_obj->free((void *)&(data_obj->simdata_path_str));
+        data_obj->free((void **)&(data_obj->simdata_path_str));
 
     if (data_obj->file_name)
-        data_obj->free((void *)&(data_obj->file_name));
+        data_obj->free((void **)&(data_obj->file_name));
 }
 
 static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint32_t mb_size)
@@ -82,7 +82,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     sprintf((char *)data_obj->p_buf, "%s%s", file_n, SimDataFile_Extend);
     if (SimDataFile_CheckFile(data_obj, (char *)data_obj->p_buf))
     {
-        data_obj->free((void *)&(data_obj->p_buf));
+        data_obj->free((void **)&(data_obj->p_buf));
         return true;
     }
     memset(data_obj->p_buf, '\0', file_name_size);
@@ -91,7 +91,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     sprintf((char *)data_obj->p_buf, "%s%s%s%s", data_obj->simdata_path_str, Folder_Split, file_n, SimDataFile_Extend);
     SIMDATA_PRINT("create SimData file", "%s", data_obj->p_buf);
     data_obj->simdata_file = fopen((const char *)data_obj->p_buf, "w+b");
-    data_obj->free((void *)&(data_obj->p_buf));
+    data_obj->free((void **)&(data_obj->p_buf));
 
     if (data_obj->simdata_file == NULL)
     {
@@ -124,7 +124,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     SIMDATA_PRINT("Create SimData file", "Done");
     SIMDATA_PRINT("Create SimData file", "file pointer %p", data_obj->simdata_file);
     memset(data_obj->p_buf, 0x00, data_obj->size);
-    data_obj->free((void *)&(data_obj->p_buf));
+    data_obj->free((void **)&(data_obj->p_buf));
     return true;
 }
 
@@ -203,7 +203,7 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const cha
 
     /* free path string */
     path_offset = NULL;
-    data_obj->free((void *)&(data_obj->p_buf));
+    data_obj->free((void **)&(data_obj->p_buf));
     data_obj->simdata_dir = NULL;
     SIMDATA_PRINT("create folder", "Finished");
 
