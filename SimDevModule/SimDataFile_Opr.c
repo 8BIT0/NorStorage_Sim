@@ -122,7 +122,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     }
 
     SIMDATA_PRINT("Create SimData file", "Done");
-    SIMDATA_PRINT("Create SimData file", "file pointer 0x%08X", data_obj->simdata_file);
+    SIMDATA_PRINT("Create SimData file", "file pointer %p", data_obj->simdata_file);
     memset(data_obj->p_buf, 0x00, data_obj->size);
     data_obj->free((void *)&(data_obj->p_buf));
     return true;
