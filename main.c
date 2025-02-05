@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     /* main logic run */
     while (true)
     {
-        sleep(10);
+        sleep(0.1);
     }
 
     return 0;

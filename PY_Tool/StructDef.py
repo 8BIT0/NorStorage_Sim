@@ -8,6 +8,17 @@ class Storage_Opera_Type(Enum):
     Opr_Read = 3,
     Opr_Delete = 4,
 
+class Structure_Tool(Structure):
+    @classmethod
+    def align_name(cls, align_len, name_list):
+        align_len = align_len + 5
+        for i in range(len(name_list)):
+            name_tmp = '[ ' + name_list[i] + ' ]'
+            name_list[i] = name_tmp
+            
+            if len(name_list[i]) < align_len:
+                name_list[i] += ' ' * (align_len - len(name_list[i]))
+
 class Storage_Stream_Def(Structure):
     _pack_ = 1
     _fields_ = [
@@ -29,7 +40,7 @@ class Storage_Input_Def(Structure):
     def size(self):
         return len(Storage_Input_Def._fields_)
 
-class Storage_BaseSecInfo_Def(Structure):
+class Storage_BaseSecInfo_Def(Structure_Tool):
     # pack as byte align
     _pack_ = 1
     _fields_ = [
@@ -48,23 +59,33 @@ class Storage_BaseSecInfo_Def(Structure):
         return len(Storage_BaseSecInfo_Def._fields_)
     
     def format_str(self):
-        t_str  = '[ tab_addr ]        ' + hex(Storage_BaseSecInfo_Def._fields_.tab_addr)        + '\r\n'
-        t_str += '[ data_sec_addr ]   ' + hex(Storage_BaseSecInfo_Def._fields_.data_sec_addr)   + '\r\n'
-        t_str += '[ data_sec_size ]   ' + hex(Storage_BaseSecInfo_Def._fields_.data_sec_size)   + '\r\n'
-        t_str += '[ page_num ]        ' + hex(Storage_BaseSecInfo_Def._fields_.page_num)        + '\r\n'
-        t_str += '[ tab_size ]        ' + hex(Storage_BaseSecInfo_Def._fields_.tab_size)        + '\r\n'
-        t_str += '[ free_slot_addr ]  ' + hex(Storage_BaseSecInfo_Def._fields_.free_slot_addr)  + '\r\n'
-        t_str += '[ free_space_size ] ' + hex(Storage_BaseSecInfo_Def._fields_.free_space_size) + '\r\n'
-        t_str += '[ para_size ]       ' + hex(Storage_BaseSecInfo_Def._fields_.para_size)       + '\r\n'
-        t_str += '[ para_num ]        ' + hex(Storage_BaseSecInfo_Def._fields_.para_num)        + '\r\n'
+        name_list = []
+        value_str_list = []
+        align_size = 0
+        t_str = ''
+
+        for filed in self._fields_:
+            field_v = eval('self.' + filed[0])
+
+            name_list.append(filed[0])
+            value_str_list.append(hex(field_v))
+
+            if len(filed[0]) > align_size:
+                align_size = len(filed[0])
+
+        self.align_name(align_size, name_list)
+
+        for i in range(len(self._fields_)):
+            t_str += (name_list[i] + '  ' + value_str_list[i] + '\r\n')
+
         return t_str
 
-class Storage_FlashInfo_Def(Structure):
+class Storage_FlashInfo_Def(Structure_Tool):
     # pack as byte align
+    _tag_size = 32
     _pack_ = 1
-    tag_size = 32
     _fields_ = [
-        ("tag",             c_char * tag_size),
+        ("tag",             c_char * _tag_size),
         ("base_addr",       c_uint32),
         ("total_size",      c_uint32),
         ("remain_size",     c_uint32),
@@ -80,6 +101,8 @@ class Storage_FlashInfo_Def(Structure):
         max_name_len = 0
         name_list = []
         value_list = []
+        t_str = ''
+
         for field in self._fields_:
             val = eval('self.' + field[0])
             name_list.append(field[0])
@@ -89,22 +112,29 @@ class Storage_FlashInfo_Def(Structure):
 
             if type(val) == bytes:
                 value_list.append(val.decode('UTF-8'))
-            if type(val) == int:
+            elif type(val) == int:
                 value_list.append(hex(val))
-            if type(val) == Storage_BaseSecInfo_Def:
-                pass
+            elif type(val) == Storage_BaseSecInfo_Def:
+                value_list.append(val.format_str())
 
-class Storage_Item_Def(Structure):
+        self.align_name(max_name_len, name_list)
+
+        for i in range(len(self._fields_)):
+            t_str += (name_list[i] + '  ' + value_list[i] + '\r\n')
+        
+        return t_str
+
+class Storage_Item_Def(Structure_Tool):
+    _name_size = 41
+    _res_size = 12
     _pack_ = 1
-    name_size = 41
-    res_size = 12
     _fields_ = [
         ("head_tag",    c_uint8),
         ("_class",      c_uint8),
-        ("name",        c_char * name_size),
+        ("name",        c_char * _name_size),
         ("data_addr",   c_uint32),
         ("len",         c_uint16),
-        ("reserve",     c_uint8 * res_size),
+        ("reserve",     c_uint8 * _res_size),
         ("crc16",       c_uint16),
         ("end_tag",     c_uint8)
     ]
