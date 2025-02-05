@@ -101,7 +101,7 @@ class Storage_FlashInfo_Def(Structure_Tool):
         max_name_len = 0
         name_list = []
         value_list = []
-        t_str = ''
+        t_str = '--------------------------------------------------- Flash Info START -----------------------------------------------\r\n'
 
         for field in self._fields_:
             val = eval('self.' + field[0])
@@ -120,7 +120,20 @@ class Storage_FlashInfo_Def(Structure_Tool):
         self.align_name(max_name_len, name_list)
 
         for i in range(len(self._fields_)):
-            t_str += (name_list[i] + '  ' + value_list[i] + '\r\n')
+            offset = 0
+            if type(eval('self.' + self._fields_[i][0])) == Storage_BaseSecInfo_Def:
+                offset = len(name_list[i] + '  ')
+                tmp_list = value_list[i].split('\r\n')
+                t_str += (name_list[i] + '\r\n')
+                for str_l in tmp_list:
+                    Ender = '\r\n'
+                    if str_l == tmp_list[-1]:
+                        Ender = ''
+                        offset = 0
+                    t_str += (' ' * offset + str_l + Ender)
+            else:
+                t_str += (name_list[i] + '  ' + value_list[i] + '\r\n')
+        t_str += '--------------------------------------------------- Flash Info END -------------------------------------------------\r\n'
         
         return t_str
 
