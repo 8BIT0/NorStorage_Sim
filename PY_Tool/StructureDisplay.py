@@ -40,8 +40,10 @@ class StructureDisplay:
         self._flash_info = Storage_FlashInfo_Def.from_buffer_copy(self._sim_data)
 
         # check if the file is valid
-
         # check tag
+        if self._flash_info.tag.decode('UTF-8') != STORAGE_TAG:
+            self.__debug_print__("Update", "Tag Error", self._flash_info.tag.decode('UTF-8'), STORAGE_TAG)
+            return False
         
         # check CRC
 

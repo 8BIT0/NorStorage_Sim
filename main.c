@@ -6,6 +6,13 @@
 #include "SimDevModule/SimDataFile_Opr.h"
 #include "Storage_Port/Storage.h"
 #include "py_dsp_tool.h"
+#if defined WIN
+#include <windows.h>
+
+#define Sleep_Ms(x) Sleep(x)
+#else
+#define Sleep_Ms(x) usleep(x * 1000)
+#endif
 
 #define SIMULATION_TAG "SIM"
 #define SIMULATION_PRINT(stage, fmt, ...) Debug_Print(SIMULATION_TAG, stage, fmt, ##__VA_ARGS__) 
@@ -39,7 +46,7 @@ int main(int argc, char **argv)
     /* main logic run */
     while (true)
     {
-        sleep(0.1);
+        Sleep_Ms(10);
     }
 
     return 0;
