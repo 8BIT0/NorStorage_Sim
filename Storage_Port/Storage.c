@@ -357,10 +357,6 @@ static bool Storage_Get_StorageInfo(void)
     /* check internal storage tag */
     Info_r = *(Storage_FlashInfo_TypeDef *)page_data_tmp;
     
-    STORAGE_INFO("info", "tag %s", Info_r.tag);
-    STORAGE_INFO("info", "sys  tab addr 0x%08X", Info_r.sys_sec.tab_addr);
-    STORAGE_INFO("info", "user tab addr 0x%08X", Info_r.user_sec.tab_addr);
-
     /* check storage tag */
     /* check boot / sys / user  start addr */
     if ((strcmp((const char *)Info_r.tag, flash_tag) != 0) || \
@@ -368,6 +364,10 @@ static bool Storage_Get_StorageInfo(void)
         (Info_r.user_sec.tab_addr == 0) || \
         (Info_r.sys_sec.tab_addr == Info_r.user_sec.tab_addr))
         return false;
+    
+    STORAGE_INFO("info", "tag %s", Info_r.tag);
+    STORAGE_INFO("info", "sys  tab addr 0x%08X", Info_r.sys_sec.tab_addr);
+    STORAGE_INFO("info", "user tab addr 0x%08X", Info_r.user_sec.tab_addr);
 
     /* get crc from storage baseinfo section check crc value */
     memcpy(&crc_read, &page_data_tmp[Storage_InfoPageSize - sizeof(uint16_t)], sizeof(uint16_t));

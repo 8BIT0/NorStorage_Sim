@@ -131,7 +131,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
 static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const char *app_path)
 {
     char *path_offset = data_obj->simdata_path_str;
-    uint16_t path_len = strlen(Folder_Split) + strlen(SimDataFile_Folder);
+    uint16_t path_len = strlen(Folder_Split) + strlen(SimDataFile_Folder) + 1;
     const char* app_dir = NULL;
     int ret = 0;
 
