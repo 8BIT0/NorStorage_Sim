@@ -32,14 +32,6 @@ StorageDevApi_TypeDef StorageDev = {
     .set = Storage_Dev_Set,
     .init = Storage_Dev_Init,
 
-    .write_phy_sec = NULL,
-    .read_phy_sec = NULL,
-    .erase_phy_sec = NULL,
-
-    .firmware_format = NULL,
-    .firmware_read = NULL,
-    .firmware_write = NULL,
-
     .param_read = Storage_Dev_Param_Read,
     .param_write = Storage_Dev_Param_Write,
     .param_erase = Storage_Dev_Param_Erase,
