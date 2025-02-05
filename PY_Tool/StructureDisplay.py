@@ -39,6 +39,12 @@ class StructureDisplay:
         self.__debug_print__("Update", "Base Info")
         self._flash_info = Storage_FlashInfo_Def.from_buffer_copy(self._sim_data)
 
+        # check if the file is valid
+
+        # check tag
+        
+        # check CRC
+
         # temporary test
         print(self._flash_info.format_str())
 
