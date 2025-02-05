@@ -33,22 +33,13 @@ static void SimDataFile_Free(SimDataFileObj_TypeDef *data_obj)
         return;
 
     if (data_obj->p_buf)
-    {
-        data_obj->free(data_obj->p_buf);
-        data_obj->p_buf = NULL;
-    }
+        data_obj->free((void *)&(data_obj->p_buf));
 
     if (data_obj->simdata_path_str)
-    {
-        data_obj->free(data_obj->simdata_path_str);
-        data_obj->simdata_path_str = NULL;
-    }
+        data_obj->free((void *)&(data_obj->simdata_path_str));
 
     if (data_obj->file_name)
-    {
-        data_obj->free(data_obj->file_name);
-        data_obj->file_name = NULL;
-    }
+        data_obj->free((void *)&(data_obj->file_name));
 }
 
 static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app_path, const char *file_n, uint32_t mb_size)
@@ -86,14 +77,12 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
         SimDataFile_Free(data_obj);
         return false;
     }
-    memset(data_obj->p_buf, '\0', file_name_size);
 
     /* check file in selected folder */
     sprintf((char *)data_obj->p_buf, "%s%s", file_n, SimDataFile_Extend);
     if (SimDataFile_CheckFile(data_obj, (char *)data_obj->p_buf))
     {
-        data_obj->free(data_obj->p_buf);
-        data_obj->p_buf = NULL;
+        data_obj->free((void *)&(data_obj->p_buf));
         return true;
     }
     memset(data_obj->p_buf, '\0', file_name_size);
@@ -102,8 +91,7 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     sprintf((char *)data_obj->p_buf, "%s%s%s%s", data_obj->simdata_path_str, Folder_Split, file_n, SimDataFile_Extend);
     SIMDATA_PRINT("create SimData file", "%s", data_obj->p_buf);
     data_obj->simdata_file = fopen((const char *)data_obj->p_buf, "w+b");
-    data_obj->free(data_obj->p_buf);
-    data_obj->p_buf = NULL;
+    data_obj->free((void *)&(data_obj->p_buf));
 
     if (data_obj->simdata_file == NULL)
     {
@@ -136,39 +124,40 @@ static bool SimDataFile_Create(SimDataFileObj_TypeDef *data_obj, const char *app
     SIMDATA_PRINT("Create SimData file", "Done");
     SIMDATA_PRINT("Create SimData file", "file pointer 0x%08X", data_obj->simdata_file);
     memset(data_obj->p_buf, 0x00, data_obj->size);
-    data_obj->free(data_obj->p_buf);
-    data_obj->p_buf = NULL;
+    data_obj->free((void *)&(data_obj->p_buf));
     return true;
 }
 
 static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const char *app_path)
 {
     char *path_offset = data_obj->simdata_path_str;
-    uint16_t path_len = 0;
+    uint16_t path_len = strlen(Folder_Split) + strlen(SimDataFile_Folder);
     const char* app_dir = NULL;
     int ret = 0;
 
     if (data_obj->simdata_path_str == NULL)
     {
+        /* get exe folder path */
         app_dir = dirname((char *)app_path);
-        path_offset = NULL;
 
         /* create sub folder in the same path of application*/
         /* create path name string */
         SIMDATA_PRINT("exec path", "%s", app_dir);
-        path_len = strlen(app_dir) + strlen(Folder_Split) + strlen(SimDataFile_Folder);
+        
+        path_len += strlen(app_dir);
         data_obj->simdata_path_str = data_obj->malloc(path_len);
+
         path_len += strlen(SimDataFile_MKDIR);
         data_obj->p_buf = data_obj->malloc(path_len);
+        
         if ((data_obj->p_buf == NULL) || (data_obj->simdata_path_str == NULL))
         {
             SIMDATA_PRINT("create path", "Failed");
             SimDataFile_Free(data_obj);
             return false;
         }
-        memset(data_obj->simdata_path_str, '\0', path_len - strlen(SimDataFile_MKDIR));
-        memset(data_obj->p_buf, '\0', path_len);
         
+        path_offset = NULL;
         path_offset = (char *)(data_obj->p_buf + strlen(SimDataFile_MKDIR));
         strcpy(path_offset, app_dir);
         strcat(path_offset, Folder_Split);
@@ -184,7 +173,7 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const cha
         SIMDATA_PRINT("path no found", "%s", data_obj->simdata_path_str);
         /* create path string */
         SIMDATA_PRINT("create path", "%s", data_obj->p_buf);
-        if (system((const char *)data_obj->p_buf) != 0)
+        if ((ret = system((const char *)data_obj->p_buf)) != 0)
         {
             SIMDATA_PRINT("create path", "Failed Error Code: %d", ret);
             SimDataFile_Free(data_obj);
@@ -200,16 +189,23 @@ static bool SimDataFile_CreateFolder(SimDataFileObj_TypeDef *data_obj, const cha
             SimDataFile_Free(data_obj);
             return false;
         }
+        
+        SIMDATA_PRINT("open path", "Done");
     }
     else
         SIMDATA_PRINT("path", "Already Exist");
-    closedir(data_obj->simdata_dir);
+
+    if (closedir(data_obj->simdata_dir) != 0)
+    {
+        SIMDATA_PRINT("close path", "Failed");
+        return false;
+    }
 
     /* free path string */
+    path_offset = NULL;
+    data_obj->free((void *)&(data_obj->p_buf));
     data_obj->simdata_dir = NULL;
-    path_len = 0;
-    data_obj->free(data_obj->p_buf);
-    data_obj->p_buf = NULL;
+    SIMDATA_PRINT("create folder", "Finished");
 
     return true;
 }
@@ -234,7 +230,6 @@ static bool SimDataFile_CheckFile(SimDataFileObj_TypeDef *data_obj, char *file_n
             SimDataFile_Free(data_obj);
             return false;
         }
-        memset(data_obj->file_name, '\0', strlen(file_name));
         strcpy(data_obj->file_name, file_name);
     }
 
@@ -242,24 +237,24 @@ static bool SimDataFile_CheckFile(SimDataFileObj_TypeDef *data_obj, char *file_n
     data_obj->simdata_dir = opendir(data_obj->simdata_path_str);
     if (data_obj->simdata_dir == NULL)
     {
-        SIMDATA_PRINT("check file", "Open folder %s failed", data_obj->simdata_path_str);
+        SIMDATA_PRINT("open folder", "%s failed", data_obj->simdata_path_str);
         return false;
     }
 
-    SIMDATA_PRINT("check file", "Open folder %s done", data_obj->simdata_path_str);
+    SIMDATA_PRINT("open folder", "%s done", data_obj->simdata_path_str);
     while ((folder_item = readdir(data_obj->simdata_dir)) != NULL)
     {
         if (folder_item->d_namlen == 0)
             continue;    
     
-        SIMDATA_PRINT("check file", "%s", folder_item->d_name);
+        SIMDATA_PRINT("check folder", "%s", folder_item->d_name);
         if (memcmp(folder_item->d_name, file_name, strlen(file_name)) == 0)
         {
-            SIMDATA_PRINT("check file", "File name matched");
+            SIMDATA_PRINT("search file", "File name matched");
             return true;
         }
     }
-    SIMDATA_PRINT("check file", "File name unmatched");
+    SIMDATA_PRINT("search file", "File name unmatched");
 
     return false;
 }

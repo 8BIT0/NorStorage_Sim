@@ -32,7 +32,7 @@ static void* Storage_External_Chip_Bus_Init(StorageBus_Malloc_Callback p_malloc,
     file_obj = p_malloc(sizeof(SimDataFileObj_TypeDef));
     if (file_obj == NULL)
     {
-        p_free(file_obj);
+        p_free((void *)&file_obj);
         return NULL;
     }
 

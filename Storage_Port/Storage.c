@@ -21,7 +21,14 @@
 #define Item_Capacity_Per_Tab           (Storage_TabSize / sizeof(Storage_Item_TypeDef))
 
 __attribute__((weak)) void* Storage_Malloc(uint32_t size) {return malloc(size);}
-__attribute__((weak)) void Storage_Free(void *ptr) {free(ptr);}
+__attribute__((weak)) void Storage_Free(void **ptr)
+{
+    if ((ptr == NULL) || (*ptr == NULL))
+        return;
+
+    free(*ptr);
+    *ptr = NULL;
+}
 
 /* internal vriable */
 Storage_Monitor_TypeDef Storage_Monitor;

@@ -10,7 +10,7 @@ extern "C" {
 #include <string.h>
 
 typedef void* (*StorageBus_Malloc_Callback)(uint32_t size);
-typedef void (*StorageBus_Free_Callback)(void *ptr);
+typedef void (*StorageBus_Free_Callback)(void **ptr);
 
 typedef struct
 {

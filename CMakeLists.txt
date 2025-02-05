@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 project(Storage_Sim)
-SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_BUILD_TYPE Debug)
 SET(CMAKE_C_FLAGS"${CMAKE_C_FLAGS} -g -O0")
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_definitions(-DLINUX)
