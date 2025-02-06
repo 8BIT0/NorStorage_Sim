@@ -8,10 +8,9 @@ extern "C" {
 #include "util.h"
 
 #define Flash_Storage_TabSize           (4 Kb)
-#define Flash_Storage_InfoPageSize      (4 Kb)
 
 #define Storage_TabSize                 Flash_Storage_TabSize
-#define Storage_InfoPageSize            Flash_Storage_InfoPageSize
+#define Storage_InfoPageSize            Flash_Storage_TabSize
 
 #define Storage_Assert(x)               while(x)
 
@@ -40,10 +39,10 @@ extern "C" {
 
 #define Flash_Start_Addr                0
 #define Flash_Storage_DefaultData       0xFF
+#define Flash_Storage_ResData           0x55
 #define Flash_Storage_TotalSize         (4 Mb)
 
-#define FLash_ProtectSec_Size           (4 Kb)
-#define Flash_BootDataSec_Size          (64 Kb)
+#define FLash_ReserveSec_Size           (4 Kb)
 #define Flash_SysDataSec_Size           (64 Kb)
 #define Flash_UserDataSec_Size          (3 Mb)
 

@@ -116,7 +116,7 @@ typedef struct
     uint32_t tab_addr;
     uint32_t data_sec_addr;
     uint32_t data_sec_size;
-    uint32_t page_num;
+    uint32_t tab_num;
     uint32_t tab_size;
     uint32_t free_slot_addr;
     uint32_t free_space_size;
