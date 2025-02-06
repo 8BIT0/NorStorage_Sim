@@ -1339,7 +1339,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
 
 static bool Storage_Establish_Tab(Storage_ParaClassType_List class)
 {
-    Storage_FlashInfo_TypeDef *p_Flash = NULL;
+    Storage_FlashInfo_TypeDef *p_Flash = &Storage_Monitor.info;
     Storage_BaseSecInfo_TypeDef *p_SecInfo = NULL;
     uint16_t clear_cnt = 0;
     uint32_t clear_byte = 0;
@@ -1350,17 +1350,17 @@ static bool Storage_Establish_Tab(Storage_ParaClassType_List class)
 
     switch ((uint8_t)class)
     {
-        case Para_Sys:  STORAGE_INFO("establish tab", "Building %s Tab", "Sys"); break;
-        case Para_User: STORAGE_INFO("establish tab", "Building %s Tab", "User"); break;
-        default: STORAGE_INFO("establish tab", "Unknow type"); return false;
-    }
+        case Para_Sys:
+            STORAGE_INFO("establish tab", "Building %s Tab", "Sys");
+            p_SecInfo = &(p_Flash->sys_sec);
+            break;
+        
+        case Para_User:
+            STORAGE_INFO("establish tab", "Building %s Tab", "User");
+            p_SecInfo = &(p_Flash->user_sec);
+            break;
 
-    p_Flash = &Storage_Monitor.info;
-    p_SecInfo = Storage_Get_SecInfo(p_Flash, class);
-    if (p_SecInfo == NULL)
-    {
-        STORAGE_INFO("establish tab", "Get section info failed");
-        return false;
+        default: STORAGE_INFO("establish tab", "Unknow type"); return false;
     }
 
     if (p_SecInfo->tab_addr && Storage_Clear_Tab(p_SecInfo->tab_addr, p_SecInfo->tab_num))
@@ -1626,7 +1626,7 @@ static bool Storage_Fill_ReserveSec(uint32_t addr)
     {
         if (page_data_tmp[i] != Flash_Storage_ResData)
         {
-            STORAGE_INFO("set res area", "data at 0x08%X index at %d error", addr, i);
+            STORAGE_INFO("set res area", "data at 0x08%X index at %d error data 0x02%X", addr, i, page_data_tmp[i]);
             return false;
         }
     }
