@@ -459,15 +459,13 @@ static Storage_ItemSearchOut_TypeDef Storage_Search(Storage_ParaClassType_List _
 
             if ((p_item->head_tag == STORAGE_ITEM_HEAD_TAG) && \
                 (p_item->end_tag == STORAGE_ITEM_END_TAG) && \
-                (memcmp(p_item->name, name, strlen(name)) == 0))
+                (memcmp(p_item->name, name, strlen(name)) == 0) && \
+                (Storage_Compare_ItemSlot_CRC(*p_item)))
             {
-                if (Storage_Compare_ItemSlot_CRC(*p_item))
-                {
-                    ItemSearch.item_addr = tab_addr;
-                    ItemSearch.item_index = item_i;
-                    ItemSearch.item = *p_item;
-                    return ItemSearch;
-                }
+                ItemSearch.item_addr = tab_addr;
+                ItemSearch.item_index = item_i;
+                ItemSearch.item = *p_item;
+                return ItemSearch;
             }
         }
     
