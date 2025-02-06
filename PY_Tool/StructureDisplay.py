@@ -55,6 +55,7 @@ class StructureDisplay:
 
         # temporary test
         print(self._flash_info.format_str())
+        return True
 
     def update_simdata(self):
         if not self.init_state:
