@@ -1500,7 +1500,7 @@ static bool Storage_Build_StorageInfo(void)
     }
 
     /* remain_size = total size - (info_page_size - reserve_size) - (sys_table_size - reserve_size) - (user_table_size - reserve_size) */
-    remain_data_sec_size = Storage_Monitor.info.total_size - tab_addr_offset;
+    remain_data_sec_size = Storage_Monitor.info.total_size - (tab_addr_offset - base_addr);
     data_sec_size += Storage_Monitor.info.sys_sec.data_sec_size + Storage_ReserveBlock_Size;
     data_sec_size += Storage_Monitor.info.user_sec.data_sec_size + Storage_ReserveBlock_Size;
 

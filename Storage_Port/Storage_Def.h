@@ -37,10 +37,10 @@ extern "C" {
 #define STORAGE_MIN_BYTE_SIZE           1
 #define STORAGE_FREEITEM_NAME           "Item_Avaliable"
 
-#define Flash_Start_Addr                0
+#define Flash_Start_Addr                (1 Mb)
 #define Flash_Storage_DefaultData       0xFF
 #define Flash_Storage_ResData           0x55
-#define Flash_Storage_TotalSize         (4 Mb)
+#define Flash_Storage_TotalSize         (8 Mb)
 
 #define FLash_ReserveSec_Size           (4 Kb)
 #define Flash_SysDataSec_Size           (64 Kb)
