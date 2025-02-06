@@ -49,6 +49,7 @@ static bool Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free
 static Storage_ErrorCode_List Storage_ItemSlot_Update(uint32_t tab_addr, uint8_t item_index, Storage_BaseSecInfo_TypeDef *p_Sec, Storage_Item_TypeDef item);
 static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num);
 static bool Storage_Establish_Tab(Storage_ParaClassType_List class);
+static bool Storage_Fill_ReserveSec(uint32_t addr);
 
 /* external function */
 static bool Storage_Init(StorageDevObj_TypeDef *ExtDev);
@@ -1439,6 +1440,7 @@ static bool Storage_Build_StorageInfo(void)
     uint32_t remain_data_sec_size = 0;
     uint32_t data_sec_size = 0;
     uint32_t base_addr = Storage_Monitor.info.base_addr;
+    uint32_t reserve_sec_addr = 0;
 
     // memset(&Info, 0, sizeof(Storage_FlashInfo_TypeDef));
     memset(&Info_Rx, 0, sizeof(Storage_FlashInfo_TypeDef));
@@ -1447,6 +1449,10 @@ static bool Storage_Build_StorageInfo(void)
     memcpy(Storage_Monitor.info.tag, EXTERNAL_STORAGE_PAGE_TAG, EXTERNAL_PAGE_TAG_SIZE);
     Storage_Monitor.info.total_size = Flash_Storage_TotalSize;
     
+    /* fill reserve section */
+    if (!Storage_Fill_ReserveSec(Storage_Monitor.info.base_addr + FLash_ReserveSec_Size))
+        return false;
+
     /* set system data table section info
      * table address 
      * table size
@@ -1464,6 +1470,8 @@ static bool Storage_Build_StorageInfo(void)
     tab_addr_offset += Storage_Monitor.info.sys_sec.tab_addr + TabSize + Storage_ReserveBlock_Size;
     
     /* fill 0x55 to reserve area */
+    if (!Storage_Fill_ReserveSec(tab_addr_offset - Storage_ReserveBlock_Size))
+        return false;
 
     /* set user data table section info
      * table address 
@@ -1482,6 +1490,8 @@ static bool Storage_Build_StorageInfo(void)
     tab_addr_offset += Storage_Monitor.info.user_sec.tab_addr + TabSize + Storage_ReserveBlock_Size;
 
     /* fill 0x55 to reserve area */
+    if (!Storage_Fill_ReserveSec(tab_addr_offset - Storage_ReserveBlock_Size))
+        return false;
     
     STORAGE_INFO("build info", "total size 0x%08x", Storage_Monitor.info.total_size);
     STORAGE_INFO("build info", "tab addr offset 0x%08x", tab_addr_offset);
@@ -1590,4 +1600,38 @@ static Storage_BaseSecInfo_TypeDef* Storage_Get_SecInfo(Storage_FlashInfo_TypeDe
         case Para_User: return &(info->user_sec);
         default:        return NULL;
     }
+}
+
+static bool Storage_Fill_ReserveSec(uint32_t addr)
+{
+    if (addr == 0)
+    {
+        STORAGE_INFO("set res area", "Invalid address");
+        return false;
+    }
+
+    memset(page_data_tmp, Flash_Storage_ResData, Storage_ReserveBlock_Size);
+    if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, addr, 0, page_data_tmp, Storage_ReserveBlock_Size))
+    {
+        STORAGE_INFO("set res area", "write at 0x08%X failed", addr);
+        return false;
+    }
+
+    memset(page_data_tmp, 0, Storage_ReserveBlock_Size);
+    if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, addr, 0, page_data_tmp, Storage_ReserveBlock_Size))
+    {
+        STORAGE_INFO("set res area", "read at 0x08%X failed", addr);
+        return false;
+    }
+
+    for (uint16_t i = 0; i < Storage_ReserveBlock_Size; i ++)
+    {
+        if (page_data_tmp[i] != Flash_Storage_ResData)
+        {
+            STORAGE_INFO("set res area", "data at 0x08%X index at %d error", addr, i);
+            return false;
+        }
+    }
+
+    return true;
 }

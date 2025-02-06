@@ -57,6 +57,9 @@ class StructureDisplay:
         print(self._flash_info.format_str())
         return True
 
+    def __check_Tab(self):
+        pass
+
     def update_simdata(self):
         if not self.init_state:
             return False
