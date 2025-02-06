@@ -1431,7 +1431,6 @@ static bool Storage_Establish_Tab(Storage_ParaClassType_List class)
     return false;
 }
 
-/* review this part something wrong */
 static bool Storage_Build_StorageInfo(void)
 {
     Storage_FlashInfo_TypeDef Info_Rx;
@@ -1442,7 +1441,6 @@ static bool Storage_Build_StorageInfo(void)
     uint32_t base_addr = Storage_Monitor.info.base_addr;
     uint32_t reserve_sec_addr = 0;
 
-    // memset(&Info, 0, sizeof(Storage_FlashInfo_TypeDef));
     memset(&Info_Rx, 0, sizeof(Storage_FlashInfo_TypeDef));
     memset(&Storage_Monitor.info.sys_sec, 0, sizeof(Storage_BaseSecInfo_TypeDef));
     memset(&Storage_Monitor.info.user_sec, 0, sizeof(Storage_BaseSecInfo_TypeDef));
