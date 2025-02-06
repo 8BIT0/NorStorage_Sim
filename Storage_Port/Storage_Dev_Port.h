@@ -66,9 +66,9 @@ typedef struct
     bool (*set)(StorageDevObj_TypeDef *ext_dev);
     bool (*init)(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, uint16_t *p_code);
 
-    bool (*param_write)(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint8_t *p_data, uint32_t len);
-    bool (*param_read)(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint8_t *p_data, uint32_t len);
-    bool (*param_erase)(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint32_t len);
+    bool (*param_write)(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint8_t *p_data, uint32_t len);
+    bool (*param_read)(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint8_t *p_data, uint32_t len);
+    bool (*param_erase)(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint32_t len);
 } StorageDevApi_TypeDef;
 
 extern StorageDevApi_TypeDef StorageDev;

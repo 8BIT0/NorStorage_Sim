@@ -17,6 +17,7 @@
         "storage_def.h": "c",
         "stdint.h": "c",
         "python.h": "c",
-        "py_dsp_tool.h": "c"
+        "py_dsp_tool.h": "c",
+        "string.h": "c"
     }
 }

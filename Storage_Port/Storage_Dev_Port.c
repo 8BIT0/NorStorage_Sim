@@ -24,9 +24,9 @@ static uint8_t write_tmp[Storage_TabSize * 2] __attribute__((aligned(4))) = {0};
 static bool Storage_Dev_Set(StorageDevObj_TypeDef *ext_dev);
 static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, uint16_t *p_code);
 
-static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint8_t *p_data, uint32_t len);
-static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint8_t *p_data, uint32_t len);
-static bool Storage_Dev_Param_Erase(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint32_t len);
+static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint8_t *p_data, uint32_t len);
+static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint8_t *p_data, uint32_t len);
+static bool Storage_Dev_Param_Erase(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint32_t len);
 
 StorageDevApi_TypeDef StorageDev = {
     .set = Storage_Dev_Set,
@@ -112,9 +112,8 @@ static bool Storage_Dev_Init(StorageDevObj_TypeDef *ext_dev, uint16_t *p_type, u
     return false;
 }
 
-static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint8_t *p_data, uint32_t len)
+static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint8_t *p_data, uint32_t len)
 {
-    uint32_t read_start_addr = base_addr + addr_offset;
     uint32_t flash_end_addr = 0;
     uint32_t section_start_addr = 0;
     uint32_t next_read_addr = 0;
@@ -133,7 +132,7 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
     section_size = To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).sector_size;
     /* get w25qxx device info */
     /* address check */
-    if (read_start_addr < To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr)
+    if (addr < To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr)
     {
         STORAGE_DEV_INFO("read", "Bad read start addr");
         return false;
@@ -142,14 +141,14 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
     /* range check */
     flash_end_addr = To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr;
     flash_end_addr += To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).flash_size;
-    if (((len + read_start_addr) > flash_end_addr) || (section_size == 0))
+    if (((len + addr) > flash_end_addr) || (section_size == 0))
     {
         STORAGE_DEV_INFO("read", "Size over range");
         return false;
     }
 
-    section_start_addr = To_DevW25Qxx_API(p_dev->api)->get_section_start_addr(To_DevW25Qxx_OBJ(p_dev->obj), read_start_addr);
-    read_offset = read_start_addr - section_start_addr;
+    section_start_addr = To_DevW25Qxx_API(p_dev->api)->get_section_start_addr(To_DevW25Qxx_OBJ(p_dev->obj), addr);
+    read_offset = addr - section_start_addr;
     if (section_size > sizeof(read_tmp))
     {
         STORAGE_DEV_INFO("read", "Buff over range");
@@ -189,9 +188,8 @@ static bool Storage_Dev_Param_Read(StorageDevObj_TypeDef *p_dev, uint32_t base_a
     }
 }
 
-static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint8_t *p_data, uint32_t len)
+static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint8_t *p_data, uint32_t len)
 {
-    uint32_t write_start_addr = base_addr + addr_offset;
     uint32_t flash_end_addr = 0;
     uint32_t section_start_addr = 0;
     uint32_t next_write_addr = 0;
@@ -210,19 +208,19 @@ static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t base_
     /* get w25qxx device info */
     /* address check */
     flash_end_addr = To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr;
-    if (flash_end_addr > write_start_addr)
+    if (flash_end_addr > addr)
         return false;
 
     /* range check */
     flash_end_addr += To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).flash_size;
-    if ((len + write_start_addr) > flash_end_addr)
+    if ((len + addr) > flash_end_addr)
         return false;
     
     if (section_size == 0)
         return false;
         
-    section_start_addr = To_DevW25Qxx_API(p_dev->api)->get_section_start_addr(To_DevW25Qxx_OBJ(p_dev->obj), write_start_addr);
-    write_offset = write_start_addr - section_start_addr;
+    section_start_addr = To_DevW25Qxx_API(p_dev->api)->get_section_start_addr(To_DevW25Qxx_OBJ(p_dev->obj), addr);
+    write_offset = addr - section_start_addr;
     if (section_size > sizeof(write_tmp))
         return false;
 
@@ -273,10 +271,8 @@ static bool Storage_Dev_Param_Write(StorageDevObj_TypeDef *p_dev, uint32_t base_
     return false;
 }
 
-static bool Storage_Dev_Param_Erase(StorageDevObj_TypeDef *p_dev, uint32_t base_addr, uint32_t addr_offset, uint32_t len)
+static bool Storage_Dev_Param_Erase(StorageDevObj_TypeDef *p_dev, uint32_t addr, uint32_t len)
 {
-    uint32_t erase_start_addr = base_addr + addr_offset;
-
     if ((p_dev == NULL) || \
         (p_dev->api == NULL) || \
         (p_dev->obj == NULL) || \
@@ -285,11 +281,11 @@ static bool Storage_Dev_Param_Erase(StorageDevObj_TypeDef *p_dev, uint32_t base_
 
     /* get w25qxx device info */
     /* address check */
-    if (erase_start_addr < To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr)
+    if (addr < To_DevW25Qxx_API(p_dev->api)->info(To_DevW25Qxx_OBJ(p_dev->obj)).start_addr)
         return false;
 
     /* W25Qxx device read */
-    if (To_DevW25Qxx_API(p_dev->api)->erase_sector(To_DevW25Qxx_OBJ(p_dev->obj), erase_start_addr) == SimDevW25Qxx_Ok)
+    if (To_DevW25Qxx_API(p_dev->api)->erase_sector(To_DevW25Qxx_OBJ(p_dev->obj), addr) == SimDevW25Qxx_Ok)
         return true;
     
     return false;
