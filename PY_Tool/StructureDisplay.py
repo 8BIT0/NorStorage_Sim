@@ -2,6 +2,7 @@ import tkinter as TK
 import os
 from ConstDef import *
 from StructDef import *
+import util
 
 # get base information from storage info section
 class StructureDisplay:
@@ -46,6 +47,11 @@ class StructureDisplay:
             return False
         
         # check CRC
+        info_crc = (self._sim_data[STORAGE_INFOPAGE_SIZE - 1] << 8) | self._sim_data[STORAGE_INFOPAGE_SIZE - 2]
+        crc = util.CusCrc16(self._sim_data[:STORAGE_INFOPAGE_SIZE - 2])
+        if info_crc != crc:
+            self.__debug_print__("Update", "CRC Error ", "File CRC16 " + hex(info_crc), "Comput CRC16" + hex(crc))
+            return False
 
         # temporary test
         print(self._flash_info.format_str())
