@@ -44,10 +44,10 @@ int main(int argc, char **argv)
     }
 
     /* main logic run */
-    while (true)
-    {
-        Sleep_Ms(10);
-    }
+    // while (true)
+    // {
+    //     Sleep_Ms(10);
+    // }
 
     return 0;
 }
