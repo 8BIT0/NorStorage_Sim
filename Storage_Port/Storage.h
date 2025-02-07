@@ -155,6 +155,7 @@ typedef struct
     uint8_t Flash_Error_Code;
     uint8_t Flash_Init_Error;   /* use for trace the place where the error occur */
 
+    /* for some embed hardware devide */
     void *ExtDev_ptr;           /* external flash chip device obj pointer */
     void *ExtBusCfg_Ptr;        /* external flash chip hardware bus config data pointer */
 

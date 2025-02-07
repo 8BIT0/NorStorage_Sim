@@ -45,7 +45,7 @@ class Storage_BaseSecInfo_Def(Structure_Tool):
     _pack_ = 1
     _fields_ = [
         ("tab_addr",        c_uint32),
-        ("tab_num",        c_uint32),
+        ("tab_num",         c_uint32),
         ("tab_size",        c_uint32),
         ("data_sec_addr",   c_uint32),
         ("data_sec_size",   c_uint32),

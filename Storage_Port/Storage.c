@@ -395,6 +395,9 @@ static bool Storage_Get_StorageInfo(void)
     return false;
 }
 
+/*
+ * Write 0 to table area 
+ */
 static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num)
 {
     uint32_t addr_tmp = 0;
@@ -1463,7 +1466,7 @@ static bool Storage_Build_StorageInfo(void)
     Storage_Monitor.info.sys_sec.data_sec_size = Flash_SysDataSec_Size;
     Storage_Monitor.info.sys_sec.para_size = 0;
     Storage_Monitor.info.sys_sec.para_num = 0;
-    tab_addr_offset += Storage_Monitor.info.sys_sec.tab_addr + TabSize + Storage_ReserveBlock_Size;
+    tab_addr_offset = Storage_Monitor.info.sys_sec.tab_addr + TabSize + Storage_ReserveBlock_Size;
     
     /* fill 0x55 to reserve area */
     if (!Storage_Fill_ReserveSec(tab_addr_offset - Storage_ReserveBlock_Size))
@@ -1483,7 +1486,7 @@ static bool Storage_Build_StorageInfo(void)
     Storage_Monitor.info.user_sec.data_sec_size = Flash_UserDataSec_Size;
     Storage_Monitor.info.user_sec.para_size = 0;
     Storage_Monitor.info.user_sec.para_num = 0;
-    tab_addr_offset += Storage_Monitor.info.user_sec.tab_addr + TabSize + Storage_ReserveBlock_Size;
+    tab_addr_offset = Storage_Monitor.info.user_sec.tab_addr + TabSize + Storage_ReserveBlock_Size;
 
     /* fill 0x55 to reserve area */
     if (!Storage_Fill_ReserveSec(tab_addr_offset - Storage_ReserveBlock_Size))
@@ -1519,9 +1522,11 @@ static bool Storage_Build_StorageInfo(void)
     /* get data sec addr */
     Storage_Monitor.info.sys_sec.data_sec_addr = tab_addr_offset;
     tab_addr_offset += Flash_SysDataSec_Size + Storage_ReserveBlock_Size;
+    STORAGE_INFO("build info", "system data addr 0x%08x", Storage_Monitor.info.sys_sec.data_sec_addr);
 
     Storage_Monitor.info.user_sec.data_sec_addr = tab_addr_offset;
     tab_addr_offset += Flash_UserDataSec_Size + Storage_ReserveBlock_Size;
+    STORAGE_INFO("build info", "user data addr 0x%08x", Storage_Monitor.info.user_sec.data_sec_addr);
 
     /* write 0 to info section */
     memset(page_data_tmp, 0, Storage_InfoPageSize);
