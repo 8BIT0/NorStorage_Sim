@@ -71,18 +71,29 @@ class StructureDisplay:
         sys_tab_addr_s = self._flash_info.sys_sec.tab_addr - self._flash_info.base_addr
         sys_tab_addr_e = sys_tab_addr_s + self._flash_info.sys_sec.tab_size
         self.sys_tab = self._sim_data[sys_tab_addr_s : sys_tab_addr_e]
+        
+        self.__debug_print__("Update", "Check Sys Table Reserve Section At Addr", hex(sys_tab_addr_e + self._flash_info.base_addr))
+        if not self.__check_reserve_valid(sys_tab_addr_e):
+            self.__debug_print__("Update", "Sys Table Reserve Data Error", "Addr", hex(sys_tab_addr_e + self._flash_info.base_addr))
+            return False
 
         # get user table area data from sim_data
         user_tab_addr_s = self._flash_info.user_sec.tab_addr - self._flash_info.base_addr
         user_tab_addr_e = user_tab_addr_s + self._flash_info.user_sec.tab_size
         self.user_tab = self._sim_data[user_tab_addr_s : user_tab_addr_e]
 
+        self.__debug_print__("Update", "Check User Table Reserve Section At Addr", hex(user_tab_addr_e + self._flash_info.base_addr))
+        if not self.__check_reserve_valid(user_tab_addr_e):
+            self.__debug_print__("Update", "User Table Reserve Data Error", "Addr", hex(user_tab_addr_e + self._flash_info.base_addr))
+            return False
+
         # temporary test
         print(self._flash_info.format_str())
         return True
 
-    def __check_reserve_valid(self, data):
-        pass
+    def __check_reserve_valid(self, addr_offset):
+        data = self._sim_data[addr_offset : addr_offset + STORAGE_RESERVE_SEC_SIZE]
+        return all(byte == STORAGE_RESDATA for byte in data)
 
     def update_simdata(self):
         if not self.init_state:
