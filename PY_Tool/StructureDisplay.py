@@ -96,7 +96,7 @@ class StructureDisplay:
         print(self._flash_info.format_str())
         return True
 
-    def __list_tab(self, tab_type):
+    def list_tab(self, tab_type):
         stor_lsit = []
 
         if tab_type == StorageTabType.STORAGE_TAB_TYPE_SYS:
