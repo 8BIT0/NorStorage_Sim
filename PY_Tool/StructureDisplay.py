@@ -29,24 +29,25 @@ class StructureDisplay:
             self.__debug_print__("file load", "Error offset value error")
             return
 
-        self.init_state = True
+        self._init_state = True
         self._stor_offset = offset
-        self.sys_tab = []
-        self.user_tab = []
+        self._sys_tab = []
+        self._user_tab = []
+
         if not bool(self.simfile_path) and not 'sim' in self.simfile_path:
-            self.init_state = False
+            self._init_state = False
         else :
             try:
                 with open(self.simfile_path, 'rb') as self._file:
                     self._sim_data = self._file.read()[self._stor_offset:]
                     if len(self._sim_data) == 0:
-                        self.init_state = False
+                        self._init_state = False
                         self.__debug_print__("file load", "Error 0 data read out")
                         return
                     self.__debug_print__("file load", "Successed")
                     self.__update_BaseInfo__()
             except Exception as Fill_Error:
-                self.init_state = False
+                self._init_state = False
                 self.__debug_print__('File Open Error', Fill_Error)                
 
     # decode with base storage info
@@ -70,7 +71,7 @@ class StructureDisplay:
         # get sys table area data from sim_data
         sys_tab_addr_s = self._flash_info.sys_sec.tab_addr - self._flash_info.base_addr
         sys_tab_addr_e = sys_tab_addr_s + self._flash_info.sys_sec.tab_size
-        self.sys_tab = self._sim_data[sys_tab_addr_s : sys_tab_addr_e]
+        self._sys_tab = self._sim_data[sys_tab_addr_s : sys_tab_addr_e]
         
         self.__debug_print__("Update", "Check Sys Table Reserve Section At Addr", hex(sys_tab_addr_e + self._flash_info.base_addr))
         if not self.__check_reserve_valid(sys_tab_addr_e):
@@ -80,7 +81,7 @@ class StructureDisplay:
         # get user table area data from sim_data
         user_tab_addr_s = self._flash_info.user_sec.tab_addr - self._flash_info.base_addr
         user_tab_addr_e = user_tab_addr_s + self._flash_info.user_sec.tab_size
-        self.user_tab = self._sim_data[user_tab_addr_s : user_tab_addr_e]
+        self._user_tab = self._sim_data[user_tab_addr_s : user_tab_addr_e]
 
         self.__debug_print__("Update", "Check User Table Reserve Section At Addr", hex(user_tab_addr_e + self._flash_info.base_addr))
         if not self.__check_reserve_valid(user_tab_addr_e):
@@ -96,14 +97,12 @@ class StructureDisplay:
         return all(byte == STORAGE_RESDATA for byte in data)
 
     def update_simdata(self):
-        if not self.init_state:
+        if not self._init_state:
             return False
         
         # clear loaded file bytes first
         self._sim_data[:] = bytearray()
         self._sim_data = self._file.read()[self._stor_offset:]
         self.__update_BaseInfo__()
-
-        
 
 # create main widget
