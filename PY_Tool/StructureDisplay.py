@@ -1,8 +1,12 @@
-import tkinter as TK
 import os
 from ConstDef import *
 from StructDef import *
+from enum import Enum
 import util
+
+class StorageTabType(Enum):
+    STORAGE_TAB_TYPE_SYS = 0
+    STORAGE_TAB_TYPE_USER = 1
 
 # get base information from storage info section
 class StructureDisplay:
@@ -91,6 +95,17 @@ class StructureDisplay:
         # temporary test
         print(self._flash_info.format_str())
         return True
+
+    def __list_tab(self, tab_type):
+        stor_lsit = []
+
+        if tab_type == StorageTabType.STORAGE_TAB_TYPE_SYS:
+            tab = self._sys_tab
+        elif tab_type == StorageTabType.STORAGE_TAB_TYPE_USER:
+            tab = self._user_tab
+        
+        for tab_item in tab:
+            pass
 
     def __check_reserve_valid(self, addr_offset):
         data = self._sim_data[addr_offset : addr_offset + STORAGE_RESERVE_SEC_SIZE]
