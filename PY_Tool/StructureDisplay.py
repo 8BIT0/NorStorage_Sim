@@ -31,6 +31,8 @@ class StructureDisplay:
 
         self.init_state = True
         self._stor_offset = offset
+        self.sys_tab = []
+        self.user_tab = []
         if not bool(self.simfile_path) and not 'sim' in self.simfile_path:
             self.init_state = False
         else :
@@ -47,7 +49,7 @@ class StructureDisplay:
                 self.init_state = False
                 self.__debug_print__('File Open Error', Fill_Error)                
 
-        # decode with base storage info
+    # decode with base storage info
     def __update_BaseInfo__(self):
         self.__debug_print__("Update", "Base Info")
         self._flash_info = Storage_FlashInfo_Def.from_buffer_copy(self._sim_data)
@@ -65,11 +67,21 @@ class StructureDisplay:
             self.__debug_print__("Update", "CRC Error ", "File CRC16 " + hex(info_crc), "Comput CRC16" + hex(crc))
             return False
 
+        # get sys table area data from sim_data
+        sys_tab_addr_s = self._flash_info.sys_sec.tab_addr - self._flash_info.base_addr
+        sys_tab_addr_e = sys_tab_addr_s + self._flash_info.sys_sec.tab_size
+        self.sys_tab = self._sim_data[sys_tab_addr_s : sys_tab_addr_e]
+
+        # get user table area data from sim_data
+        user_tab_addr_s = self._flash_info.user_sec.tab_addr - self._flash_info.base_addr
+        user_tab_addr_e = user_tab_addr_s + self._flash_info.user_sec.tab_size
+        self.user_tab = self._sim_data[user_tab_addr_s : user_tab_addr_e]
+
         # temporary test
         print(self._flash_info.format_str())
         return True
 
-    def __check_Tab(self):
+    def __check_reserve_valid(self, data):
         pass
 
     def update_simdata(self):

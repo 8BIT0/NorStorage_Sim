@@ -144,7 +144,7 @@ class Storage_Item_Def(Structure_Tool):
         ("end_tag",     c_uint8)
     ]
 
-    def self_check(self):
+    def check(self):
         return False
     
 class Storage_FreeSlot_TypeDef(Structure_Tool):
@@ -156,7 +156,7 @@ class Storage_FreeSlot_TypeDef(Structure_Tool):
         ("end_tag",         c_uint32)
     ]
     
-    def self_check(self):
+    def check(self):
         if (self.head_tag != STORAGE_SLOT_HEADER) or \
             (self.end_tag != STORAGE_SLOT_ENDER):
             return False
