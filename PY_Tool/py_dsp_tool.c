@@ -19,13 +19,13 @@ static VisualMonitor_TypeDef MonitorObj;
 /* internal function */
 
 /* external function */
-static bool PyDspTool_Init(char *simfile_dir, char *file_name);
+static bool PyDspTool_Init(char *simfile_dir, char *file_name, uint32_t addr_offset);
 
 PyDsp_TypeDef PY_Visualize = {
     .init = PyDspTool_Init,
 };
 
-static bool PyDspTool_Init(char *simfile_dir, char *file_name)
+static bool PyDspTool_Init(char *simfile_dir, char *file_name, uint32_t addr_offset)
 {
     char py_file_path[1024] = {'\0'};
     PyObject *prj_path = NULL;
@@ -77,7 +77,7 @@ static bool PyDspTool_Init(char *simfile_dir, char *file_name)
     }
 
     /* init python class */
-    PyObject *p_ClassArg = Py_BuildValue("ss", simfile_dir, file_name);
+    PyObject *p_ClassArg = Py_BuildValue("ssI", simfile_dir, file_name, addr_offset);
     if (p_ClassArg == NULL)
         return false;
     

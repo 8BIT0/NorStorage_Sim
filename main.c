@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     /* storage module init successed */
     /* init python tool -> visualize module */
-    if (!PY_Visualize.init(SimObj.simdata_path_str, SimObj.file_name))
+    if (!PY_Visualize.init(SimObj.simdata_path_str, SimObj.file_name, Flash_Start_Addr))
     {
         SIMULATION_PRINT("Visualize", "init failed");
         return 0;

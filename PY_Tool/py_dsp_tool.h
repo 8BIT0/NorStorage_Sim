@@ -30,7 +30,7 @@ typedef struct
 
 typedef struct
 {
-    bool (*init)(char *simfile_dir, char *file_name);
+    bool (*init)(char *simfile_dir, char *file_name, uint32_t addr_offset);
     bool (*update)(void);
     bool (*clear_all)(void);
     void (*set_input_callback)();

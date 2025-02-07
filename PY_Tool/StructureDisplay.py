@@ -15,16 +15,28 @@ class StructureDisplay:
         print(tag_str + " ".join(str(arg) for arg in args))
         pass
 
-    def __init__(self, path, name):
+    def __init__(self, path, name, offset):
         self.simfile_path = path + os.path.sep + name
         self.__debug_print__('file name', self.simfile_path)
+
+        if type(offset) != int:
+            self.init_state = False
+            self.__debug_print__("file load", "Error offset type error")
+            return
+        
+        if offset < 0:
+            self.init_state = False
+            self.__debug_print__("file load", "Error offset value error")
+            return
+
         self.init_state = True
+        self._stor_offset = offset
         if not bool(self.simfile_path) and not 'sim' in self.simfile_path:
             self.init_state = False
         else :
             try:
                 with open(self.simfile_path, 'rb') as self._file:
-                    self._sim_data = self._file.read()
+                    self._sim_data = self._file.read()[self._stor_offset:]
                     if len(self._sim_data) == 0:
                         self.init_state = False
                         self.__debug_print__("file load", "Error 0 data read out")
@@ -66,7 +78,7 @@ class StructureDisplay:
         
         # clear loaded file bytes first
         self._sim_data[:] = bytearray()
-        self._sim_data = self._file.read()
+        self._sim_data = self._file.read()[self._stor_offset:]
         self.__update_BaseInfo__()
 
         
