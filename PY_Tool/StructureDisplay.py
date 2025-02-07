@@ -99,9 +99,8 @@ class StructureDisplay:
     def list_tab(self, tab_type):
         stor_list = []
 
-        if tab_type == StorageTabType.STORAGE_TAB_TYPE_SYS:
-            tab = self._sys_tab
-        elif tab_type == StorageTabType.STORAGE_TAB_TYPE_USER:
+        tab = self._sys_tab
+        if tab_type == StorageTabType.STORAGE_TAB_TYPE_USER:
             tab = self._user_tab
 
         for i in range(0, len(tab), Storage_Item_Def.size()):
