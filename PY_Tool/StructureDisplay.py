@@ -105,7 +105,9 @@ class StructureDisplay:
             tab = self._user_tab
 
         for i in range(0, len(tab), Storage_Item_Def.size()):
-            stor_list.append(Storage_Item_Def.from_buffer_copy(tab[i : i + Storage_Item_Def.size()]))
+            item_tmp = Storage_Item_Def.from_buffer_copy(tab[i : i + Storage_Item_Def.size()])
+            if item_tmp.check():
+                stor_list.append(item_tmp)
 
         return stor_list
 

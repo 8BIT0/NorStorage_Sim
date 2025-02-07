@@ -1,0 +1,42 @@
+[
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/main.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/main.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/main.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/PY_Tool/py_dsp_tool.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool/py_dsp_tool.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool/py_dsp_tool.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/SimDevModule/SimDataFile_Opr.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule/SimDataFile_Opr.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule/SimDataFile_Opr.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/SimDevModule/SimDev_W25Qxx.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule/SimDev_W25Qxx.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule/SimDev_W25Qxx.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/Dep/util.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep/util.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep/util.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/Storage_Port/Storage.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port/Storage.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port/Storage.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/Storage_Port/Storage_Bus_Port.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port/Storage_Bus_Port.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port/Storage_Bus_Port.c"
+},
+{
+  "directory": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/build",
+  "command": "/usr/bin/clang -DFolder_Split=\\\"/\\\" -DMAC -I/Users/bit8/anaconda3/include/python3.11 -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/PY_Tool -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Dep -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/SimDevModule -I/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -o CMakeFiles/Storage_Sim.dir/Storage_Port/Storage_Dev_Port.c.o -c /Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port/Storage_Dev_Port.c",
+  "file": "/Users/bit8/Desktop/develop/Sim/NorStorage_Sim/Storage_Port/Storage_Dev_Port.c"
+}
+]
