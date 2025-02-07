@@ -128,6 +128,15 @@ reinit_external_flash_module:
     /* set external flash device read write base address */
     Storage_Monitor.info.base_addr = Flash_Start_Addr;
     Storage_Monitor.Flash_Format_cnt = Format_Retry_Cnt;
+
+    /* check storage item size */
+    if (StorageItem_Size % StorageItem_Align_Unit)
+    {
+        STORAGE_INFO("init", "Item size error");
+        Storage_Assert(true);
+        return false;
+    }
+
 reupdate_external_flash_info:
     /* get storage info */
     STORAGE_INFO("init", "Get info");
@@ -242,7 +251,6 @@ static bool Storage_Format(void)
 
 static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
 {
-    uint32_t free_i = 0;
     uint32_t tab_addr = 0;
     uint32_t store_param_found = 0;
     uint32_t store_param_size = 0;
@@ -263,9 +271,9 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
     sec_start_addr = sec_info->data_sec_addr;
     sec_end_addr = sec_start_addr + sec_info->data_sec_size;
 
-    for(free_i = 0; ;)
+    for(uint32_t free_i = 0; ;)
     {
-        /* check boot section free slot */
+        /* check free slot */
         if ((free_slot_addr == 0) || \
             (free_slot_addr < sec_start_addr) || \
             (free_slot_addr > sec_end_addr) || \
@@ -300,21 +308,19 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
                 if ((p_ItemList[item_i].head_tag == STORAGE_ITEM_HEAD_TAG) && \
                     (p_ItemList[item_i].end_tag == STORAGE_ITEM_END_TAG))
                 {
-                    /* check item slot crc */
-                    /*
-                        *  typedef struct
-                        *  {
-                        *      uint8_t head_tag;
-                        *      uint8_t class;
-                        *      uint8_t name[STORAGE_NAME_LEN];
-                        *      uint32_t data_addr;
-                        *      uint16_t len;
-                        *      uint16_t crc16;
-                        *      uint8_t end_tag;
-                        *  } Storage_Item_TypeDef;
-                        *  
-                        * comput crc from class to len
-                        */
+                    /*  check item slot crc
+                     *  typedef struct
+                     *  {
+                     *      uint8_t head_tag;
+                     *      uint8_t class;
+                     *      uint8_t name[STORAGE_NAME_LEN];
+                     *      uint32_t data_addr;
+                     *      uint16_t len;
+                     *      uint16_t crc16;
+                     *      uint8_t end_tag;
+                     *  } Storage_Item_TypeDef;
+                     *  
+                     *  comput crc from class to len */
                     crc_buf = (uint8_t *)&p_ItemList[item_i] + sizeof(p_ItemList[item_i].head_tag);
                     crc_len = sizeof(Storage_Item_TypeDef);
                     crc_len -= sizeof(p_ItemList[item_i].head_tag);
@@ -388,6 +394,7 @@ static bool Storage_Get_StorageInfo(void)
     if (Storage_Check_Tab(&Info_r.sys_sec) && \
         Storage_Check_Tab(&Info_r.user_sec))
     {
+        STORAGE_INFO("info", "all tab checked");
         memcpy(p_Info, &Info_r, sizeof(Storage_FlashInfo_TypeDef));
         return true;
     }
@@ -1548,7 +1555,7 @@ static bool Storage_Build_StorageInfo(void)
     if (memcmp(&Info_Rx, &Storage_Monitor.info, sizeof(Storage_FlashInfo_TypeDef)) != 0)
         return false;
 
-    if (!Storage_Establish_Tab(Para_Sys)  || \
+    if (!Storage_Establish_Tab(Para_Sys) || \
         !Storage_Establish_Tab(Para_User))
         return false;
 

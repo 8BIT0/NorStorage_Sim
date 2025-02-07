@@ -1,5 +1,6 @@
 from ctypes import *
 from enum import Enum
+from ConstDef import *
 
 class Storage_Opera_Type(Enum):
     Opr_Idle = 0,
@@ -19,17 +20,17 @@ class Structure_Tool(Structure):
             if len(name_list[i]) < align_len:
                 name_list[i] += ' ' * (align_len - len(name_list[i]))
 
-class Storage_Stream_Def(Structure):
+    def size(self):
+        return len(self._fields_)
+
+class Storage_Stream_Def(Structure_Tool):
     _pack_ = 1
     _fields_ = [
         ("p_data",  c_char_p),
         ("len",     c_uint16)
     ]
 
-    def size(self):
-        return len(Storage_Stream_Def._fields_)
-
-class Storage_Input_Def(Structure):
+class Storage_Input_Def(Structure_Tool):
     _pack_ = 1
     _fields_ = [
         ("item_name",   c_char_p),
@@ -37,9 +38,6 @@ class Storage_Input_Def(Structure):
         ("stream",      Storage_Stream_Def)
     ]
     
-    def size(self):
-        return len(Storage_Input_Def._fields_)
-
 class Storage_BaseSecInfo_Def(Structure_Tool):
     # pack as byte align
     _pack_ = 1
@@ -55,9 +53,6 @@ class Storage_BaseSecInfo_Def(Structure_Tool):
         ("para_num",        c_uint32)
     ]
 
-    def size(self):
-        return len(Storage_BaseSecInfo_Def._fields_)
-    
     def format_str(self):
         name_list = []
         value_str_list = []
@@ -93,9 +88,6 @@ class Storage_FlashInfo_Def(Structure_Tool):
         ("sys_sec",         Storage_BaseSecInfo_Def),
         ("user_sec",        Storage_BaseSecInfo_Def)
     ]
-
-    def size(self):
-        return len(self._fields_)
 
     def format_str(self):
         max_name_len = 0
@@ -152,5 +144,21 @@ class Storage_Item_Def(Structure_Tool):
         ("end_tag",     c_uint8)
     ]
 
-    def size(self):
-        return len(Storage_Item_Def._fields_)
+    def self_check(self):
+        return False
+    
+class Storage_FreeSlot_TypeDef(Structure_Tool):
+    _pack_ = 1
+    _fields_ = [
+        ("head_tag",        c_uint32),
+        ("cur_slot_size",   c_uint32),
+        ("nxt_addr",        c_uint32),
+        ("end_tag",         c_uint32)
+    ]
+    
+    def self_check(self):
+        if (self.head_tag != STORAGE_SLOT_HEADER) or \
+            (self.end_tag != STORAGE_SLOT_ENDER):
+            return False
+        return True
+    

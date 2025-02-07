@@ -31,8 +31,8 @@ extern "C" {
 #define STORAGE_NAME_LEN                41
 #define STORAGE_ITEM_HEAD_TAG           0xAA
 #define STORAGE_ITEM_END_TAG            0xBB
-#define STORAGE_SLOT_HEAD_TAG           0xEF0110EF
-#define STORAGE_SLOT_END_TAG            0xFE1001FE
+#define STORAGE_SLOT_HEAD_TAG           0xEF0110FE
+#define STORAGE_SLOT_END_TAG            0xFE1001EF
 #define STORAGE_DATA_ALIGN              4
 #define STORAGE_MIN_BYTE_SIZE           1
 #define STORAGE_FREEITEM_NAME           "Item_Avaliable"

@@ -12,7 +12,8 @@ extern "C" {
 
 typedef uint32_t storage_handle;
 
-#define StorageItem_Size sizeof(Storage_Item_TypeDef)
+#define StorageItem_Size        sizeof(Storage_Item_TypeDef)
+#define StorageItem_Align_Unit  64
 
 typedef enum
 {
