@@ -97,17 +97,17 @@ class StructureDisplay:
         return True
 
     def list_tab(self, tab_type):
-        stor_lsit = []
+        stor_list = []
 
         if tab_type == StorageTabType.STORAGE_TAB_TYPE_SYS:
             tab = self._sys_tab
         elif tab_type == StorageTabType.STORAGE_TAB_TYPE_USER:
             tab = self._user_tab
-        
-        for tab_item in tab:
-            pass
 
-        return stor_lsit
+        for i in range(0, len(tab), Storage_Item_Def.size()):
+            stor_list.append(Storage_Item_Def.from_buffer_copy(tab[i : i + Storage_Item_Def.size()]))
+
+        return stor_list
 
     def __check_reserve_valid(self, addr_offset):
         data = self._sim_data[addr_offset : addr_offset + STORAGE_RESERVE_SEC_SIZE]

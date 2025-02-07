@@ -145,7 +145,14 @@ class Storage_Item_Def(Structure_Tool):
     ]
 
     def check(self):
-        return False
+        if ((self.head_tag != STORAGE_ITEM_HEADER) or \
+            (self.end_tag != STORAGE_ITEM_ENDER)):
+            return False
+        
+        # check CRC16
+        # comput CRC16 from _class to reserve
+        # reserve section must be zero
+        return True
     
 class Storage_FreeSlot_TypeDef(Structure_Tool):
     _pack_ = 1
