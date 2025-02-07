@@ -107,6 +107,8 @@ class StructureDisplay:
         for tab_item in tab:
             pass
 
+        return stor_lsit
+
     def __check_reserve_valid(self, addr_offset):
         data = self._sim_data[addr_offset : addr_offset + STORAGE_RESERVE_SEC_SIZE]
         return all(byte == STORAGE_RESDATA for byte in data)
