@@ -3,9 +3,7 @@ from ConstDef import *
 from StructDef import *
 from WidgetCtl import *
 from enum import Enum
-import threading
 import util
-import asyncio
 
 class StorageTabType(Enum):
     STORAGE_TAB_TYPE_SYS = 0
@@ -55,9 +53,7 @@ class StructureDisplay:
                     self.__update_BaseInfo__()
                     
                     # create widget display thread
-                    self._thread = threading.Thread(target=self._widget_thread)
-                    self._thread.start()
-                    self._thread.join()
+                    _widget = WidgetCtl(self._sim_data)
             except Exception as Fill_Error:
                 self._init_state = False
                 self.__debug_print__('File Open Error', Fill_Error)                
@@ -132,8 +128,4 @@ class StructureDisplay:
         self.__update_BaseInfo__()
 
 # create main widget
-    def _widget_thread(self):
-        _widget = WidgetCtl()
 
-        print("widget")
-        _widget.mainloop()
