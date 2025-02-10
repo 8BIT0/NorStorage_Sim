@@ -1,9 +1,10 @@
 import os
+import util
 from ConstDef import *
 from StructDef import *
-from WidgetCtl import *
 from enum import Enum
-import util
+import tkinter as tk
+from tkinter import ttk
 
 class StorageTabType(Enum):
     STORAGE_TAB_TYPE_SYS = 0
@@ -53,10 +54,10 @@ class StructureDisplay:
                     self.__update_BaseInfo__()
                     
                     # create widget display thread
-                    _widget = WidgetCtl(self._sim_data)
+                    self._init_widget()
             except Exception as Fill_Error:
                 self._init_state = False
-                self.__debug_print__('File Open Error', Fill_Error)                
+                self.__debug_print__('File Operate Error', Fill_Error)                
 
     # decode with base storage info
     def __update_BaseInfo__(self):
@@ -100,7 +101,7 @@ class StructureDisplay:
         print(self._flash_info.format_str())
         return True
 
-    def list_tab(self, tab_type):
+    def _list_tab(self, tab_type):
         stor_list = []
 
         tab = self._sys_tab
@@ -127,5 +128,53 @@ class StructureDisplay:
         self._sim_data = self._file.read()[self._stor_offset:]
         self.__update_BaseInfo__()
 
-# create main widget
+    # ------------------------------------------------------------- widget ---------------------------------------------
+    # create main widget
+    def _init_widget(self):
+        self._root = tk.Tk()
+        self._root.title("NorSim")
+        self._root.geometry("1200x800")
+        self._root.resizable(False, False)
+        self._root.protocol("WM_DELETE_WINDOW", lambda: self._close_root())
 
+        # sub widget
+        # flash info widget
+        self._show_flash_info()
+        
+        # display widget
+        self._root.mainloop()
+        
+    def _show_flash_info(self):
+        column = []
+
+        info_frame = tk.Frame(self._root, borderwidth = 2, relief = 'groove')
+        tab_frame = tk.Frame(info_frame, borderwidth = 1, relief = 'groove')
+        label = tk.Label(info_frame, text = "Flash Info Table")
+
+        column.append('R \ C')
+        for i in range(16):
+            column.append(hex(i))
+
+        info_tab = ttk.Treeview(tab_frame, columns = column, show = 'headings')
+        for col in column:
+            info_tab.heading(col, text = col)
+            info_tab.column(col, anchor = 'center', width = 50)
+        
+        v_scrollbar = ttk.Scrollbar(tab_frame, orient = tk.VERTICAL, command = info_tab.yview)
+        info_tab.configure(yscrollcommand = v_scrollbar.set)
+
+        for i in range(0, len(self._sim_data[:STORAGE_INFOPAGE_SIZE]), 16):
+            val = (hex(i), ) + tuple(hex(b) for b in self._sim_data[i : (i + 16)])
+            info_tab.insert('', 'end', values = val)
+
+        # show flash information
+
+        # pack widget
+        v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+        label.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
+        info_tab.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
+        tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
+        info_frame.pack(side = tk.LEFT, anchor = tk.NW, padx = 5, pady = 5)
+
+    def _close_root(self):
+        self._root.destroy()
