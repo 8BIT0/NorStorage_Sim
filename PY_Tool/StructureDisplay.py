@@ -133,27 +133,33 @@ class StructureDisplay:
     def _init_widget(self):
         self._root = tk.Tk()
         self._root.title("NorSim")
-        self._root.geometry("1200x800")
+        self._root.geometry("1085x1000")
         self._root.resizable(False, False)
         self._root.protocol("WM_DELETE_WINDOW", lambda: self._close_root())
 
         # sub widget
         # flash info widget
         self._show_flash_info()
+        # tab info widget
+        # both user table and sys table
+        self._show_tab_info()
         
         # display widget
         self._root.mainloop()
         
     def _show_flash_info(self):
         column = []
+        label_list = []
 
-        info_frame = tk.Frame(self._root, borderwidth = 2, relief = 'groove')
-        tab_frame = tk.Frame(info_frame, borderwidth = 1, relief = 'groove')
+        info_frame = tk.Frame(self._root, width = 1080, height = 285, borderwidth = 2, relief = 'groove')
+        info_frame.pack_propagate(0)
+        info_frame.pack(side = tk.LEFT, anchor = tk.NW, padx = 5, pady = 5)
+        tab_frame = tk.Frame(info_frame, borderwidth = 2, relief = 'groove')
         label = tk.Label(info_frame, text = "Flash Info Table")
 
         column.append('R \ C')
         for i in range(16):
-            column.append(hex(i))
+            column.append(hex(i).upper())
 
         info_tab = ttk.Treeview(tab_frame, columns = column, show = 'headings')
         for col in column:
@@ -164,17 +170,48 @@ class StructureDisplay:
         info_tab.configure(yscrollcommand = v_scrollbar.set)
 
         for i in range(0, len(self._sim_data[:STORAGE_INFOPAGE_SIZE]), 16):
-            val = (hex(i), ) + tuple(hex(b) for b in self._sim_data[i : (i + 16)])
+            val = (hex(i).upper(), ) + tuple(hex(b).upper() for b in self._sim_data[i : (i + 16)])
             info_tab.insert('', 'end', values = val)
 
         # show flash information
+        tag_l = tk.Label(info_frame, text = "Tag: " + self._flash_info.tag.decode('UTF-8'))
+        base_addr_l = tk.Label(info_frame, text = "Base Addr: " + hex(self._flash_info.base_addr))
+        total_size_l = tk.Label(info_frame, text = "Total Size: " + hex(self._flash_info.total_size))
+        remain_size_l = tk.Label(info_frame, text = "Remain Size: " + hex(self._flash_info.remain_size))
+        data_sec_size_l = tk.Label(info_frame, text = "Data Sec Size: " + hex(self._flash_info.data_sec_size))
+        user_tab_addr_l = tk.Label(info_frame, text = "User Tab Addr: " + hex(self._flash_info.user_sec.tab_addr))
+        user_tab_num_l = tk.Label(info_frame, text = "User Tab Num: " + hex(self._flash_info.user_sec.tab_num))
+        user_tab_size_l = tk.Label(info_frame, text = "User Tab Size: " + hex(self._flash_info.user_sec.tab_size))
+        sys_tab_addr_l = tk.Label(info_frame, text = "Sys Tab Addr: " + hex(self._flash_info.sys_sec.tab_addr))
+        sys_tab_num_l = tk.Label(info_frame, text = "Sys Tab Num: " + hex(self._flash_info.sys_sec.tab_num))
+        sys_tab_size_l = tk.Label(info_frame, text = "Sys Tab Size: " + hex(self._flash_info.sys_sec.tab_size))
+
+        label_list.append(tag_l)
+        label_list.append(base_addr_l)
+        label_list.append(total_size_l)
+        label_list.append(remain_size_l)
+        label_list.append(data_sec_size_l)
+        label_list.append(user_tab_addr_l)
+        label_list.append(user_tab_num_l)
+        label_list.append(user_tab_size_l)
+        label_list.append(sys_tab_addr_l)
+        label_list.append(sys_tab_num_l)
+        label_list.append(sys_tab_size_l)
 
         # pack widget
+        s_y = 2
+        s_x = 905
+        for label_t in label_list:
+            label_t.place(x = s_x, y = s_y)
+            s_y += 25
+
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
         label.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
         info_tab.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
-        info_frame.pack(side = tk.LEFT, anchor = tk.NW, padx = 5, pady = 5)
+
+    def _show_tab_info(self):
+        pass
 
     def _close_root(self):
         self._root.destroy()
