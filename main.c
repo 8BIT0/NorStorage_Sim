@@ -156,8 +156,7 @@ static void* Sim_Polling_Thread(void *arg)
 {
     while (true)
     {
-        printf("test\r\n");
-        Sleep_Ms(500);
+        Sleep_Ms(10);
     }
 }
 
