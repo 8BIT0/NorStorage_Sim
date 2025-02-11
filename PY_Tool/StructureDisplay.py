@@ -142,7 +142,7 @@ class StructureDisplay:
         self._show_flash_info()
         # tab info widget
         # both user table and sys table
-        self._show_tab_info()
+        self._show_sec_tab()
         
         # display widget
         self._root.mainloop()
@@ -210,7 +210,20 @@ class StructureDisplay:
         info_tab.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
 
-    def _show_tab_info(self):
+    def _show_sec_tab(self):
+        sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
+
+        user_note_tab = tk.Frame(sec_notebook)
+        sys_note_tab = tk.Frame(sec_notebook)
+
+        sec_notebook.add(user_note_tab, text = 'user')
+        sec_notebook.add(sys_note_tab, text = 'system')
+
+        sec_notebook.place(x = 2, y = 295)
+        sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
+
+    def _sec_tab_change(self, event):
+        print("change")
         pass
 
     def _close_root(self):
