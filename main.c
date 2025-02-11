@@ -6,6 +6,7 @@
 #include "SimDevModule/SimDataFile_Opr.h"
 #include "Storage_Port/Storage.h"
 #include "py_dsp_tool.h"
+#include <pthread.h>
 #if defined WIN
 #include <windows.h>
 
@@ -20,9 +21,11 @@
 /* internal vriable */
 static SimDataFileObj_TypeDef SimObj;
 static StorageDevObj_TypeDef SimDev;
+static pthread_t SimPolling_hdl;
 
 /* internal function */
 static bool SimModule_Init(char *app_path);
+static void* Sim_Polling_Thread(void *arg);
 static void* Sim_Malloc(uint32_t size);
 static void Sim_Free(void **ptr);
 
@@ -42,13 +45,6 @@ int main(int argc, char **argv)
         SIMULATION_PRINT("Visualize", "init failed");
         return 0;
     }
-
-    /* main logic run */
-    // while (true)
-    // {
-        printf("test\r\n");
-        // Sleep_Ms(500);
-    // }
 
     return 0;
 }
@@ -128,6 +124,13 @@ static bool SimModule_Init(char *app_path)
             sleep(10);
         }
 
+        if (pthread_create(&SimPolling_hdl, NULL, Sim_Polling_Thread, NULL) != 0)
+        {
+            SIMULATION_PRINT("thread", "Polling thread create failed");
+        }
+        else
+            SIMULATION_PRINT("thread", "Polling thread create done");
+
         if (SimDataFile.create(&SimObj, app_path, sim_name, file_size))
         {
             /* storage module init */
@@ -141,6 +144,16 @@ static bool SimModule_Init(char *app_path)
     }
 
     return false;
+}
+
+/* wait python widget input */
+/* thread frequence 100Hz */
+static void* Sim_Polling_Thread(void *arg)
+{
+    while (true)
+    {
+        Sleep_Ms(10);
+    }
 }
 
 static void* Sim_Malloc(uint32_t size)

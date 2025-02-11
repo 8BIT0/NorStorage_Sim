@@ -133,7 +133,7 @@ class StructureDisplay:
     def _init_widget(self):
         self._root = tk.Tk()
         self._root.title("NorSim")
-        self._root.geometry("1085x1000")
+        self._root.geometry("1085x800")
         self._root.resizable(False, False)
         self._root.protocol("WM_DELETE_WINDOW", lambda: self._close_root())
 
@@ -200,7 +200,7 @@ class StructureDisplay:
 
         # pack widget
         s_y = 2
-        s_x = 905
+        s_x = 900
         for label_t in label_list:
             label_t.place(x = s_x, y = s_y)
             s_y += 25
