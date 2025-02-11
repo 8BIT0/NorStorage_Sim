@@ -38,6 +38,14 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    /* create simulation polling thread */
+    if (pthread_create(&SimPolling_hdl, NULL, Sim_Polling_Thread, NULL) != 0)
+    {
+        SIMULATION_PRINT("thread", "Polling thread create failed");
+    }
+    else
+        SIMULATION_PRINT("thread", "Polling thread create done");
+
     /* storage module init successed */
     /* init python tool -> visualize module */
     if (!PY_Visualize.init(SimObj.simdata_path_str, SimObj.file_name, Flash_Start_Addr))
@@ -45,6 +53,9 @@ int main(int argc, char **argv)
         SIMULATION_PRINT("Visualize", "init failed");
         return 0;
     }
+
+    pthread_cancel(SimPolling_hdl);
+    SIMULATION_PRINT("thread", "Qiut");
 
     return 0;
 }
@@ -124,13 +135,6 @@ static bool SimModule_Init(char *app_path)
             sleep(10);
         }
 
-        if (pthread_create(&SimPolling_hdl, NULL, Sim_Polling_Thread, NULL) != 0)
-        {
-            SIMULATION_PRINT("thread", "Polling thread create failed");
-        }
-        else
-            SIMULATION_PRINT("thread", "Polling thread create done");
-
         if (SimDataFile.create(&SimObj, app_path, sim_name, file_size))
         {
             /* storage module init */
@@ -152,7 +156,8 @@ static void* Sim_Polling_Thread(void *arg)
 {
     while (true)
     {
-        Sleep_Ms(10);
+        printf("test\r\n");
+        Sleep_Ms(500);
     }
 }
 
