@@ -218,16 +218,16 @@ class StructureDisplay:
         sys_note_tab = tk.Frame(sec_notebook)
 
         # name label
-        user_item_name = tk.Label(user_note_tab)
-        sys_item_name = tk.Label(sys_note_tab)
+        user_item_name = tk.Label(user_note_tab,  text = "name: " )
+        sys_item_name = tk.Label(sys_note_tab,  text = "name: ")
 
         # address label
-        user_item_addr = tk.Label(user_note_tab)
-        sys_item_addr = tk.Label(sys_note_tab)
+        user_item_addr = tk.Label(user_note_tab, text = "addr: ")
+        sys_item_addr = tk.Label(sys_note_tab, text = "addr: ")
         
         # size label
-        user_item_size = tk.Label(user_note_tab)
-        sys_item_size = tk.Label(sys_note_tab)
+        user_item_size = tk.Label(user_note_tab, text = "size: ")
+        sys_item_size = tk.Label(sys_note_tab, text = "size: ")
 
         sec_notebook.add(user_note_tab, text = 'user')
         sec_notebook.add(sys_note_tab, text = 'system')
