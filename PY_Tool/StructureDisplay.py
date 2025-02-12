@@ -207,11 +207,6 @@ class StructureDisplay:
         tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
 
     def _show_sec_tab(self):
-        TREEVIEW_X = 5
-        TREEVIEW_Y = 107
-        TREEVIEW_WIDTH = 260
-        TREEVIEW_HEIGHT = 328
-
         sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
  
         user_note_tab = tk.Frame(sec_notebook)
@@ -248,18 +243,6 @@ class StructureDisplay:
         # show user table list
         user_item_Tree = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
         system_item_Tree = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
-
-        # user_v_scrollbar = ttk.Scrollbar(user_TV_frame, orient = tk.VERTICAL, command = user_item_Tree.yview)
-        # sys_v_scrollbar = ttk.Scrollbar(sys_TV_frame, orient = tk.VERTICAL, command = system_item_Tree.yview)
-
-        # user_item_Tree.config(yscrollcommand = user_v_scrollbar.set)
-        # system_item_Tree.configure(yscrollcommand = sys_v_scrollbar.set)
-        
-        # user_v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
-        # sys_v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
-
-        user_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
-        system_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
         
         user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
         system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
@@ -275,7 +258,12 @@ class StructureDisplay:
             print('2')
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
+        TREEVIEW_X = 5
+        TREEVIEW_Y = 107
+        TREEVIEW_WIDTH = 260
+        TREEVIEW_HEIGHT = 328
         list = self._list_tab(tab_data)
+        v_frame = tk.Frame(frame, borderwidth = 2, relief = 'groove')
         column = ["item name"]
         treeview = ttk.Treeview(frame, columns = column, show = 'headings')
         for col in column:
@@ -284,6 +272,13 @@ class StructureDisplay:
         
         for item in list:
             treeview.insert('', 'end', values = (item.name))
+
+        v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = treeview.yview)
+        treeview.config(yscrollcommand = v_scrollbar.set)
+        v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+        
+        treeview.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
+        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width =  (TREEVIEW_WIDTH + 30), height =  (TREEVIEW_HEIGHT + 4))
 
         return treeview
 
