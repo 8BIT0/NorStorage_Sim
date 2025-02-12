@@ -1,6 +1,7 @@
 from ctypes import *
 from enum import Enum
 from ConstDef import *
+import util
 
 class Storage_Opera_Type(Enum):
     Opr_Idle = 0,
