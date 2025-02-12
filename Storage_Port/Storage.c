@@ -54,7 +54,7 @@ static bool Storage_Fill_ReserveSec(uint32_t addr);
 /* external function */
 static bool Storage_Init(StorageDevObj_TypeDef *ExtDev);
 static Storage_ItemSearchOut_TypeDef Storage_Search(Storage_ParaClassType_List _class, const char *name);
-static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name, uint32_t size);
+static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name);
 static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _class, const char *name, uint8_t *p_data, uint16_t size);
 static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List _class, storage_handle data_slot_hdl, uint8_t *p_data, uint16_t size);
 static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List _class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t size);
@@ -64,6 +64,7 @@ Storage_TypeDef Storage = {
     .init = Storage_Init,
     .search = Storage_Search,
     .create = Storage_CreateItem,
+    .delete = Storage_DeleteItem,
     .get = Storage_Get_Data,
     .update = Storage_SlotData_Update,
     .get_dev_info = Storage_Get_DevInfo,
@@ -1051,7 +1052,7 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
 }
 
 /* developping */
-static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name, uint32_t size)
+static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name)
 {
     Storage_FlashInfo_TypeDef *p_Flash = NULL;
     Storage_BaseSecInfo_TypeDef *p_Sec = NULL;
@@ -1062,8 +1063,7 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
     if ( !Storage_Monitor.init_state || \
         (name == NULL) || \
         (strlen(name) == 0) || \
-        (strlen(name) >= STORAGE_NAME_LEN) || \
-        (size == 0))
+        (strlen(name) >= STORAGE_NAME_LEN))
         return Storage_Param_Error;
 
     p_Flash = &Storage_Monitor.info;
