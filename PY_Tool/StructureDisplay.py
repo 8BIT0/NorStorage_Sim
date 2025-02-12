@@ -254,8 +254,6 @@ class StructureDisplay:
         user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
         system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
 
-        # double click show data in relative section
-
     def _select_tab_item(self, event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree):
         tree = event.widget
         item = tree.selection()
