@@ -278,7 +278,7 @@ class StructureDisplay:
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
         
         treeview.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
-        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width =  (TREEVIEW_WIDTH + 30), height =  (TREEVIEW_HEIGHT + 4))
+        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width =  (TREEVIEW_WIDTH + 22), height =  (TREEVIEW_HEIGHT + 4))
 
         return treeview
 
