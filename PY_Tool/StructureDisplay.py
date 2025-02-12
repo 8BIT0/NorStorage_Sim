@@ -212,22 +212,22 @@ class StructureDisplay:
         TREEVIEW_WIDTH = 260
         TREEVIEW_HEIGHT = 328
 
-        # name label
-        user_item_name = tk.Label()
-        sys_item_name = tk.Label()
-
-        # address label
-        user_item_addr = tk.Label()
-        sys_item_addr = tk.Label()
-        
-        # size label
-        user_item_size = tk.Label()
-        sys_item_size = tk.Label()
-
         sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
 
         user_note_tab = tk.Frame(sec_notebook)
         sys_note_tab = tk.Frame(sec_notebook)
+
+        # name label
+        user_item_name = tk.Label(user_note_tab)
+        sys_item_name = tk.Label(sys_note_tab)
+
+        # address label
+        user_item_addr = tk.Label(user_note_tab)
+        sys_item_addr = tk.Label(sys_note_tab)
+        
+        # size label
+        user_item_size = tk.Label(user_note_tab)
+        sys_item_size = tk.Label(sys_note_tab)
 
         sec_notebook.add(user_note_tab, text = 'user')
         sec_notebook.add(sys_note_tab, text = 'system')
@@ -244,8 +244,19 @@ class StructureDisplay:
         user_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
         system_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
 
-    def _select_tab_item(self, event):
-        pass
+        user_label_pack = [user_item_name, user_item_addr, user_item_size]
+        sys_label_pack = [sys_item_name, sys_item_addr, sys_item_size]
+
+        user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
+        system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
+
+    def _select_tab_item(self, event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree):
+        tree = event.widget
+        item = tree.selection()
+        if tree == user_item_Tree:
+            print('1')
+        elif tree == system_item_Tree:
+            print('2')
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         list = self._list_tab(tab_data)
