@@ -249,6 +249,10 @@ class StructureDisplay:
 
         # right click item in treeview show delete option
 
+    # bind with item tree right click
+    def _delete_tab_item(self):
+        pass
+
     def _select_tab_item(self, event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree):
         tree = event.widget
         item = tree.selection()
@@ -287,7 +291,6 @@ class StructureDisplay:
         pass
 
     # create 
-    # delete
     # modify (can`t change data size) the only way is delete and add new one with the same name
     # search
     def _operate_control(self):
