@@ -101,16 +101,12 @@ class StructureDisplay:
         print(self._flash_info.format_str())
         return True
 
-    def _list_tab(self, tab_type):
+    def _list_tab(self, tab_data):
         stor_list = []
 
-        tab = self._sys_tab
-        if tab_type == StorageTabType.STORAGE_TAB_TYPE_USER:
-            tab = self._user_tab
-
-        for i in range(0, len(tab), Storage_Item_Def.size()):
-            item_tmp = Storage_Item_Def.from_buffer_copy(tab[i : i + Storage_Item_Def.size()])
-            if item_tmp.check():
+        for i in range(0, len(tab_data), sizeof(Storage_Item_Def)):
+            item_tmp = Storage_Item_Def.from_buffer_copy(tab_data[i : i + sizeof(Storage_Item_Def)])
+            if item_tmp.check() and not all(data == 0x00 for data in tab_data[i : i + sizeof(Storage_Item_Def)]):
                 stor_list.append(item_tmp)
 
         return stor_list
@@ -211,6 +207,23 @@ class StructureDisplay:
         tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
 
     def _show_sec_tab(self):
+        TREEVIEW_X = 5
+        TREEVIEW_Y = 107
+        TREEVIEW_WIDTH = 260
+        TREEVIEW_HEIGHT = 328
+
+        # name label
+        user_item_name = tk.Label()
+        sys_item_name = tk.Label()
+
+        # address label
+        user_item_addr = tk.Label()
+        sys_item_addr = tk.Label()
+        
+        # size label
+        user_item_size = tk.Label()
+        sys_item_size = tk.Label()
+
         sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
 
         user_note_tab = tk.Frame(sec_notebook)
@@ -219,8 +232,33 @@ class StructureDisplay:
         sec_notebook.add(user_note_tab, text = 'user')
         sec_notebook.add(sys_note_tab, text = 'system')
 
+        # set user table as default
+        sec_notebook.select(0)
         sec_notebook.place(x = 2, y = 295)
         sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
+
+        # show user table list
+        user_item_Tree = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
+        system_item_Tree = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
+
+        user_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
+        system_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
+
+    def _select_tab_item(self, event):
+        pass
+
+    def _tab_data_2_item_TreeView(self, frame, tab_data):
+        list = self._list_tab(tab_data)
+        column = ["item name"]
+        treeview = ttk.Treeview(frame, columns = column, show = 'headings')
+        for col in column:
+            treeview.heading(col, text = col)
+            treeview.column(col, anchor = 'center', width = 100)
+        
+        for item in list:
+            treeview.insert('', 'end', values = (item.name))
+
+        return treeview
 
     def _sec_tab_change(self, event):
         print("change")

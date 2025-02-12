@@ -19,9 +19,10 @@ class Structure_Tool(Structure):
             
             if len(name_list[i]) < align_len:
                 name_list[i] += ' ' * (align_len - len(name_list[i]))
-
-    def size(self):
-        return len(self._fields_)
+    
+    @classmethod
+    def member_num(cls):
+        return len(cls._fields_)
 
 class Storage_Stream_Def(Structure_Tool):
     _pack_ = 1
