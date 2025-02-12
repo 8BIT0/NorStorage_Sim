@@ -254,6 +254,12 @@ class StructureDisplay:
         user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
         system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
 
+        # vertial scrollbar
+        # user_v_scrollbar = ttk.Scrollbar(user_note_tab, orient = tk.VERTICAL, command = user_item_Tree.yview)
+        # sys_v_scrollbar = ttk.Scrollbar(sys_note_tab, orient = tk.VERTICAL, command = system_item_Tree.yview)
+
+        # right click item in treeview show delete option
+
     def _select_tab_item(self, event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree):
         tree = event.widget
         item = tree.selection()
