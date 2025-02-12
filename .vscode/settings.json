@@ -20,6 +20,7 @@
         "py_dsp_tool.h": "c",
         "string.h": "c",
         "syscommon.h": "c",
-        "windows.h": "c"
+        "windows.h": "c",
+        "pthread.h": "c"
     }
 }

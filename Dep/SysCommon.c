@@ -35,7 +35,7 @@ void Sys_CancelThread(Thread_Hdl hdl)
     CloseHandle((HANDLE)hdl);
 #else
     pthread_cancel(*(pthread_t *)hdl);
-    Sys_Free(hdl);
+    Sys_Free(&hdl);
 #endif
 }
 

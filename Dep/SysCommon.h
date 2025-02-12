@@ -14,7 +14,7 @@ typedef DWORD WINAPI (*Thread_Callback)(LPVOID *arg);
 #include <pthread.h>
 
 #define Sleep_Ms(x) usleep(x * 1000)
-typedef void* (Thread_Callback)(void *arg);
+typedef void* Thread_Callback;
 #endif
 
 typedef void* Thread_Hdl;
