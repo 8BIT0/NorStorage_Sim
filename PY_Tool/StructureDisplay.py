@@ -213,9 +213,17 @@ class StructureDisplay:
         TREEVIEW_HEIGHT = 328
 
         sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
-
+ 
         user_note_tab = tk.Frame(sec_notebook)
         sys_note_tab = tk.Frame(sec_notebook)
+
+        sec_notebook.add(user_note_tab, text = 'user')
+        sec_notebook.add(sys_note_tab, text = 'system')
+
+        # set user table as default
+        sec_notebook.select(0)
+        sec_notebook.place(x = 2, y = 295)
+        sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
 
         # name label
         user_item_name = tk.Label(user_note_tab,  text = "name: " )
@@ -229,21 +237,6 @@ class StructureDisplay:
         user_item_size = tk.Label(user_note_tab, text = "size: ")
         sys_item_size = tk.Label(sys_note_tab, text = "size: ")
 
-        sec_notebook.add(user_note_tab, text = 'user')
-        sec_notebook.add(sys_note_tab, text = 'system')
-
-        # set user table as default
-        sec_notebook.select(0)
-        sec_notebook.place(x = 2, y = 295)
-        sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
-
-        # show user table list
-        user_item_Tree = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
-        system_item_Tree = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
-
-        user_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
-        system_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
-
         user_label_pack = [user_item_name, user_item_addr, user_item_size]
         sys_label_pack = [sys_item_name, sys_item_addr, sys_item_size]
 
@@ -251,12 +244,25 @@ class StructureDisplay:
             # set label position
             pass
 
+        # vertial scrollbar
+        # show user table list
+        user_item_Tree = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
+        system_item_Tree = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
+
+        # user_v_scrollbar = ttk.Scrollbar(user_TV_frame, orient = tk.VERTICAL, command = user_item_Tree.yview)
+        # sys_v_scrollbar = ttk.Scrollbar(sys_TV_frame, orient = tk.VERTICAL, command = system_item_Tree.yview)
+
+        # user_item_Tree.config(yscrollcommand = user_v_scrollbar.set)
+        # system_item_Tree.configure(yscrollcommand = sys_v_scrollbar.set)
+        
+        # user_v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+        # sys_v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+
+        user_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
+        system_item_Tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
+        
         user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
         system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
-
-        # vertial scrollbar
-        # user_v_scrollbar = ttk.Scrollbar(user_note_tab, orient = tk.VERTICAL, command = user_item_Tree.yview)
-        # sys_v_scrollbar = ttk.Scrollbar(sys_note_tab, orient = tk.VERTICAL, command = system_item_Tree.yview)
 
         # right click item in treeview show delete option
 
