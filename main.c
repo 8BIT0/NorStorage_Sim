@@ -6,14 +6,7 @@
 #include "SimDevModule/SimDataFile_Opr.h"
 #include "Storage_Port/Storage.h"
 #include "py_dsp_tool.h"
-#include <pthread.h>
-#if defined WIN
-#include <windows.h>
-
-#define Sleep_Ms(x) Sleep(x)
-#else
-#define Sleep_Ms(x) usleep(x * 1000)
-#endif
+#include "SysCommon.h"
 
 #define SIMULATION_TAG "SIM"
 #define SIMULATION_PRINT(stage, fmt, ...) Debug_Print(SIMULATION_TAG, stage, fmt, ##__VA_ARGS__) 
@@ -21,13 +14,11 @@
 /* internal vriable */
 static SimDataFileObj_TypeDef SimObj;
 static StorageDevObj_TypeDef SimDev;
-static pthread_t SimPolling_hdl;
+static Thread_Hdl SimPolling_hdl;
 
 /* internal function */
 static bool SimModule_Init(char *app_path);
 static void* Sim_Polling_Thread(void *arg);
-static void* Sim_Malloc(uint32_t size);
-static void Sim_Free(void **ptr);
 
 int main(int argc, char **argv)
 {
@@ -39,7 +30,8 @@ int main(int argc, char **argv)
     }
 
     /* create simulation polling thread */
-    if (pthread_create(&SimPolling_hdl, NULL, Sim_Polling_Thread, NULL) != 0)
+    SimPolling_hdl = Sys_CreateThread((Thread_Callback)Sim_Polling_Thread);
+    if (SimPolling_hdl == NULL)
     {
         SIMULATION_PRINT("thread", "Polling thread create failed");
     }
@@ -54,7 +46,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    pthread_cancel(SimPolling_hdl);
+    Sys_CancelThread(SimPolling_hdl);
     SIMULATION_PRINT("thread", "Qiut");
 
     return 0;
@@ -70,8 +62,8 @@ static bool SimModule_Init(char *app_path)
 
     memset(&SimDev, 0, sizeof(StorageDevObj_TypeDef));
     
-    SimObj.malloc = Sim_Malloc;
-    SimObj.free = Sim_Free;
+    SimObj.malloc = Sys_Malloc;
+    SimObj.free = Sys_Free;
 
     SimDev.chip_type = Storage_ChipType_W25Q128;
     SimDev.api = (void *)(&SimDevW25Qxx);
@@ -132,7 +124,7 @@ static bool SimModule_Init(char *app_path)
             }
             break;
 
-            sleep(10);
+            Sleep_Ms(10);
         }
 
         if (SimDataFile.create(&SimObj, app_path, sim_name, file_size))
@@ -160,26 +152,4 @@ static void* Sim_Polling_Thread(void *arg)
     }
 }
 
-static void* Sim_Malloc(uint32_t size)
-{
-    void *ptr = NULL;
-    ptr = malloc((size_t)size);
-
-    if (ptr)
-        memset(ptr, 0, size);
-
-    SIMULATION_PRINT("malloc", "%p", ptr);
-    return ptr;
-}
-
-static void Sim_Free(void **ptr)
-{
-    SIMULATION_PRINT("free", "%p", *ptr);
-
-    if ((ptr == NULL) || (*ptr == NULL))
-        return;
-
-    free(*ptr);
-    *ptr = NULL;
-}
 
