@@ -211,6 +211,8 @@ class StructureDisplay:
         TREEVIEW_Y = 107
         TREEVIEW_WIDTH = 260
         TREEVIEW_HEIGHT = 328
+        user_label_list = []
+        sys_label_list = []
 
         sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
 
@@ -220,14 +222,20 @@ class StructureDisplay:
         # name label
         user_item_name = tk.Label(user_note_tab,  text = "name: " )
         sys_item_name = tk.Label(sys_note_tab,  text = "name: ")
+        user_label_list.append(user_item_name)
+        sys_label_list.append(sys_item_name)
 
         # address label
         user_item_addr = tk.Label(user_note_tab, text = "addr: ")
         sys_item_addr = tk.Label(sys_note_tab, text = "addr: ")
-        
+        user_label_list.append(user_item_addr)
+        sys_label_list.append(sys_item_addr)
+
         # size label
         user_item_size = tk.Label(user_note_tab, text = "size: ")
         sys_item_size = tk.Label(sys_note_tab, text = "size: ")
+        user_label_list.append(user_item_size)
+        sys_label_list.append(sys_item_size)
 
         sec_notebook.add(user_note_tab, text = 'user')
         sec_notebook.add(sys_note_tab, text = 'system')
