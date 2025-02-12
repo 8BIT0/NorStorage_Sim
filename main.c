@@ -34,6 +34,7 @@ int main(int argc, char **argv)
     if (SimPolling_hdl == NULL)
     {
         SIMULATION_PRINT("thread", "Polling thread create failed");
+        return 0;
     }
     else
         SIMULATION_PRINT("thread", "Polling thread create done");
