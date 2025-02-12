@@ -254,6 +254,8 @@ class StructureDisplay:
         user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
         system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
 
+        # double click show data in relative section
+
     def _select_tab_item(self, event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree):
         tree = event.widget
         item = tree.selection()
@@ -277,6 +279,13 @@ class StructureDisplay:
 
     def _sec_tab_change(self, event):
         print("change")
+        pass
+
+    # create 
+    # delete
+    # modify (can`t change data size) the only way is delete and add new one with the same name
+    # search
+    def _operate_control(self):
         pass
 
     def _close_root(self):
