@@ -289,6 +289,22 @@ class StructureDisplay:
         create_window.geometry("300x200")
         create_window.resizable(False, False)
 
+        name_l = tk.Label(create_window, text = 'name')
+        data_l = tk.Label(create_window, text = 'data')
+
+        name_e = tk.Entry(create_window)
+        data_e = tk.Entry(create_window)
+
+        submit_b = tk.Button(create_window, text = 'submit')
+
+        name_l.pack()
+        data_l.pack()
+
+        name_e.pack()
+        data_e.pack()
+
+        submit_b.pack()
+
     def _show_delete(self):
         pass
 
