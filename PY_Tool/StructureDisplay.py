@@ -207,7 +207,7 @@ class StructureDisplay:
         tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
 
     def _show_sec_tab(self):
-        sec_notebook = ttk.Notebook(self._root, width = 1025, height = 440)
+        sec_notebook = ttk.Notebook(self._root, width = 1075, height = 440)
  
         user_note_tab = tk.Frame(sec_notebook)
         sys_note_tab = tk.Frame(sec_notebook)
@@ -244,7 +244,7 @@ class StructureDisplay:
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         TREEVIEW_X = 5
-        TREEVIEW_Y = 107
+        TREEVIEW_Y = 75
         TREEVIEW_WIDTH = 260
         TREEVIEW_HEIGHT = 328
         list = self._list_tab(tab_data)
@@ -258,7 +258,7 @@ class StructureDisplay:
 
         # set label position
         for i in range(len(label_pack)):
-            label_pack[i].place(x = 10, y = 10 + i * 25)
+            label_pack[i].place(x = 10, y = 5 + i * 20)
 
         column = ["item name"]
         item_tree = ttk.Treeview(frame, columns = column, show = 'headings')
@@ -274,11 +274,23 @@ class StructureDisplay:
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
         
         item_tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
-        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width = (TREEVIEW_WIDTH + 22), height = (TREEVIEW_HEIGHT + 4))
+        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width = (TREEVIEW_WIDTH + 26), height = (TREEVIEW_HEIGHT + 4))
+
+        crt_btn = tk.Button(frame, text = "create storage item", width = 39, height = 1, command = self._show_create)
+        crt_btn.place(x = 5, y = 407)
 
         # data section treeview
 
         return [item_tree, label_pack]
+
+    def _show_create(self):
+        create_window = tk.Toplevel(self._root)
+        create_window.title("Create Item")
+        create_window.geometry("300x200")
+        create_window.resizable(False, False)
+
+    def _show_delete(self):
+        pass
 
     def _sec_tab_change(self, event):
         print("change")
