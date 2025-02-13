@@ -261,22 +261,24 @@ class StructureDisplay:
             label_pack[i].place(x = 10, y = 10 + i * 25)
 
         column = ["item name"]
-        treeview = ttk.Treeview(frame, columns = column, show = 'headings')
+        item_tree = ttk.Treeview(frame, columns = column, show = 'headings')
         for col in column:
-            treeview.heading(col, text = col)
-            treeview.column(col, anchor = 'center', width = 100)
+            item_tree.heading(col, text = col)
+            item_tree.column(col, anchor = 'center', width = 100)
         
         for item in list:
-            treeview.insert('', 'end', values = (item.name))
+            item_tree.insert('', 'end', values = (item.name))
 
-        v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = treeview.yview)
-        treeview.config(yscrollcommand = v_scrollbar.set)
+        v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item.yview)
+        item_tree.config(yscrollcommand = v_scrollbar.set)
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
         
-        treeview.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
-        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width =  (TREEVIEW_WIDTH + 22), height =  (TREEVIEW_HEIGHT + 4))
+        item_tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
+        v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width = (TREEVIEW_WIDTH + 22), height = (TREEVIEW_HEIGHT + 4))
 
-        return [treeview, v_frame, v_scrollbar, label_pack]
+        # data section treeview
+
+        return [item_tree, label_pack]
 
     def _sec_tab_change(self, event):
         print("change")

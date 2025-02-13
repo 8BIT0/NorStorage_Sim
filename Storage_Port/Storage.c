@@ -1121,7 +1121,8 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
     memset(&DataSlot, 0, sizeof(Storage_DataSlot_TypeDef));
     memset(&FreeSlot, 0, sizeof(Storage_FreeSlot_TypeDef));
 
-    if ((name == NULL) || (p_data == NULL) || (size == 0))
+    /* can not name data as <Item_Avaliable> */
+    if ((name == NULL) || (p_data == NULL) || (size == 0) || (memcmp(name, STORAGE_FREEITEM_NAME, strlen(STORAGE_FREEITEM_NAME) == 0)))
         return Storage_Param_Error;
 
     p_Flash = &Storage_Monitor.info;
