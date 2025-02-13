@@ -220,32 +220,13 @@ class StructureDisplay:
         sec_notebook.place(x = 2, y = 295)
         sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
 
-        # name label
-        user_item_name = tk.Label(user_note_tab,  text = "name: " )
-        sys_item_name = tk.Label(sys_note_tab,  text = "name: ")
-
-        # address label
-        user_item_addr = tk.Label(user_note_tab, text = "addr: ")
-        sys_item_addr = tk.Label(sys_note_tab, text = "addr: ")
-
-        # size label
-        user_item_size = tk.Label(user_note_tab, text = "size: ")
-        sys_item_size = tk.Label(sys_note_tab, text = "size: ")
-
-        user_label_pack = [user_item_name, user_item_addr, user_item_size]
-        sys_label_pack = [sys_item_name, sys_item_addr, sys_item_size]
-
-        for i in range(len(user_label_pack)):
-            # set label position
-            pass
-
         # vertial scrollbar
         # show user table list
-        user_item_Tree = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
-        system_item_Tree = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
+        user_pack = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
+        system_pack = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
         
-        user_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
-        system_item_Tree.bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree))
+        user_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_pack, system_pack))
+        system_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_pack, system_pack))
 
         # right click item in treeview show delete option
 
@@ -253,12 +234,12 @@ class StructureDisplay:
     def _delete_tab_item(self):
         pass
 
-    def _select_tab_item(self, event, user_label_pack, sys_label_pack, user_item_Tree, system_item_Tree):
+    def _select_tab_item(self, event, user_pack, sys_pack):
         tree = event.widget
         item = tree.selection()
-        if tree == user_item_Tree:
+        if tree == user_pack[0]:
             print('1')
-        elif tree == system_item_Tree:
+        elif tree == sys_pack[0]:
             print('2')
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
@@ -268,6 +249,17 @@ class StructureDisplay:
         TREEVIEW_HEIGHT = 328
         list = self._list_tab(tab_data)
         v_frame = tk.Frame(frame, borderwidth = 2, relief = 'groove')
+
+        l_name = tk.Label(frame, text = "name: ")
+        l_addr = tk.Label(frame, text = "addr: ")
+        l_size = tk.Label(frame, text = "size: ")
+
+        label_pack = [l_name, l_addr, l_size]
+
+        # set label position
+        for i in range(len(label_pack)):
+            label_pack[i].place(x = 10, y = 10 + i * 25)
+
         column = ["item name"]
         treeview = ttk.Treeview(frame, columns = column, show = 'headings')
         for col in column:
@@ -284,7 +276,7 @@ class StructureDisplay:
         treeview.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
         v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width =  (TREEVIEW_WIDTH + 22), height =  (TREEVIEW_HEIGHT + 4))
 
-        return treeview
+        return [treeview, v_frame, v_scrollbar, label_pack]
 
     def _sec_tab_change(self, event):
         print("change")
