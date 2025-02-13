@@ -269,7 +269,7 @@ class StructureDisplay:
         for item in list:
             item_tree.insert('', 'end', values = (item.name))
 
-        v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item.yview)
+        v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item_tree.yview)
         item_tree.config(yscrollcommand = v_scrollbar.set)
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
         
