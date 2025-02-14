@@ -6,7 +6,8 @@ from enum import Enum
 import tkinter as tk
 from tkinter import ttk
 import compile as compile_module
-import importlib
+import platform
+import ctypes
 
 class StorageTabType(Enum):
     STORAGE_TAB_TYPE_SYS = 0
@@ -22,17 +23,48 @@ class StructureDisplay:
 
         print(tag_str + " ".join(str(arg) for arg in args))
 
+    def __import_lib(self):
+        lib_dir = os.getcwd()
+        sys = platform.system()
+
+        if sys == "Windows":
+            extend = ".dll"
+        elif sys == "Linux" or \
+             sys == "Darwin":
+            extend = ".so"
+    
+        for root, dirs, files in os.walk(lib_dir):
+            for file in files:
+                if file.endswith(extend):
+                    file_name = os.path.basename(file)
+                    name_list = file_name
+                    tmp = name_list.split('.')
+                    for i in tmp:
+                        if i == 'StorageModule':
+                            self.__debug_print__('lib', (lib_dir + os.sep + file_name))
+                            self._lib = ctypes.CDLL(lib_dir + os.sep + file_name)
+                            break
+
+        if self._lib != None:
+            # test code
+            name_in = 'test'
+            Uint8Array = ctypes.c_uint8 * 5
+            arr = Uint8Array(1, 2, 3, 4, 5)
+            
+            self._lib.UICallback_Create(2, name_in.encode('utf-8'), arr, len(arr))
+            # test code
+
     def __init__(self, path, name, offset):
         self.simfile_path = path + os.path.sep + name
         self.__debug_print__('file name', self.simfile_path)
-        self.storage_callback = None
+        self._lib = None
 
+        self.__debug_print__("C module", "Compiling")
         if compile_module.compile():
-            self.storage_callback = importlib.import_module('StorageModule')
-            # self.storage_callback.create_callback()
-            pass
-        while True:
-            pass
+            self.__import_lib()
+        else:
+            self.__debug_print__("C module", "Compile failed")
+            return
 
         if type(offset) != int:
             self.init_state = False

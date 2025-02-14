@@ -1,5 +1,6 @@
 import os
 import subprocess
+import platform
 
 def compile():
     source_dir = os.getcwd() + os.path.sep + 'PY_Tool' + os.path.sep + 'Callback_Dep' + os.path.sep
@@ -26,8 +27,17 @@ def compile():
     try:
         os.chdir(build_dir)
 
-        cmake_command = f'cmake -G Ninja ..'
-        subprocess.run(cmake_command, shell=True, check=True)
+        sys = platform.system()
+        
+        if sys == 'Darwin':
+            cmake_command = f'cmake ..'
+            subprocess.run(cmake_command, shell=True, check=True)
+
+            cmake_command = f'make'
+            subprocess.run(cmake_command, shell=True, check=True)
+        elif sys == 'win':
+            cmake_command = f'cmake -G Ninja ..'
+            subprocess.run(cmake_command, shell=True, check=True)
 
         print("[ Storage Compile ] Success")
         return True

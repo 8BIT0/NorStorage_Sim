@@ -21,6 +21,9 @@
         "string.h": "c",
         "syscommon.h": "c",
         "windows.h": "c",
-        "pthread.h": "c"
+        "pthread.h": "c",
+        "locale": "c",
+        "new": "c",
+        "ostream": "c"
     }
 }
