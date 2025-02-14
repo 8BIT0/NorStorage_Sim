@@ -5,6 +5,8 @@ from StructDef import *
 from enum import Enum
 import tkinter as tk
 from tkinter import ttk
+import compile as compile_module
+import importlib
 
 class StorageTabType(Enum):
     STORAGE_TAB_TYPE_SYS = 0
@@ -19,11 +21,18 @@ class StructureDisplay:
             tag_str += ' ' * (PRINT_ALIGN_LEN - tag_size)
 
         print(tag_str + " ".join(str(arg) for arg in args))
-        pass
 
     def __init__(self, path, name, offset):
         self.simfile_path = path + os.path.sep + name
         self.__debug_print__('file name', self.simfile_path)
+        self.storage_callback = None
+
+        if compile_module.compile():
+            self.storage_callback = importlib.import_module('StorageModule')
+            # self.storage_callback.create_callback()
+            pass
+        while True:
+            pass
 
         if type(offset) != int:
             self.init_state = False

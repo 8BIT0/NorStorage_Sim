@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "util.h"
+#include "../Dep/util.h"
 
 #define Flash_Storage_TabSize           (4 Kb)
 

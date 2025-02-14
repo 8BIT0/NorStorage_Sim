@@ -10,7 +10,7 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 #include "../Dep/util.h"
-#include "SimDev_W25Qxx.h"
+#include "../SimDevModule/SimDev_W25Qxx.h"
 
 #define To_StorageDevObj_Ptr(x) ((StorageDevObj_TypeDef *)x)
 

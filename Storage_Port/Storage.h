@@ -8,7 +8,7 @@ extern "C" {
 #include <string.h>
 #include "Storage_Def.h"
 #include "Storage_Dev_Port.h"
-#include "util.h"
+#include "../Dep/util.h"
 
 typedef uint32_t storage_handle;
 

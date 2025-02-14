@@ -1,8 +1,15 @@
-from distutils.core import setup, Extension
+from distutils.core import setup
+from Cython.Build import cythonize
+from distutils.extension import Extension
 
-module = Extension('Storage', sources=['py_dsp_tool.c'])
+extensions = [
+    Extension(
+        "storage_callback",
+        sources=["c:\\Users\\HUAV\\Desktop\\8B!T0\\NorSim_Storage\\PY_Tool\\link_callback.pyx", "callback.c"],
+    )
+]
 
-setup(name='Storage',
-      version='1.0',
-      description='Storage callback module',
-      ext_modules=[module])
+setup(
+    name="storage module",
+    ext_modules=cythonize(extensions),
+)
