@@ -11,6 +11,7 @@ typedef struct
     PyObject *p_Name;
     PyObject *p_Module;
     PyObject *p_Class;
+    PyObject *p_Instance;
 } VisualMonitor_TypeDef;
 
 /* internal vriable */
@@ -79,8 +80,15 @@ static bool PyDspTool_Init(char *simfile_dir, char *file_name, uint32_t addr_off
     if (p_ClassArg == NULL)
         return false;
     
-    PyObject_CallObject(MonitorObj.p_Class, p_ClassArg);
+    MonitorObj.p_Instance = PyObject_CallObject(MonitorObj.p_Class, p_ClassArg);
     Py_DECREF(p_ClassArg);
+
+    if (MonitorObj.p_Instance == NULL)
+        return false;
+
+    /* link dll or so */
+
+    PyObject_CallMethod(MonitorObj.p_Instance, "show_widget", NULL);
 
     return true;
 }

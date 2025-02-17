@@ -46,13 +46,7 @@ class StructureDisplay:
                             break
 
         if self._lib != None:
-            # test code
-            name_in = 'test'
-            Uint8Array = ctypes.c_uint8 * 5
-            arr = Uint8Array(1, 2, 3, 4, 5)
-            
-            self._lib.UICallback_Create(2, name_in.encode('utf-8'), arr, len(arr))
-            # test code
+            self._lib.UICallback_Test()
 
     def __init__(self, path, name, offset):
         self.simfile_path = path + os.path.sep + name
@@ -166,6 +160,10 @@ class StructureDisplay:
         self.__update_BaseInfo__()
 
     # ------------------------------------------------------------- widget ---------------------------------------------
+    def show_widget(self):
+        # display widget
+        self._root.mainloop()
+
     # create main widget
     def _init_widget(self):
         self._root = tk.Tk()
@@ -180,9 +178,6 @@ class StructureDisplay:
         # tab info widget
         # both user table and sys table
         self._show_sec_tab()
-        
-        # display widget
-        self._root.mainloop()
         
     def _show_flash_info(self):
         column = []

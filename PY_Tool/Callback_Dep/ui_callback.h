@@ -2,6 +2,7 @@
 #define __UI_CALLBACK_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 typedef enum
@@ -32,6 +33,7 @@ typedef void (*trigger_callback)(TriggerData_TypeDef *data);
 
 void UICallback_Set(TriggerType_List type, trigger_callback cb);
 
+bool UICallback_Test(void);
 void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len);
 void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len);
 void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len);

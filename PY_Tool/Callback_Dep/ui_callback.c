@@ -2,12 +2,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdarg.h>
 #include "ui_callback.h"
 
 static trigger_callback create_cb = NULL;
 static trigger_callback search_cb = NULL;
 static trigger_callback delete_cb = NULL;
 static trigger_callback modify_cb = NULL;
+
+#define UI_CALLBACK_TAG "UI Callback"
+#define DEBUG_BUF_SIZE 4096
+
+#define CALLBACK_INFO(stage, fmt, ...) UIDebug_Print(UI_CALLBACK_TAG, stage, fmt, ##__VA_ARGS__)
+
+static void UIDebug_Print(const char *tag, const char *stage, const char *fmt, ...)
+{
+    va_list ap;
+    char fmt_buf[DEBUG_BUF_SIZE];
+    char *ptr_tmp = NULL;
+
+    memset(fmt_buf, '\0', DEBUG_BUF_SIZE);
+    sprintf(fmt_buf, "[ %s %s ]", tag, stage);
+    uint8_t align_size = 48 - strlen(fmt_buf);
+    ptr_tmp = fmt_buf + strlen(fmt_buf);
+    memset(ptr_tmp, ' ', align_size);
+    ptr_tmp = ptr_tmp + align_size;
+
+    va_start(ap, fmt);
+    vsprintf(ptr_tmp, fmt, ap);
+    strcat(ptr_tmp, "\r\n");
+    va_end(ap);
+
+    printf("%s", fmt_buf);
+}
 
 void UICallback_Set(TriggerType_List type, trigger_callback cb)
 {
@@ -21,18 +48,24 @@ void UICallback_Set(TriggerType_List type, trigger_callback cb)
     }
 }
 
+bool UICallback_Test(void)
+{
+    CALLBACK_INFO("", "test");
+    return true;
+}
+
 void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
     TriggerData_TypeDef data_tmp;
 
-    printf("create name %s len %d\r\n", name, len);
+    CALLBACK_INFO("create", "name %s data size %d", name, len);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Create;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {
-        printf("create callback name malloc failed\r\n");
+        CALLBACK_INFO("create", "Name space malloc failed");
         return;
     }
 
@@ -41,7 +74,7 @@ void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
     data_tmp.data = malloc(len);
     if (data_tmp.data == NULL)
     {
-        printf("create callback data malloc failed\r\n");
+        CALLBACK_INFO("create", "Data space malloc failed");
         free(data_tmp.name);
         return;
     }
@@ -60,14 +93,14 @@ void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
     TriggerData_TypeDef data_tmp;
 
-    printf("search name %s len %d\r\n", name, len);
+    CALLBACK_INFO("search", "Name %s data size %d", name, len);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Create;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {
-        printf("search callback name malloc failed\r\n");
+        CALLBACK_INFO("search", "Name space malloc failed");
         return;
     }
 
@@ -76,7 +109,7 @@ void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
     data_tmp.data = malloc(len);
     if (data_tmp.data == NULL)
     {
-        printf("search callback data malloc failed\r\n");
+        CALLBACK_INFO("search", "Data space malloc failed");
         free(data_tmp.name);
         return;
     }
@@ -95,14 +128,14 @@ void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
     TriggerData_TypeDef data_tmp;
 
-    printf("modify name %s len %d\r\n", name, len);
+    CALLBACK_INFO("modify", "Name %s data size %d", name, len);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Create;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {
-        printf("modify callback name malloc failed\r\n");
+        CALLBACK_INFO("modify", "Data space malloc failed");
         return;
     }
 
@@ -111,7 +144,7 @@ void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
     data_tmp.data = malloc(len);
     if (data_tmp.data == NULL)
     {
-        printf("modify callback data malloc failed\r\n");
+        CALLBACK_INFO("search", "Data space malloc failed");
         free(data_tmp.name);
         return;
     }
@@ -130,14 +163,14 @@ void UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
     TriggerData_TypeDef data_tmp;
 
-    printf("delete name %s len %d\r\n", name, len);
+    CALLBACK_INFO("delete", "Name %s data size %d", name, len);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Create;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {
-        printf("delete callback name malloc failed\r\n");
+        CALLBACK_INFO("delete", "Name space malloc failed");
         return;
     }
 
