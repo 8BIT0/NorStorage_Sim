@@ -243,26 +243,26 @@ class StructureDisplay:
         tab_frame.pack(side = tk.TOP, anchor = tk.NW, padx = 5, pady = 5)
 
     def _show_sec_tab(self):
-        sec_notebook = ttk.Notebook(self._root, width = 1075, height = 440)
+        self._sec_notebook = ttk.Notebook(self._root, width = 1030, height = 440)
  
-        user_note_tab = tk.Frame(sec_notebook)
-        sys_note_tab = tk.Frame(sec_notebook)
+        user_note_tab = tk.Frame(self._sec_notebook)
+        sys_note_tab = tk.Frame(self._sec_notebook)
 
-        sec_notebook.add(user_note_tab, text = 'user')
-        sec_notebook.add(sys_note_tab, text = 'system')
+        self._sec_notebook.add(user_note_tab, text = 'user')
+        self._sec_notebook.add(sys_note_tab, text = 'system')
 
         # set user table as default
-        sec_notebook.select(0)
-        sec_notebook.place(x = 2, y = 295)
-        sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
+        self._sec_notebook.select(0)
+        self._sec_notebook.place(x = 2, y = 295)
+        self._sec_notebook.bind("<<NotebookTabChanged>>", self._sec_tab_change)
 
         # vertial scrollbar
         # show user table list
-        user_pack = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
-        system_pack = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
+        _user_pack = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
+        _system_pack = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
         
-        user_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_pack, system_pack))
-        system_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, user_pack, system_pack))
+        _user_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, _user_pack, _system_pack))
+        _system_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, _user_pack, _system_pack))
 
         # right click item in treeview show delete option
 
@@ -312,7 +312,7 @@ class StructureDisplay:
         item_tree.place(x = TREEVIEW_X, y = TREEVIEW_Y, width = TREEVIEW_WIDTH, height = TREEVIEW_HEIGHT)
         v_frame.place(x = (TREEVIEW_X - 2), y = (TREEVIEW_Y - 2), width = (TREEVIEW_WIDTH + 26), height = (TREEVIEW_HEIGHT + 4))
 
-        crt_btn = tk.Button(frame, text = "create storage item", width = 39, height = 1, command = self._show_create)
+        crt_btn = tk.Button(frame, text = "create storage item", width = 27, height = 1, command = self._show_create)
         crt_btn.place(x = 5, y = 407)
 
         # data section treeview
@@ -320,8 +320,11 @@ class StructureDisplay:
         return [item_tree, label_pack]
 
     def _show_create(self):
+        select_tab = self._sec_notebook.select()
+        tab_txt = self._sec_notebook.tab(select_tab, 'text')
+        
         create_window = tk.Toplevel(self._root)
-        create_window.title("Create Item")
+        create_window.title('Create ' + tab_txt + ' Item')
         create_window.geometry("300x200")
         create_window.resizable(False, False)
 

@@ -19,9 +19,11 @@ static VisualMonitor_TypeDef MonitorObj;
 
 /* external function */
 static bool PyDspTool_Init(char *simfile_dir, char *file_name, uint32_t addr_offset);
+static void PyDspTool_Update(void);
 
 PyDsp_TypeDef PY_Visualize = {
     .init = PyDspTool_Init,
+    .update = PyDspTool_Update,
 };
 
 static bool PyDspTool_Init(char *simfile_dir, char *file_name, uint32_t addr_offset)
@@ -86,11 +88,12 @@ static bool PyDspTool_Init(char *simfile_dir, char *file_name, uint32_t addr_off
     if (MonitorObj.p_Instance == NULL)
         return false;
 
-    /* link dll or so */
-
-    PyObject_CallMethod(MonitorObj.p_Instance, "show_widget", NULL);
-
     return true;
 }
 
+static void PyDspTool_Update(void)
+{
+    if (MonitorObj.p_Instance)
+        PyObject_CallMethod(MonitorObj.p_Instance, "show_widget", NULL);
+}
 

@@ -3,10 +3,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <dlfcn.h>
 #include "SimDevModule/SimDataFile_Opr.h"
 #include "Storage_Port/Storage.h"
 #include "py_dsp_tool.h"
 #include "SysCommon.h"
+#include "PY_Tool/Callback_Dep/ui_callback.h"
 
 #define SIMULATION_TAG "SIM"
 #define SIMULATION_PRINT(stage, fmt, ...) Debug_Print(SIMULATION_TAG, stage, fmt, ##__VA_ARGS__) 
@@ -19,6 +21,7 @@ static Thread_Hdl SimPolling_hdl;
 /* internal function */
 static bool SimModule_Init(char *app_path);
 static void* Sim_Polling_Thread(void *arg);
+static bool Sim_Link_Lib(char *exe_path);
 
 int main(int argc, char **argv)
 {
@@ -47,10 +50,71 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    if (!Sim_Link_Lib(argv[0]))
+        return 0;
+
+    PY_Visualize.update();
+
     Sys_CancelThread(SimPolling_hdl);
     SIMULATION_PRINT("thread", "Qiut");
 
     return 0;
+}
+
+static bool Sim_Link_Lib(char *exe_path)
+{
+    void *StorageModule_Lib = NULL;
+    char *lib_path = NULL;
+    char *app_path = NULL;
+    uint16_t path_len = 1;
+
+    /* link StorageModule.so */
+    path_len += strlen(exe_path);
+    path_len += strlen("PY_Tool");
+    path_len += strlen("Callback_Dep");
+    path_len += strlen("build");
+    path_len += strlen("StorageModule");
+    path_len += strlen(Lib_Extend);
+    path_len += strlen(Folder_Split) * 4;
+    lib_path = Sys_Malloc(path_len);
+    if (lib_path == NULL)
+    {
+        SIMULATION_PRINT("lib path", "Malloc failed");
+        return false;
+    }
+
+    app_path = dirname(exe_path);
+    char *lst_spl = strrchr(app_path, Folder_Split[0]);
+
+    if (!lst_spl)
+    {
+        SIMULATION_PRINT("lib", "Path error");
+        return false;
+    }
+
+    *lst_spl = '\0';
+    strcpy(lib_path, app_path);
+    strcat(lib_path, Folder_Split);
+    strcat(lib_path, "PY_Tool");
+    strcat(lib_path, Folder_Split);
+    strcat(lib_path, "Callback_Dep");
+    strcat(lib_path, Folder_Split);
+    strcat(lib_path, "build");
+    strcat(lib_path, Folder_Split);
+    strcat(lib_path, "StorageModule");
+    strcat(lib_path, Lib_Extend);
+    SIMULATION_PRINT("Lib path", lib_path);
+
+    StorageModule_Lib = dlopen(lib_path, RTLD_LAZY);
+    if (StorageModule_Lib == NULL)
+    {
+        SIMULATION_PRINT("Lib", "Link failed", dlerror());
+        Sys_Free((void **)&lib_path);
+        return false;
+    }
+
+    SIMULATION_PRINT("Lib", "Link successed");
+    return true;
 }
 
 static bool SimModule_Init(char *app_path)

@@ -24,6 +24,7 @@
         "pthread.h": "c",
         "locale": "c",
         "new": "c",
-        "ostream": "c"
+        "ostream": "c",
+        "ui_callback.h": "c"
     }
 }

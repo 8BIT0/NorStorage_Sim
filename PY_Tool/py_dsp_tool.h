@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include "Callback_Dep/ui_callback.h"
 
 typedef enum
 {
@@ -31,7 +32,7 @@ typedef struct
 typedef struct
 {
     bool (*init)(char *simfile_dir, char *file_name, uint32_t addr_offset);
-    void (*set_input_callback)();
+    void (*update)(void);
 } PyDsp_TypeDef;
 
 extern PyDsp_TypeDef PY_Visualize;
