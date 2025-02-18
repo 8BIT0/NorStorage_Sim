@@ -113,6 +113,17 @@ static bool Sim_Link_Lib(char *exe_path)
         return false;
     }
 
+    // dlerror();
+
+    // /* set callback */
+    // dlsym(StorageModule_Lib, "UICallback_Set");
+    // if (dlerror() != NULL)
+    // {
+    //     SIMULATION_PRINT("Lib", "Call mathod failed", dlerror());
+    //     Sys_Free((void **)&lib_path);
+    //     return false;
+    // }
+
     SIMULATION_PRINT("Lib", "Link successed");
     return true;
 }
