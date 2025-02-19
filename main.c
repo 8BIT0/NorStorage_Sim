@@ -23,6 +23,11 @@ static bool SimModule_Init(char *app_path);
 static void* Sim_Polling_Thread(void *arg);
 static bool Sim_Link_Lib(char *exe_path);
 
+static bool Sim_Storage_Create_Callback(TriggerData_TypeDef *data);
+static bool Sim_Storage_Modify_Callback(TriggerData_TypeDef *data);
+static bool Sim_Storage_Delete_Callback(TriggerData_TypeDef *data);
+static bool Sim_Storage_Search_Callback(TriggerData_TypeDef *data);
+
 int main(int argc, char **argv)
 {
     if (!SimModule_Init(argv[0]))
@@ -64,6 +69,7 @@ int main(int argc, char **argv)
 static bool Sim_Link_Lib(char *exe_path)
 {
     void *StorageModule_Lib = NULL;
+    void (*set_ui_callback)(TriggerType_List, trigger_callback);
     char *lib_path = NULL;
     char *app_path = NULL;
     uint16_t path_len = 1;
@@ -112,19 +118,23 @@ static bool Sim_Link_Lib(char *exe_path)
         Sys_Free((void **)&lib_path);
         return false;
     }
-
-    // dlerror();
-
-    // /* set callback */
-    // dlsym(StorageModule_Lib, "UICallback_Set");
-    // if (dlerror() != NULL)
-    // {
-    //     SIMULATION_PRINT("Lib", "Call mathod failed", dlerror());
-    //     Sys_Free((void **)&lib_path);
-    //     return false;
-    // }
-
     SIMULATION_PRINT("Lib", "Link successed");
+    dlerror();
+
+    /* set callback */
+    set_ui_callback = (void (*)(TriggerType_List, trigger_callback))dlsym(StorageModule_Lib, "UICallback_Set");
+    if (dlerror() != NULL)
+    {
+        SIMULATION_PRINT("Lib", "Call mathod failed", dlerror());
+        Sys_Free((void **)&lib_path);
+        return false;
+    }
+
+    set_ui_callback(Trigger_Create, Sim_Storage_Create_Callback);
+    set_ui_callback(Trigger_Modify, Sim_Storage_Modify_Callback);
+    set_ui_callback(Trigger_Delete, Sim_Storage_Delete_Callback);
+    set_ui_callback(Trigger_Search, Sim_Storage_Search_Callback);
+    
     return true;
 }
 
@@ -227,5 +237,44 @@ static void* Sim_Polling_Thread(void *arg)
         Sleep_Ms(10);
     }
 }
+
+static bool Sim_Storage_Create_Callback(TriggerData_TypeDef *data)
+{
+    if (data == NULL)
+        return false;
+
+    printf("create at section %d\r\n", data->sec);
+    printf("create item name %s\r\n", data->name);
+
+    return true;
+}
+
+static bool Sim_Storage_Modify_Callback(TriggerData_TypeDef *data)
+{
+    if (data == NULL)
+        return false;
+
+    return true;
+}
+
+static bool Sim_Storage_Search_Callback(TriggerData_TypeDef *data)
+{
+    if (data == NULL)
+        return false;
+
+    return true;
+}
+
+static bool Sim_Storage_Delete_Callback(TriggerData_TypeDef *data)
+{
+    if (data == NULL)
+        return false;
+
+    return true;
+}
+
+
+
+
 
 

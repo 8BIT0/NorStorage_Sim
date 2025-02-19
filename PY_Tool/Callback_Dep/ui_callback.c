@@ -40,10 +40,26 @@ void UICallback_Set(TriggerType_List type, trigger_callback cb)
 {
     switch ((uint8_t)type)
     {
-        case Trigger_Create: create_cb = cb; break;
-        case Trigger_Modify: modify_cb = cb; break;
-        case Trigger_Delete: delete_cb = cb; break;
-        case Trigger_Search: search_cb = cb; break;
+        case Trigger_Create:
+            create_cb = cb;
+            CALLBACK_INFO("set", "Create callback");
+            break;
+
+        case Trigger_Modify:
+            modify_cb = cb;
+            CALLBACK_INFO("set", "Modify callback");
+            break;
+
+        case Trigger_Delete:
+            delete_cb = cb;
+            CALLBACK_INFO("set", "Delete callback");
+            break;
+
+        case Trigger_Search:
+            search_cb = cb;
+            CALLBACK_INFO("set", "Search callback");
+            break;
+
         defautl: break;
     }
 }
@@ -54,8 +70,9 @@ bool UICallback_Test(void)
     return true;
 }
 
-void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
+bool UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
+    bool state = false;
     TriggerData_TypeDef data_tmp;
 
     CALLBACK_INFO("create", "name %s data size %d", name, len);
@@ -66,7 +83,7 @@ void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
     if (data_tmp.name == NULL)
     {
         CALLBACK_INFO("create", "Name space malloc failed");
-        return;
+        return false;
     }
 
     memset(data_tmp.name, 0, sizeof(strlen(name)));
@@ -76,21 +93,24 @@ void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
     {
         CALLBACK_INFO("create", "Data space malloc failed");
         free(data_tmp.name);
-        return;
+        return false;
     }
     
     memset(data_tmp.data, 0, len);
     memcpy(data_tmp.data, data, len);
 
     if (create_cb != NULL)
-        create_cb(&data_tmp);
+        state = create_cb(&data_tmp);
 
     free(data_tmp.name);
     free(data_tmp.data);
+
+    return state;
 }
 
-void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
+bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
+    bool state = false;
     TriggerData_TypeDef data_tmp;
 
     CALLBACK_INFO("search", "Name %s data size %d", name, len);
@@ -101,7 +121,7 @@ void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
     if (data_tmp.name == NULL)
     {
         CALLBACK_INFO("search", "Name space malloc failed");
-        return;
+        return false;
     }
 
     memset(data_tmp.name, 0, sizeof(strlen(name)));
@@ -111,21 +131,24 @@ void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
     {
         CALLBACK_INFO("search", "Data space malloc failed");
         free(data_tmp.name);
-        return;
+        return false;
     }
     
     memset(data_tmp.data, 0, len);
     memcpy(data_tmp.data, data, len);
 
     if (search_cb != NULL)
-        search_cb(&data_tmp);
+        state = search_cb(&data_tmp);
 
     free(data_tmp.name);
     free(data_tmp.data);
+
+    return state;
 }
 
-void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
+bool UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
+    bool state = false;
     TriggerData_TypeDef data_tmp;
 
     CALLBACK_INFO("modify", "Name %s data size %d", name, len);
@@ -136,7 +159,7 @@ void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
     if (data_tmp.name == NULL)
     {
         CALLBACK_INFO("modify", "Data space malloc failed");
-        return;
+        return false;
     }
 
     memset(data_tmp.name, 0, sizeof(strlen(name)));
@@ -146,21 +169,24 @@ void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
     {
         CALLBACK_INFO("search", "Data space malloc failed");
         free(data_tmp.name);
-        return;
+        return false;
     }
     
     memset(data_tmp.data, 0, len);
     memcpy(data_tmp.data, data, len);
 
     if (modify_cb != NULL)
-        modify_cb(&data_tmp);
+        state = modify_cb(&data_tmp);
 
     free(data_tmp.name);
     free(data_tmp.data);
+
+    return state;
 }
 
-void UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len)
+bool UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len)
 {
+    bool state = false;
     TriggerData_TypeDef data_tmp;
 
     CALLBACK_INFO("delete", "Name %s data size %d", name, len);
@@ -171,15 +197,17 @@ void UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len)
     if (data_tmp.name == NULL)
     {
         CALLBACK_INFO("delete", "Name space malloc failed");
-        return;
+        return false;
     }
 
     memset(data_tmp.name, 0, sizeof(strlen(name)));
     strcpy(data_tmp.name, name);
 
     if (delete_cb != NULL)
-        delete_cb(&data_tmp);
+        state = delete_cb(&data_tmp);
 
     free(data_tmp.name);
+    
+    return state;
 }
 

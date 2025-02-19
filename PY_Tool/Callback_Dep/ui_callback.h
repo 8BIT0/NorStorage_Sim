@@ -29,15 +29,7 @@ typedef struct
     uint16_t size;
 } TriggerData_TypeDef;
 
-typedef void (*trigger_callback)(TriggerData_TypeDef *data);
-
-void UICallback_Set(TriggerType_List type, trigger_callback cb);
-
-bool UICallback_Test(void);
-void UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len);
-void UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len);
-void UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len);
-void UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len);
+typedef bool (*trigger_callback)(TriggerData_TypeDef *data);
 
 #endif
 

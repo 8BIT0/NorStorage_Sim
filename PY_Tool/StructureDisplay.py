@@ -334,7 +334,15 @@ class StructureDisplay:
         name_e = tk.Entry(create_window)
         data_e = tk.Entry(create_window)
 
-        submit_b = tk.Button(create_window, text = 'submit')
+        # if tab_txt == 'user':
+        #     print(1)
+        #     sec = StorageTabType.STORAGE_TAB_TYPE_USER.value()
+        # elif tab_txt == 'system':
+        #     print(2)
+        #     sec = StorageTabType.STORAGE_TAB_TYPE_SYS.value()
+
+        # print(sec)
+        submit_b = tk.Button(create_window, text = 'submit', command = self._lib.UICallback_Create(0, 'test name', 'test data', len('test data')))
 
         name_l.pack()
         data_l.pack()
