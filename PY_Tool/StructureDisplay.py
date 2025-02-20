@@ -320,6 +320,7 @@ class StructureDisplay:
         return [item_tree, label_pack]
 
     def _show_create(self):
+        sec = StorageTabType.STORAGE_TAB_TYPE_USER.value
         select_tab = self._sec_notebook.select()
         tab_txt = self._sec_notebook.tab(select_tab, 'text')
         
@@ -334,17 +335,13 @@ class StructureDisplay:
         name_e = tk.Entry(create_window)
         data_e = tk.Entry(create_window)
 
-        # if tab_txt == 'user':
-        #     print(1)
-        #     sec = StorageTabType.STORAGE_TAB_TYPE_USER.value()
-        # elif tab_txt == 'system':
-        #     print(2)
-        #     sec = StorageTabType.STORAGE_TAB_TYPE_SYS.value()
+        if tab_txt == 'system':
+            sec = StorageTabType.STORAGE_TAB_TYPE_SYS.value
 
-        # print(sec)
-        submit_b = tk.Button(create_window, text = 'submit', command = self._lib.UICallback_Create(0, 'test name', 'test data', len('test data')))
-
-        name_l.pack()
+        submit_b = tk.Button(create_window, text = 'submit', \
+                             command = lambda: self._lib.UICallback_Create(sec, \
+                                                                           name_e.get().encode(),
+                                                                           data_e.get().encode(), len(data_e.get().encode())))
         data_l.pack()
 
         name_e.pack()
