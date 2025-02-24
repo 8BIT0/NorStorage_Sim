@@ -440,7 +440,7 @@ static Storage_ItemSearchOut_TypeDef Storage_Search(Storage_ParaClassType_List _
     Storage_Item_TypeDef *p_item = NULL;
     uint32_t tab_addr = 0;
 
-    memset(&ItemSearch, 0, sizeof(ItemSearch));
+    memset(&ItemSearch, 0, sizeof(Storage_ItemSearchOut_TypeDef));
 
     if (!Storage_Monitor.init_state || \
         (name == NULL) || \
@@ -469,14 +469,21 @@ static Storage_ItemSearchOut_TypeDef Storage_Search(Storage_ParaClassType_List _
             p_item = &item_list[item_i];
 
             if ((p_item->head_tag == STORAGE_ITEM_HEAD_TAG) && \
-                (p_item->end_tag == STORAGE_ITEM_END_TAG) && \
-                (memcmp(p_item->name, name, strlen(name)) == 0) && \
-                (Storage_Compare_ItemSlot_CRC(*p_item)))
+                (p_item->end_tag == STORAGE_ITEM_END_TAG))
             {
-                ItemSearch.item_addr = tab_addr;
-                ItemSearch.item_index = item_i;
-                ItemSearch.item = *p_item;
-                return ItemSearch;
+                if ((memcmp(p_item->name, name, strlen(name)) == 0) && \
+                    (Storage_Compare_ItemSlot_CRC(*p_item)))
+                {
+                    ItemSearch.item_addr = tab_addr;
+                    ItemSearch.item_index = item_i;
+                    ItemSearch.item = *p_item;
+                    ItemSearch.match = true;
+                    return ItemSearch;
+                }
+                else if (memcmp(p_item->name, name, strlen(name)) == 0)
+                {
+
+                }
             }
         }
     
@@ -1115,11 +1122,15 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
     Storage_Item_TypeDef crt_item_slot;
     Storage_FreeSlot_TypeDef FreeSlot;
     Storage_DataSlot_TypeDef DataSlot;
+    Storage_ItemSearchOut_TypeDef search;
     uint8_t align_byte = 0;
 
+    memset(&search, 0, sizeof(Storage_ItemSearchOut_TypeDef));
     memset(&crt_item_slot, 0, sizeof(crt_item_slot));
     memset(&DataSlot, 0, sizeof(Storage_DataSlot_TypeDef));
     memset(&FreeSlot, 0, sizeof(Storage_FreeSlot_TypeDef));
+
+    STORAGE_INFO("create", "name %s data size %d", name, size);
 
     /* can not name data as <Item_Avaliable> */
     if ((name == NULL) || (p_data == NULL) || (size == 0) || (memcmp(name, STORAGE_FREEITEM_NAME, strlen(STORAGE_FREEITEM_NAME)) == 0))
@@ -1132,6 +1143,17 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
 
     if (p_Sec->free_slot_addr == 0)
         return Storage_FreeSlot_Addr_Error;
+
+    /* search tab if matched item with the same name then abrot creating 
+     * or give the free or empty storage item solt to create
+     */
+    if (p_Sec->para_num)
+    {
+        search = Storage_Search(_class, name);
+        /* item name already exist */
+        if (search.match)
+            return Storage_TabItem_Exist;
+    }
 
     if (StorageDev.param_read(Storage_Monitor.ExtDev_ptr, p_Sec->free_slot_addr, (uint8_t *)&FreeSlot, sizeof(Storage_FreeSlot_TypeDef)) && \
         (FreeSlot.head_tag == STORAGE_SLOT_HEAD_TAG) && \
@@ -1163,6 +1185,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
             tab_item = (Storage_Item_TypeDef *)page_data_tmp;
             for (uint16_t item_i = 0; item_i < Item_Capacity_Per_Tab; item_i ++)
             {
+                /* current item slot is empty or is available (been free) */
                 if (((tab_item[item_i].head_tag == STORAGE_ITEM_HEAD_TAG) && \
                      (tab_item[item_i].end_tag == STORAGE_ITEM_END_TAG) && \
                      (memcmp(tab_item[item_i].name, STORAGE_FREEITEM_NAME, strlen(STORAGE_FREEITEM_NAME)) == 0)) || \

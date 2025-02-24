@@ -28,10 +28,9 @@ typedef enum
     Storage_Read_Error,
     Storage_Write_Error,
     Storage_Erase_Error,
-    Storage_NameMatched,
+    Storage_TabItem_Exist,
     Storage_SlotHeader_Error,
-    Storage_ExternalFlash_NotAvailable,
-    Storage_InternalFlash_NotAvailable,
+    Storage_Flash_NotAvailable,
     Storage_Class_Error,
     Storage_RW_Api_Error,
     Storage_No_Enough_Space,
@@ -145,6 +144,7 @@ typedef struct
     uint32_t item_addr;
     uint8_t item_index;
     Storage_Item_TypeDef item;
+    bool match;                     /* set true when matched the item in table */
 } Storage_ItemSearchOut_TypeDef;
 #pragma pack()
 

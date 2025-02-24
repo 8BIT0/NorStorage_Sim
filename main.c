@@ -238,14 +238,24 @@ static void* Sim_Polling_Thread(void *arg)
     }
 }
 
+/* push create item info into queue */
 static bool Sim_Storage_Create_Callback(TriggerData_TypeDef *data)
 {
+    Storage_ParaClassType_List cls = Para_Sys;
+
     if (data == NULL)
         return false;
 
-    printf("create at section %d\r\n", data->sec);
-    printf("create item name %s\r\n", data->name);
+    if (data->sec == UserSec)
+        cls = Para_User;
 
+    if (Storage.create(cls, data->name, data->data, data->size) != Storage_Error_None)
+    {
+        SIMULATION_PRINT("create item", "%s failed", data->name);
+        return false;
+    }
+
+    SIMULATION_PRINT("create item", "%s succcessed", data->name);
     return true;
 }
 

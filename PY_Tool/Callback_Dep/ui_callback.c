@@ -96,6 +96,7 @@ bool UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
         return false;
     }
     
+    data_tmp.size = len;
     memset(data_tmp.data, 0, len);
     memcpy(data_tmp.data, data, len);
 

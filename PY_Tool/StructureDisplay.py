@@ -10,8 +10,8 @@ import platform
 import ctypes
 
 class StorageTabType(Enum):
-    STORAGE_TAB_TYPE_SYS = 0
-    STORAGE_TAB_TYPE_USER = 1
+    STORAGE_TAB_TYPE_USER = 0
+    STORAGE_TAB_TYPE_SYS = 1
 
 # get base information from storage info section
 class StructureDisplay:
@@ -81,6 +81,7 @@ class StructureDisplay:
             try:
                 with open(self.simfile_path, 'rb') as self._file:
                     self._sim_data = self._file.read()[self._stor_offset:]
+                    self._file.close()
                     if len(self._sim_data) == 0:
                         self._init_state = False
                         self.__debug_print__("file load", "Error 0 data read out")
@@ -154,10 +155,12 @@ class StructureDisplay:
         if not self._init_state:
             return False
         
-        # clear loaded file bytes first
-        self._sim_data[:] = bytearray()
-        self._sim_data = self._file.read()[self._stor_offset:]
-        self.__update_BaseInfo__()
+        with open(self.simfile_path, 'rb') as self._file:
+            self._sim_data = self._file.read()[self._stor_offset:]
+            self._file.close()
+            
+            # clear loaded file bytes first
+            self.__update_BaseInfo__()
 
     # ------------------------------------------------------------- widget ---------------------------------------------
     def show_widget(self):
@@ -274,9 +277,9 @@ class StructureDisplay:
         tree = event.widget
         item = tree.selection()
         if tree == user_pack[0]:
-            print('1')
+            pass
         elif tree == sys_pack[0]:
-            print('2')
+            pass
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         TREEVIEW_X = 5
@@ -339,9 +342,7 @@ class StructureDisplay:
             sec = StorageTabType.STORAGE_TAB_TYPE_SYS.value
 
         submit_b = tk.Button(create_window, text = 'submit', \
-                             command = lambda: self._lib.UICallback_Create(sec, \
-                                                                           name_e.get().encode(),
-                                                                           data_e.get().encode(), len(data_e.get().encode())))
+                             command = lambda: self._create_item(para = [sec, name_e.get().encode(), data_e.get().encode(), len(data_e.get().encode())]))
         data_l.pack()
 
         name_e.pack()
@@ -349,17 +350,17 @@ class StructureDisplay:
 
         submit_b.pack()
 
+    def _create_item(self, para):
+        print(para)
+        if self._lib.UICallback_Create(para[0], para[1], para[2], para[3]) == True:
+            self.update_simdata()
+            self._show_flash_info()
+            self._show_sec_tab()
+
     def _show_delete(self):
         pass
 
     def _sec_tab_change(self, event):
-        print("change")
-        pass
-
-    # create 
-    # modify (can`t change data size) the only way is delete and add new one with the same name
-    # search
-    def _operate_control(self):
         pass
 
     def _close_root(self):
