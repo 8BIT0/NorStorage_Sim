@@ -469,21 +469,14 @@ static Storage_ItemSearchOut_TypeDef Storage_Search(Storage_ParaClassType_List _
             p_item = &item_list[item_i];
 
             if ((p_item->head_tag == STORAGE_ITEM_HEAD_TAG) && \
-                (p_item->end_tag == STORAGE_ITEM_END_TAG))
+                (p_item->end_tag == STORAGE_ITEM_END_TAG) && \
+                (memcmp(p_item->name, name, strlen(name)) == 0) && \
+                (Storage_Compare_ItemSlot_CRC(*p_item)))
             {
-                if ((memcmp(p_item->name, name, strlen(name)) == 0) && \
-                    (Storage_Compare_ItemSlot_CRC(*p_item)))
-                {
-                    ItemSearch.item_addr = tab_addr;
-                    ItemSearch.item_index = item_i;
-                    ItemSearch.item = *p_item;
-                    ItemSearch.match = true;
-                    return ItemSearch;
-                }
-                else if (memcmp(p_item->name, name, strlen(name)) == 0)
-                {
-
-                }
+                ItemSearch.item_addr = tab_addr;
+                ItemSearch.item_index = item_i;
+                ItemSearch.item = *p_item;
+                return ItemSearch;
             }
         }
     
@@ -1151,7 +1144,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
     {
         search = Storage_Search(_class, name);
         /* item name already exist */
-        if (search.match)
+        if (search.item_addr)
             return Storage_TabItem_Exist;
     }
 

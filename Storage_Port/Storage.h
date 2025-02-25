@@ -144,7 +144,6 @@ typedef struct
     uint32_t item_addr;
     uint8_t item_index;
     Storage_Item_TypeDef item;
-    bool match;                     /* set true when matched the item in table */
 } Storage_ItemSearchOut_TypeDef;
 #pragma pack()
 
