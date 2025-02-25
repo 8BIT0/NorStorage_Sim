@@ -263,23 +263,19 @@ class StructureDisplay:
         # show user table list
         _user_pack = self._tab_data_2_item_TreeView(user_note_tab, self._user_tab)
         _system_pack = self._tab_data_2_item_TreeView(sys_note_tab, self._sys_tab)
-        
-        _user_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, _user_pack, _system_pack))
-        _system_pack[0].bind("<<TreeviewSelect>>", lambda event: self._select_tab_item(event, _user_pack, _system_pack))
+
+        # set user parameter section num label
+        # set user parameter section usage label
+        _user_pack[1][0].config(text = 'num: ' + str(self._flash_info.user_sec.para_num))
+        # _user_pack[1][1].config(text = 'uasge: ' + self._flash_info.user_sec)
 
         # right click item in treeview show delete option
+        _system_pack[1][0].config(text = 'num: ' + str(self._flash_info.sys_sec.para_num))
+        # _system_pack[1][1].config(text = 'usage: ' + self._flash_info.sys_sec)
 
     # bind with item tree right click
     def _delete_tab_item(self):
         pass
-
-    def _select_tab_item(self, event, user_pack, sys_pack):
-        tree = event.widget
-        item = tree.selection()
-        if tree == user_pack[0]:
-            pass
-        elif tree == sys_pack[0]:
-            pass
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         TREEVIEW_X = 5
@@ -289,15 +285,14 @@ class StructureDisplay:
         list = self._list_tab(tab_data)
         v_frame = tk.Frame(frame, borderwidth = 2, relief = 'groove')
 
-        l_name = tk.Label(frame, text = "name: ")
-        l_addr = tk.Label(frame, text = "addr: ")
-        l_size = tk.Label(frame, text = "size: ")
+        l_para_size = tk.Label(frame, text = "num: ")
+        l_usage = tk.Label(frame, text = "usage: ")
 
-        label_pack = [l_name, l_addr, l_size]
+        label_pack = [l_para_size, l_usage]
 
         # set label position
         for i in range(len(label_pack)):
-            label_pack[i].place(x = 10, y = 5 + i * 20)
+            label_pack[i].place(x = 10, y = 15 + i * 20)
 
         column = ["item name"]
         item_tree = ttk.Treeview(frame, columns = column, show = 'headings')
@@ -353,6 +348,7 @@ class StructureDisplay:
     def _create_item(self, para):
         print(para)
         if self._lib.UICallback_Create(para[0], para[1], para[2], para[3]) == True:
+            # have bug
             self.update_simdata()
             self._show_flash_info()
             self._show_sec_tab()

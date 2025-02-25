@@ -80,9 +80,11 @@ class Storage_BaseSecInfo_Def(Structure_Tool):
 class Storage_FlashInfo_Def(Structure_Tool):
     # pack as byte align
     _tag_size = 32
+    _ver_size = 3
     _pack_ = 1
     _fields_ = [
         ("tag",             c_char * _tag_size),
+        ("ver",             c_char * _ver_size),
         ("base_addr",       c_uint32),
         ("total_size",      c_uint32),
         ("remain_size",     c_uint32),
