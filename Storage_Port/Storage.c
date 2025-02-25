@@ -13,6 +13,7 @@
 #include "Storage_Bus_Port.h"
 #include "Storage_Dev_Port.h"
 
+#define STORAGE_VERSION_LEN             3
 #define STORAGE_TAG                     "Storage module"
 #define STORAGE_INFO(stage, fmt, ...)   Debug_Print(STORAGE_TAG, stage, fmt, ##__VA_ARGS__)
 
@@ -35,6 +36,7 @@ __attribute__((weak)) void Storage_Free(void **ptr)
 /* internal vriable */
 Storage_Monitor_TypeDef Storage_Monitor;
 static uint8_t page_data_tmp[(Storage_TabSize * 2)] __attribute__((aligned(4))) = {0};
+const uint8_t version[STORAGE_VERSION_LEN] = {0, 0, 1};
 
 /* internal function */
 static bool Storage_Build_StorageInfo(void);
@@ -1470,10 +1472,11 @@ static bool Storage_Build_StorageInfo(void)
     memset(&Storage_Monitor.info.sys_sec, 0, sizeof(Storage_BaseSecInfo_TypeDef));
     memset(&Storage_Monitor.info.user_sec, 0, sizeof(Storage_BaseSecInfo_TypeDef));
     memcpy(Storage_Monitor.info.tag, EXTERNAL_STORAGE_PAGE_TAG, EXTERNAL_PAGE_TAG_SIZE);
+    memcpy(Storage_Monitor.info.version, version, STORAGE_VERSION_LEN);
     Storage_Monitor.info.total_size = Flash_Storage_TotalSize;
-    
+
     /* fill reserve section */
-    if (!Storage_Fill_ReserveSec(Storage_Monitor.info.base_addr + FLash_ReserveSec_Size))
+    if (!Storage_Fill_ReserveSec(Storage_Monitor.info.base_addr + Storage_InfoPageSize))
         return false;
 
     /* set system data table section info

@@ -128,6 +128,7 @@ typedef struct
 typedef struct
 {
     uint8_t tag[32];
+    uint8_t version[3];
 
     uint32_t base_addr;
 
