@@ -1213,7 +1213,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
             if (store_addr)
                 break;
 
-            storage_tab_addr += (p_Sec->tab_size / p_Sec->tab_num);
+            storage_tab_addr += p_Sec->tab_size;
         }
 
         if (store_addr == 0)

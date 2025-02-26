@@ -156,6 +156,7 @@ class StructureDisplay:
             return False
         
         with open(self.simfile_path, 'rb') as self._file:
+            self.__debug_print__("open file", "store offset " + str(self._stor_offset))
             self._sim_data = self._file.read()[self._stor_offset:]
             self._file.close()
             
@@ -346,9 +347,7 @@ class StructureDisplay:
         submit_b.pack()
 
     def _create_item(self, para):
-        print(para)
         if self._lib.UICallback_Create(para[0], para[1], para[2], para[3]) == True:
-            # have bug
             self.update_simdata()
             self._show_flash_info()
             self._show_sec_tab()
