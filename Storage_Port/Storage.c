@@ -94,6 +94,7 @@ static bool Storage_Init(StorageDevObj_TypeDef *ExtDev)
     }
 
     STORAGE_INFO("Bus init", "accomplished");
+    STORAGE_INFO("", "Data Slot size %d", sizeof(Storage_DataSlot_TypeDef));
     Storage_Monitor.ExtBusCfg_Ptr = bus_cfg;
 
     if (ExtDev->chip_type >= Storage_ChipType_All)
@@ -542,8 +543,8 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
             if (DataSlot.head_tag != STORAGE_SLOT_HEAD_TAG)
                 return Storage_GetData_Error;
 
-            memcpy(DataSlot.name, p_read_out, STORAGE_NAME_LEN);
-            p_read_out += STORAGE_NAME_LEN;
+            memset(DataSlot.res, 0, sizeof(DataSlot.res));
+            p_read_out += sizeof(DataSlot.res);
 
             memcpy(&DataSlot.total_data_size, p_read_out, sizeof(DataSlot.total_data_size));
             p_read_out += sizeof(DataSlot.total_data_size);
@@ -666,8 +667,8 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
         if (p_slotdata->head_tag != STORAGE_SLOT_HEAD_TAG)
             return Storage_DataInfo_Error;
 
-        memcpy(p_slotdata->name, p_read_tmp, STORAGE_NAME_LEN);
-        p_read_tmp += STORAGE_NAME_LEN;
+        memcpy(p_slotdata->res, 0, sizeof(p_slotdata->res));
+        p_read_tmp += sizeof(p_slotdata->res);
 
         p_slotdata->total_data_size = *((uint32_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->total_data_size);
@@ -1000,11 +1001,10 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
         return false;
 
     p_read += sizeof(data_slot.head_tag);
-    memcpy(data_slot.name, p_read, STORAGE_NAME_LEN);
-    if (memcmp(data_slot.name, name, name_len) != 0)
-        return false;
-
-    p_read += STORAGE_NAME_LEN;
+    
+    memset(data_slot.res, 0, sizeof(data_slot.res));
+    p_read += sizeof(data_slot.res);
+    
     data_slot.total_data_size = *((uint32_t *)p_read);
     if (data_slot.total_data_size != total_size)
         return false;
@@ -1173,7 +1173,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
             store_addr = 0;
             item_index = 0;
 
-            /* step 1: search tab */
+            /* step 1: update item slot */
             if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, storage_tab_addr, page_data_tmp, (p_Sec->tab_size / p_Sec->tab_num)))
                 return Storage_Read_Error;
 
@@ -1228,15 +1228,14 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
         DataSlot.total_data_size = storage_data_size;
         unstored_size = DataSlot.total_data_size;
 
-        if (p_Sec->free_space_size >= storage_data_size)
+        if (p_Sec->free_space_size >= (storage_data_size + sizeof(Storage_DataSlot_TypeDef)))
         {
             while(true)
             {
                 /* step 2: comput storage data size and set data slot */
                 DataSlot.head_tag = STORAGE_SLOT_HEAD_TAG;
                 DataSlot.end_tag = STORAGE_SLOT_END_TAG;
-                memset(DataSlot.name, '\0', STORAGE_NAME_LEN);
-                memcpy(DataSlot.name, name, strlen(name));
+                memset(DataSlot.res, 0, sizeof(DataSlot.res));
                 
                 if (FreeSlot.cur_slot_size <= sizeof(Storage_DataSlot_TypeDef))
                     return Storage_No_Enough_Space;
@@ -1284,8 +1283,8 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 slot_update_ptr = page_data_tmp;
                 memcpy(slot_update_ptr, &DataSlot.head_tag, sizeof(DataSlot.head_tag));
                 slot_update_ptr += sizeof(DataSlot.head_tag);
-                memcpy(slot_update_ptr, DataSlot.name, STORAGE_NAME_LEN);
-                slot_update_ptr += STORAGE_NAME_LEN;
+                memset(slot_update_ptr, 0, sizeof(DataSlot.res));
+                slot_update_ptr += sizeof(DataSlot.res);
                 memcpy(slot_update_ptr, &DataSlot.total_data_size, sizeof(DataSlot.total_data_size));
                 slot_update_ptr += sizeof(DataSlot.total_data_size);
                 memcpy(slot_update_ptr, &DataSlot.cur_slot_size, sizeof(DataSlot.cur_slot_size));
@@ -1330,7 +1329,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 else
                 {
                     /* after target data segment stored, shift target data pointer to unstored pos
-                        * and update next segment data store address */
+                     * and update next segment data store address */
                     stored_size += slot_useful_size;
                     store_addr = DataSlot.nxt_addr;
                 }
@@ -1352,13 +1351,16 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
         p_Sec->free_slot_addr = cur_freeslot_addr;
 
         /* update base info crc */
-        memcpy(page_data_tmp, p_Flash, sizeof(Storage_FlashInfo_TypeDef));
-        base_info_crc = Common_CRC16(page_data_tmp, Storage_InfoPageSize - sizeof(base_info_crc));
-        memcpy(&page_data_tmp[Storage_InfoPageSize - sizeof(base_info_crc)], &base_info_crc, sizeof(base_info_crc));
+        uint8_t *tmp_buf = &page_data_tmp[Storage_InfoPageSize];
+        memcpy(tmp_buf, p_Flash, sizeof(Storage_FlashInfo_TypeDef));
+        base_info_crc = Common_CRC16(tmp_buf, Storage_InfoPageSize - sizeof(base_info_crc));
+        memcpy(&tmp_buf[Storage_InfoPageSize - sizeof(base_info_crc)], &base_info_crc, sizeof(base_info_crc));
         
         /* update base info from section start*/
-        if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_InfoPageSize))
+        if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, tmp_buf, Storage_InfoPageSize))
             return Storage_Write_Error;
+        
+        memset(tmp_buf, 0, Storage_InfoPageSize);
     }
 
     return Storage_Error_None;

@@ -77,11 +77,11 @@ typedef struct
     uint8_t end_tag;
 } Storage_Item_TypeDef;
 
-/* length must be 64Byte witchout payload data */
+/* length must be 32Byte witchout payload data */
 typedef struct
 {
     uint32_t head_tag;
-    uint8_t name[STORAGE_NAME_LEN];
+    uint8_t res[9];
     uint32_t total_data_size;
     uint32_t cur_slot_size;
     uint32_t nxt_addr;

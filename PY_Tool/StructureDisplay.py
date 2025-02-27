@@ -268,11 +268,11 @@ class StructureDisplay:
         # set user parameter section num label
         # set user parameter section usage label
         _user_pack[1][0].config(text = 'num: ' + str(self._flash_info.user_sec.para_num))
-        # _user_pack[1][1].config(text = 'uasge: ' + self._flash_info.user_sec)
+        _user_pack[1][1].config(text = 'usage: ' + str(self._flash_info.user_sec.para_size) + '/' + str(self._flash_info.user_sec.data_sec_size))
 
         # right click item in treeview show delete option
         _system_pack[1][0].config(text = 'num: ' + str(self._flash_info.sys_sec.para_num))
-        # _system_pack[1][1].config(text = 'usage: ' + self._flash_info.sys_sec)
+        _system_pack[1][1].config(text = 'usage: ' + str(self._flash_info.sys_sec.para_size) + '/' + str(self._flash_info.sys_sec.data_sec_size))
 
     # bind with item tree right click
     def _delete_tab_item(self):
@@ -325,7 +325,7 @@ class StructureDisplay:
         
         create_window = tk.Toplevel(self._root)
         create_window.title('Create ' + tab_txt + ' Item')
-        create_window.geometry("300x200")
+        create_window.geometry("250x100")
         create_window.resizable(False, False)
 
         name_l = tk.Label(create_window, text = 'name')
@@ -337,14 +337,15 @@ class StructureDisplay:
         if tab_txt == 'system':
             sec = StorageTabType.STORAGE_TAB_TYPE_SYS.value
 
-        submit_b = tk.Button(create_window, text = 'submit', \
+        submit_b = tk.Button(create_window, text = 'submit', width=22,\
                              command = lambda: self._create_item(para = [sec, name_e.get().encode(), data_e.get().encode(), len(data_e.get().encode())]))
-        data_l.pack()
+        name_l.place(x = 5, y = 5)
+        data_l.place(x = 5, y = 35)
 
-        name_e.pack()
-        data_e.pack()
+        name_e.place(x = 50, y = 5)
+        data_e.place(x = 50, y = 35)
 
-        submit_b.pack()
+        submit_b.place(x = 8, y = 65)
 
     def _create_item(self, para):
         if self._lib.UICallback_Create(para[0], para[1], para[2], para[3]) == True:
