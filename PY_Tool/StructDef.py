@@ -25,21 +25,6 @@ class Structure_Tool(Structure):
     def member_num(cls):
         return len(cls._fields_)
 
-class Storage_Stream_Def(Structure_Tool):
-    _pack_ = 1
-    _fields_ = [
-        ("p_data",  c_char_p),
-        ("len",     c_uint16)
-    ]
-
-class Storage_Input_Def(Structure_Tool):
-    _pack_ = 1
-    _fields_ = [
-        ("item_name",   c_char_p),
-        ("opr_type",    c_uint8),
-        ("stream",      Storage_Stream_Def)
-    ]
-    
 class Storage_BaseSecInfo_Def(Structure_Tool):
     # pack as byte align
     _pack_ = 1
@@ -149,6 +134,8 @@ class Storage_Item_Def(Structure_Tool):
     ]
 
     def check(self):
+        cur_crc = self.crc16
+        check_crc = 0
         if ((self.head_tag != STORAGE_ITEM_HEADER) or \
             (self.end_tag != STORAGE_ITEM_ENDER)):
             return False
@@ -156,6 +143,10 @@ class Storage_Item_Def(Structure_Tool):
         # check CRC16
         # comput CRC16 from _class to reserve
         # reserve section must be zero
+        check_crc = util.CusCrc16(bytes(self)[1 : (sizeof(self) - 3)])
+        if check_crc != cur_crc:
+            return False
+        
         return True
     
 class Storage_FreeSlot_TypeDef(Structure_Tool):

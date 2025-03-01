@@ -283,7 +283,7 @@ class StructureDisplay:
         TREEVIEW_Y = 75
         TREEVIEW_WIDTH = 260
         TREEVIEW_HEIGHT = 328
-        list = self._list_tab(tab_data)
+        item_list = self._list_tab(tab_data)
         v_frame = tk.Frame(frame, borderwidth = 2, relief = 'groove')
 
         l_para_size = tk.Label(frame, text = "num: ")
@@ -301,8 +301,10 @@ class StructureDisplay:
             item_tree.heading(col, text = col)
             item_tree.column(col, anchor = 'center', width = 100)
         
-        for item in list:
+        for item in item_list:
             item_tree.insert('', 'end', values = (item.name))
+
+        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, tab_data))
 
         v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item_tree.yview)
         item_tree.config(yscrollcommand = v_scrollbar.set)
@@ -317,6 +319,24 @@ class StructureDisplay:
         # data section treeview
 
         return [item_tree, label_pack]
+
+    def _show_item_detial(self, event, tab):
+        tree = event.widget
+        tab_item = self._list_tab(tab)
+        selected_id = tree.selection()
+        
+        if (selected_id != 0):
+            item = Storage_Item_Def.from_buffer_copy(tab_item[tree.index(selected_id[0])])
+            self.__debug_print__('selected', item.name.decode('UTF-8'))
+            
+            if item.check() != True:
+                self.__debug_print__('Error', 'item CRC error')
+                return
+        else:
+            return
+        
+        # create window
+        # show item info and storaged data
 
     def _show_create(self):
         sec = StorageTabType.STORAGE_TAB_TYPE_USER.value
