@@ -151,6 +151,22 @@ class StructureDisplay:
         data = self._sim_data[addr_offset : addr_offset + STORAGE_RESERVE_SEC_SIZE]
         return all(byte == STORAGE_RESDATA for byte in data)
 
+    def __get_data_from_addr(self, addr):
+        search_addr = addr - self._stor_offset
+        data = []
+        data_slot_1 = Storage_DataSlot_1_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_1_TypeDef)])
+        if data_slot_1.check():
+            # header valid
+            # check data size
+            self.__debug_print__("get data", "data size  " + str(data_slot_1.total_data_size))
+            self.__debug_print__("get data", "cur  size  " + str(data_slot_1.cur_slot_size))
+            self.__debug_print__("get data", "next addr  " + hex(data_slot_1.next_addr))
+            self.__debug_print__("get data", "align size " + str(data_slot_1.align_size))
+        else:
+            self.__debug_print__("get data", "data slot header invalid")
+
+        return data
+
     def update_simdata(self):
         if not self._init_state:
             return False
@@ -336,7 +352,32 @@ class StructureDisplay:
             return
         
         # create window
+        w_item = tk.Toplevel(self._root)
+        w_item.title('Item Info')
+        w_item.geometry('250x500')
+        w_item.resizable(False, False)
+
         # show item info and storaged data
+        l_item_name = tk.Label(w_item, text = "[ item name ] ")
+        l_item_addr = tk.Label(w_item, text = "[ item addr ] ")
+        l_item_size = tk.Label(w_item, text = "[ item size ] ")
+        l_item_data = tk.Label(w_item, text = "[ item data ] ")
+
+        l_item_name.place(x = 5, y = 5)
+        l_item_addr.place(x = 5, y = 25)
+        l_item_size.place(x = 5, y = 45)
+        l_item_data.place(x = 5, y = 65)
+
+        l_name_v = tk.Label(w_item, text = item.name.decode('UTF-8'))
+        l_addr_v = tk.Label(w_item, text = hex(item.data_addr))
+        l_size_v = tk.Label(w_item, text = str(item.len))
+
+        l_name_v.place(x = 105, y = 5)
+        l_addr_v.place(x = 105, y = 25)
+        l_size_v.place(x = 105, y = 45)
+
+        # get data in data section
+        self.__get_data_from_addr(item.data_addr)
 
     def _show_create(self):
         sec = StorageTabType.STORAGE_TAB_TYPE_USER.value

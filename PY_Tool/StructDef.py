@@ -149,6 +149,35 @@ class Storage_Item_Def(Structure_Tool):
         
         return True
     
+class Storage_DataSlot_1_TypeDef(Structure_Tool):
+    _pack_ = 1
+    _res_size = 9
+    _fields_ = [
+        ("head_tag",        c_uint32),
+        ("res",             c_uint8 * _res_size),
+        ("total_data_size", c_uint32),
+        ("cur_slot_size",   c_uint32),
+        ("next_addr",       c_uint32),
+        ("align_size",      c_uint8)
+    ]
+
+    def check(self):
+        if self.head_tag != STORAGE_SLOT_HEADER:
+            return False
+        return True
+
+class Storage_DataSlot_2_TypeDef(Structure_Tool):
+    _pack_ = 1
+    _fields_ = [
+        ("slot_crc",    c_uint16),
+        ("end_tag",     c_uint32)
+    ]
+
+    def check(self):
+        if self.end_tag != STORAGE_SLOT_ENDER:
+            return False
+        return True
+
 class Storage_FreeSlot_TypeDef(Structure_Tool):
     _pack_ = 1
     _fields_ = [
