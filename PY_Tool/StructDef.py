@@ -149,7 +149,7 @@ class Storage_Item_Def(Structure_Tool):
         
         return True
     
-class Storage_DataSlot_1_TypeDef(Structure_Tool):
+class Storage_DataSlot_h_TypeDef(Structure_Tool):
     _pack_ = 1
     _res_size = 9
     _fields_ = [
@@ -166,7 +166,7 @@ class Storage_DataSlot_1_TypeDef(Structure_Tool):
             return False
         return True
 
-class Storage_DataSlot_2_TypeDef(Structure_Tool):
+class Storage_DataSlot_e_TypeDef(Structure_Tool):
     _pack_ = 1
     _fields_ = [
         ("slot_crc",    c_uint16),

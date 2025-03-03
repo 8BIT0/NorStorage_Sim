@@ -153,18 +153,31 @@ class StructureDisplay:
 
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
-        data = []
-        data_slot_1 = Storage_DataSlot_1_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_1_TypeDef)])
+        data = bytes()
+        data_slot_1 = Storage_DataSlot_h_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_h_TypeDef)])
         if data_slot_1.check():
             # header valid
-            # check data size
+            # check data slot info
             self.__debug_print__("get data", "data size  " + str(data_slot_1.total_data_size))
             self.__debug_print__("get data", "cur  size  " + str(data_slot_1.cur_slot_size))
             self.__debug_print__("get data", "next addr  " + hex(data_slot_1.next_addr))
             self.__debug_print__("get data", "align size " + str(data_slot_1.align_size))
+            
+            # get data
+            data_s = search_addr + sizeof(Storage_DataSlot_h_TypeDef)
+            data_e = data_s + (data_slot_1.cur_slot_size - data_slot_1.align_size)
+            data = data + self._sim_data[data_s : data_e]
+
+            # check slot crc
+
+            # check slot ender
+            
+            if data_slot_1.next_addr:
+                data.extend(self.__get_data_from_addr(data_slot_1.next_addr))
         else:
             self.__debug_print__("get data", "data slot header invalid")
 
+        self.__debug_print__("get data", data.decode())
         return data
 
     def update_simdata(self):
