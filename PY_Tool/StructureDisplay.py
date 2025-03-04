@@ -154,26 +154,33 @@ class StructureDisplay:
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
         data = bytes()
-        data_slot_1 = Storage_DataSlot_h_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_h_TypeDef)])
-        if data_slot_1.check():
+        data_slot_h = Storage_DataSlot_h_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_h_TypeDef)])
+        if data_slot_h.check():
             # header valid
             # check data slot info
-            self.__debug_print__("get data", "data size  " + str(data_slot_1.total_data_size))
-            self.__debug_print__("get data", "cur  size  " + str(data_slot_1.cur_slot_size))
-            self.__debug_print__("get data", "next addr  " + hex(data_slot_1.next_addr))
-            self.__debug_print__("get data", "align size " + str(data_slot_1.align_size))
+            self.__debug_print__("get data", "data size  " + str(data_slot_h.total_data_size))
+            self.__debug_print__("get data", "cur  size  " + str(data_slot_h.cur_slot_size))
+            self.__debug_print__("get data", "next addr  " + hex(data_slot_h.next_addr))
+            self.__debug_print__("get data", "align size " + str(data_slot_h.align_size))
             
             # get data
             data_s = search_addr + sizeof(Storage_DataSlot_h_TypeDef)
-            data_e = data_s + (data_slot_1.cur_slot_size - data_slot_1.align_size)
-            data = data + self._sim_data[data_s : data_e]
+            data_e = data_s + (data_slot_h.cur_slot_size - data_slot_h.align_size)
+
+            # get data slot end
+            search_addr += data_s + data_slot_h.cur_slot_size
+            data_slot_e = Storage_DataSlot_e_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_e_TypeDef)])
 
             # check slot crc
 
             # check slot ender
-            
-            if data_slot_1.next_addr:
-                data.extend(self.__get_data_from_addr(data_slot_1.next_addr))
+            if not data_slot_e.check() or not :
+                self.__debug_print__("get data", "data slot ender invalid")
+                return data
+
+            data = data + self._sim_data[data_s : data_e]
+            if data_slot_h.next_addr:
+                data.extend(self.__get_data_from_addr(data_slot_h.next_addr))
         else:
             self.__debug_print__("get data", "data slot header invalid")
 
@@ -371,10 +378,10 @@ class StructureDisplay:
         w_item.resizable(False, False)
 
         # show item info and storaged data
-        l_item_name = tk.Label(w_item, text = "[ item name ] ")
-        l_item_addr = tk.Label(w_item, text = "[ item addr ] ")
-        l_item_size = tk.Label(w_item, text = "[ item size ] ")
-        l_item_data = tk.Label(w_item, text = "[ item data ] ")
+        l_item_name = tk.Label(w_item, text = "[ store name ] ")
+        l_item_addr = tk.Label(w_item, text = "[ store addr ] ")
+        l_item_size = tk.Label(w_item, text = "[ store size ] ")
+        l_item_data = tk.Label(w_item, text = "[ store data ] ")
 
         l_item_name.place(x = 5, y = 5)
         l_item_addr.place(x = 5, y = 25)
