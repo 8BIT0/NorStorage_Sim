@@ -165,22 +165,25 @@ class StructureDisplay:
             
             # get data
             data_s = search_addr + sizeof(Storage_DataSlot_h_TypeDef)
-            data_e = data_s + (data_slot_h.cur_slot_size - data_slot_h.align_size)
+            data_e = data_s + data_slot_h.cur_slot_size
+
+            data_tmp = self._sim_data[data_s : data_e]
 
             # get data slot end
-            search_addr += data_s + data_slot_h.cur_slot_size
+            search_addr = data_s + data_slot_h.cur_slot_size
             data_slot_e = Storage_DataSlot_e_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_e_TypeDef)])
 
-            # check slot crc
-
-            # check slot ender
-            if not data_slot_e.check() or not :
+            # check slot crc and ender
+            # crc include the align data
+            if not data_slot_e.check() or util.CusCrc16(data_tmp) != data_slot_e.slot_crc:
                 self.__debug_print__("get data", "data slot ender invalid")
                 return data
 
-            data = data + self._sim_data[data_s : data_e]
+            data = data + data_tmp[:-data_slot_h.align_size]
             if data_slot_h.next_addr:
-                data.extend(self.__get_data_from_addr(data_slot_h.next_addr))
+                data_tmp = self.__get_data_from_addr(data_slot_h.next_addr)
+                if len(data_tmp):
+                    data = data + data_tmp
         else:
             self.__debug_print__("get data", "data slot header invalid")
 
@@ -220,7 +223,7 @@ class StructureDisplay:
         self._show_sec_tab()
         
     def _show_flash_info(self):
-        column = []
+        column = ['R \ C']
         label_list = []
 
         info_frame = tk.Frame(self._root, width = 1080, height = 285, borderwidth = 2, relief = 'groove')
@@ -229,7 +232,6 @@ class StructureDisplay:
         tab_frame = tk.Frame(info_frame, borderwidth = 2, relief = 'groove')
         label = tk.Label(info_frame, text = "Flash Info Table")
 
-        column.append('R \ C')
         for i in range(16):
             column.append(hex(i).upper())
 
@@ -360,8 +362,7 @@ class StructureDisplay:
         tree = event.widget
         tab_item = self._list_tab(tab)
         selected_id = tree.selection()
-        
-        if (selected_id != 0):
+        if selected_id:
             item = Storage_Item_Def.from_buffer_copy(tab_item[tree.index(selected_id[0])])
             self.__debug_print__('selected', item.name.decode('UTF-8'))
             
@@ -370,6 +371,9 @@ class StructureDisplay:
                 return
         else:
             return
+        
+        # get data in data section
+        data = self.__get_data_from_addr(item.data_addr)
         
         # create window
         w_item = tk.Toplevel(self._root)
@@ -381,24 +385,54 @@ class StructureDisplay:
         l_item_name = tk.Label(w_item, text = "[ store name ] ")
         l_item_addr = tk.Label(w_item, text = "[ store addr ] ")
         l_item_size = tk.Label(w_item, text = "[ store size ] ")
+        l_data_size = tk.Label(w_item, text = "[ data  size ]")
         l_item_data = tk.Label(w_item, text = "[ store data ] ")
 
         l_item_name.place(x = 5, y = 5)
         l_item_addr.place(x = 5, y = 25)
         l_item_size.place(x = 5, y = 45)
-        l_item_data.place(x = 5, y = 65)
+        l_data_size.place(x = 5, y = 65)
+        l_item_data.place(x = 5, y = 85)
 
         l_name_v = tk.Label(w_item, text = item.name.decode('UTF-8'))
         l_addr_v = tk.Label(w_item, text = hex(item.data_addr))
-        l_size_v = tk.Label(w_item, text = str(item.len))
+        l_item_size_v = tk.Label(w_item, text = str(item.len))
+        l_data_size_v = tk.Label(w_item, text = str(len(data)))
 
         l_name_v.place(x = 105, y = 5)
         l_addr_v.place(x = 105, y = 25)
-        l_size_v.place(x = 105, y = 45)
 
-        # get data in data section
-        self.__get_data_from_addr(item.data_addr)
+        l_item_size_v.place(x = 105, y = 45)
+        l_data_size_v.place(x = 105, y = 65)
 
+        # create a table display store data
+        column = ['R \ C']
+        for i in range(4):
+            column.append(hex(i).upper())
+
+        tab_frame = tk.Frame(w_item,  borderwidth = 2, relief = 'groove')
+        data_tab = ttk.Treeview(tab_frame, columns = column, show = 'headings')
+        
+        for col in column:
+            data_tab.heading(col, text = col)
+            data_tab.column(col, anchor = 'center', width = 50)
+
+        v_scrollbar = ttk.Scrollbar(tab_frame, orient = tk.VERTICAL, command = data_tab.yview)
+        data_tab.configure(yscrollcommand = v_scrollbar.set)
+
+        dsp_data = data
+        if (len(dsp_data) % 4):
+            dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b'-'
+
+        for i in range(0, len(data), 4):
+            val = (hex(i).upper(), ) + tuple(hex(b).upper() for b in self._sim_data[i : (i + 4)])
+            data_tab.insert('', 'end', values = val)
+
+        # add modify button
+
+        # display data table
+
+    
     def _show_create(self):
         sec = StorageTabType.STORAGE_TAB_TYPE_USER.value
         select_tab = self._sec_notebook.select()
