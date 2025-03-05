@@ -158,11 +158,6 @@ class StructureDisplay:
         if data_slot_h.check():
             # header valid
             # check data slot info
-            self.__debug_print__("get data", "data size  " + str(data_slot_h.total_data_size))
-            self.__debug_print__("get data", "cur  size  " + str(data_slot_h.cur_slot_size))
-            self.__debug_print__("get data", "next addr  " + hex(data_slot_h.next_addr))
-            self.__debug_print__("get data", "align size " + str(data_slot_h.align_size))
-            
             # get data
             data_s = search_addr + sizeof(Storage_DataSlot_h_TypeDef)
             data_e = data_s + data_slot_h.cur_slot_size
@@ -187,7 +182,6 @@ class StructureDisplay:
         else:
             self.__debug_print__("get data", "data slot header invalid")
 
-        self.__debug_print__("get data", data.decode())
         return data
 
     def update_simdata(self):
@@ -378,7 +372,7 @@ class StructureDisplay:
         # create window
         w_item = tk.Toplevel(self._root)
         w_item.title('Item Info')
-        w_item.geometry('250x500')
+        w_item.geometry('290x345')
         w_item.resizable(False, False)
 
         # show item info and storaged data
@@ -412,7 +406,7 @@ class StructureDisplay:
 
         tab_frame = tk.Frame(w_item,  borderwidth = 2, relief = 'groove')
         data_tab = ttk.Treeview(tab_frame, columns = column, show = 'headings')
-        
+
         for col in column:
             data_tab.heading(col, text = col)
             data_tab.column(col, anchor = 'center', width = 50)
@@ -422,16 +416,19 @@ class StructureDisplay:
 
         dsp_data = data
         if (len(dsp_data) % 4):
-            dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b'-'
+            dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b''
 
+        font_color = tuple(['green'] * 4)
         for i in range(0, len(data), 4):
-            val = (hex(i).upper(), ) + tuple(hex(b).upper() for b in self._sim_data[i : (i + 4)])
+            val = (hex(i).upper(), ) + tuple(dsp_data[i : (i + 4)].decode())
             data_tab.insert('', 'end', values = val)
 
         # add modify button
 
         # display data table
-
+        v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+        data_tab.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
+        tab_frame.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
     
     def _show_create(self):
         sec = StorageTabType.STORAGE_TAB_TYPE_USER.value
