@@ -379,7 +379,7 @@ class StructureDisplay:
         l_item_name = tk.Label(w_item, text = "[ store name ] ")
         l_item_addr = tk.Label(w_item, text = "[ store addr ] ")
         l_item_size = tk.Label(w_item, text = "[ store size ] ")
-        l_data_size = tk.Label(w_item, text = "[ data  size ]")
+        l_data_size = tk.Label(w_item, text = "[ data  size ] ")
         l_item_data = tk.Label(w_item, text = "[ store data ] ")
 
         l_item_name.place(x = 5, y = 5)
