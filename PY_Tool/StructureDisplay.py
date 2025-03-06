@@ -8,6 +8,7 @@ from tkinter import ttk
 import compile as compile_module
 import platform
 import ctypes
+from EditTree import EditableTreeView
 
 class StorageTabType(Enum):
     STORAGE_TAB_TYPE_USER = 0
@@ -405,7 +406,7 @@ class StructureDisplay:
             column.append(hex(i).upper())
 
         tab_frame = tk.Frame(w_item,  borderwidth = 2, relief = 'groove')
-        data_tab = ttk.Treeview(tab_frame, columns = column, show = 'headings')
+        data_tab = EditableTreeView(tab_frame, columns = column, show = 'headings')
 
         for col in column:
             data_tab.heading(col, text = col)

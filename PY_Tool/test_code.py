@@ -15,17 +15,17 @@ class EditableTreeview(ttk.Treeview):
             self.item_id = self.identify_row(event.y)
             self.column_index = self.identify_column(event.x)
             print(self.item_id, self.column_index)
-            # column = self.colmn_index[1:]
-            # value = self.set(self.item_id, column)
-            # x, y, width, height = self.bbox(self.item_id, column)
-            # if self.entry:
-            #     self.entry.destroy()
-            # self.entry = tk.Entry(self, bd=0)
-            # self.entry.insert(0, value)
-            # self.entry.place(x=x, y=y, width=width, height=height)
-            # self.entry.focus()
-            # self.entry.bind("<Return>", self.on_enter)
-            # self.entry.bind("<Escape>", self.on_escape)
+            column = str(int(self.column_index[1:]) - 1)
+            value = self.set(self.item_id, column)
+            x, y, width, height = self.bbox(self.item_id, column)
+            if self.entry:
+                self.entry.destroy()
+            self.entry = tk.Entry(self, bd=0)
+            self.entry.insert(0, value)
+            self.entry.place(x=x, y=y, width=width, height=height)
+            self.entry.focus()
+            self.entry.bind("<Return>", self.on_enter)
+            self.entry.bind("<Escape>", self.on_escape)
 
     def on_enter(self, event):
         new_value = self.entry.get()
