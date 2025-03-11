@@ -135,8 +135,6 @@ bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
         return false;
     }
     
-    memset(data_tmp.data, 0, len);
-
     if (search_cb != NULL)
         state = search_cb(&data_tmp);
 
