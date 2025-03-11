@@ -141,9 +141,14 @@ bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
         state = search_cb(&data_tmp);
 
     free(data_tmp.name);
-    free(data_tmp.data);
 
     return state;
+}
+
+void UICallback_Free_DataPtr(uint8_t *p_data)
+{
+    if (p_data)
+        free(p_data);
 }
 
 bool UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
