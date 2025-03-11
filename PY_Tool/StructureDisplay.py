@@ -153,9 +153,9 @@ class StructureDisplay:
         return all(byte == STORAGE_RESDATA for byte in data)
 
     # use lib search data by type and item name
-    def __get_data_from_addr_lib(self, type, name):
-        
-        self._lib.UICallback_Search()
+    def __get_data_from_addr_lib(self, item_list, sec_type, name):
+        data = bytes()
+        self._lib.UICallback_Search(sec_type, name, data, )
 
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
@@ -342,7 +342,12 @@ class StructureDisplay:
         for item in item_list:
             item_tree.insert('', 'end', values = (item.name))
 
-        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, item_list))
+        if frame == self._user_tab:
+            sec_type = StorageTabType.STORAGE_TAB_TYPE_USER
+        elif frame == self.__sys_tab:
+            sec_type = StorageTabType.STORAGE_TAB_TYPE_SYS
+
+        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, sec_type, item_list))
 
         v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item_tree.yview)
         item_tree.config(yscrollcommand = v_scrollbar.set)
@@ -358,7 +363,7 @@ class StructureDisplay:
 
         return [item_tree, label_pack]
 
-    def _show_item_detial(self, event, tab_item):
+    def _show_item_detial(self, event, sec_type, tab_item):
         tree = event.widget
         selected_id = tree.selection()
         if selected_id:
@@ -372,7 +377,8 @@ class StructureDisplay:
             return
         
         # get data in data section
-        data = self.__get_data_from_addr(item.data_addr)
+        data_by_file = self.__get_data_from_addr(item.data_addr)
+        data_by_lib = self.__get_data_from_addr_lib(sec_type, item.name)
         
         # create window
         w_item = tk.Toplevel(self._root)
@@ -396,7 +402,7 @@ class StructureDisplay:
         l_name_v = tk.Label(w_item, text = item.name.decode('UTF-8'))
         l_addr_v = tk.Label(w_item, text = hex(item.data_addr))
         l_item_size_v = tk.Label(w_item, text = str(item.len))
-        l_data_size_v = tk.Label(w_item, text = str(len(data)))
+        l_data_size_v = tk.Label(w_item, text = str(len(data_by_file)))
 
         l_name_v.place(x = 105, y = 5)
         l_addr_v.place(x = 105, y = 25)
@@ -419,12 +425,12 @@ class StructureDisplay:
         v_scrollbar = ttk.Scrollbar(tab_frame, orient = tk.VERTICAL, command = data_tab.yview)
         data_tab.configure(yscrollcommand = v_scrollbar.set)
 
-        dsp_data = data
+        dsp_data = data_by_file
         if (len(dsp_data) % 4):
             dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b''
 
         font_color = tuple(['green'] * 4)
-        for i in range(0, len(data), 4):
+        for i in range(0, len(data_by_file), 4):
             val = (hex(i).upper(), ) + tuple(dsp_data[i : (i + 4)].decode())
             data_tab.insert('', 'end', values = val)
 
