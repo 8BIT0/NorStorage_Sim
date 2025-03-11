@@ -156,7 +156,6 @@ class StructureDisplay:
     def __get_data_from_addr_lib(self, item_list, sec_type, name):
         data = bytes()
         self._lib.UICallback_Search(sec_type, name, data, )
-        self._lib.UICallback_Free_DataPtr()
 
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
