@@ -152,6 +152,11 @@ class StructureDisplay:
         data = self._sim_data[addr_offset : addr_offset + STORAGE_RESERVE_SEC_SIZE]
         return all(byte == STORAGE_RESDATA for byte in data)
 
+    # use lib search data by type and item name
+    def __get_data_from_addr_lib(self, type, name):
+        
+        self._lib.UICallback_Search()
+
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
         data = bytes()
@@ -337,7 +342,7 @@ class StructureDisplay:
         for item in item_list:
             item_tree.insert('', 'end', values = (item.name))
 
-        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, tab_data))
+        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, item_list))
 
         v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item_tree.yview)
         item_tree.config(yscrollcommand = v_scrollbar.set)
@@ -353,9 +358,8 @@ class StructureDisplay:
 
         return [item_tree, label_pack]
 
-    def _show_item_detial(self, event, tab):
+    def _show_item_detial(self, event, tab_item):
         tree = event.widget
-        tab_item = self._list_tab(tab)
         selected_id = tree.selection()
         if selected_id:
             item = Storage_Item_Def.from_buffer_copy(tab_item[tree.index(selected_id[0])])
@@ -373,7 +377,7 @@ class StructureDisplay:
         # create window
         w_item = tk.Toplevel(self._root)
         w_item.title('Item Info')
-        w_item.geometry('290x345')
+        w_item.geometry('290x355')
         w_item.resizable(False, False)
 
         # show item info and storaged data
@@ -425,9 +429,11 @@ class StructureDisplay:
             data_tab.insert('', 'end', values = val)
 
         # add modify button
+        button = tk.Button(w_item, text = "update", width = 27, height = 1)
 
         # display data table
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
+        button.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         data_tab.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
     

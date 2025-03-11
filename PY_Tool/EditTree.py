@@ -26,7 +26,7 @@ class EditableTreeView(ttk.Treeview):
                 # create entry
                 if self._entry:
                     # destory first
-                    self._entry.destory()
+                    self._entry.destroy()
                 self._entry = tk.Entry(self, bd = 0)
                 self._entry.insert(0, def_val)
                 self._entry.place(x = x, y = y, width = width, height = height)
