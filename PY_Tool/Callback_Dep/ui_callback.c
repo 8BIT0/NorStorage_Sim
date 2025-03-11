@@ -109,12 +109,12 @@ bool UICallback_Create(Sec_List type, char *name, uint8_t *data, uint16_t len)
     return state;
 }
 
-bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
+bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t *len)
 {
     bool state = false;
     TriggerData_TypeDef data_tmp;
 
-    CALLBACK_INFO("search", "Name %s data size %d", name, len);
+    CALLBACK_INFO("search", "Name %s ", name);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Create;
@@ -127,7 +127,6 @@ bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
 
     memset(data_tmp.name, 0, sizeof(strlen(name)));
     strcpy(data_tmp.name, name);
-    data_tmp.data = malloc(len);
     if (data_tmp.data == NULL)
     {
         CALLBACK_INFO("search", "Data space malloc failed");
@@ -136,9 +135,15 @@ bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t len)
     }
     
     if (search_cb != NULL)
+    {
         state = search_cb(&data_tmp);
+        memcpy(data, data_tmp.data, data_tmp.size);
+        *len = data_tmp.size;
+    }
 
     free(data_tmp.name);
+    if (data_tmp.data != NULL)
+        free(data_tmp.data);
 
     return state;
 }
