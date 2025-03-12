@@ -527,7 +527,7 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
     uint8_t *p_data_start = NULL;
 
     memset(&DataSlot, 0, sizeof(Storage_DataSlot_TypeDef));
-    if (item.data_addr && p_data && size)
+    if (item.data_addr && p_data && (size >= item.len))
     {
         data_len = item.len;
         data_addr = item.data_addr;

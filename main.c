@@ -272,33 +272,38 @@ static bool Sim_Storage_Search_Callback(TriggerData_TypeDef *data)
     Storage_ParaClassType_List cls = Para_Sys;
     Storage_ItemSearchOut_TypeDef search_out;
 
-    if (data == NULL)
+    if ((data == NULL) || \
+        (data->name == NULL) || \
+        (strlen(data->name) == 0))
         return false;
 
     if (data->sec == UserSec)
         cls = Para_User;
     
     memset(&search_out, 0, sizeof(Storage_ItemSearchOut_TypeDef));
+    SIMULATION_PRINT("search item", "class %s item %s", cls ? "User" : "Sys", data->name);
     search_out = Storage.search(cls, data->name);
     
     data->size = search_out.item.len;
-    if (data->size)
-    {
-        data->data = Sys_Malloc(data->size);
-        if (data->data == NULL)
-        {
-            data->size = 0;
-            return false;
-        }
-    }
-
-    if ((search_out.item_addr == 0) || (search_out.item.len == 0) || \
-        (Storage.get(cls, search_out.item, data->data, data->size) != Storage_Error_None))
+    if ((search_out.item_addr == 0) || (data->size < search_out.item.len))
+        return false;
+    
+    data->data = Sys_Malloc(data->size);
+    if (data->data == NULL)
     {
         data->size = 0;
         return false;
     }
 
+    if ((search_out.item_addr == 0) || (search_out.item.len == 0) || \
+        (Storage.get(cls, search_out.item, data->data, data->size) != Storage_Error_None))
+    {
+        SIMULATION_PRINT("get item", "%s failed", data->name);
+        data->size = 0;
+        return false;
+    }
+
+    SIMULATION_PRINT("get item", "%s successed", data->name);
     return true;
 }
 

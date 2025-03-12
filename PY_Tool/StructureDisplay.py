@@ -153,9 +153,18 @@ class StructureDisplay:
         return all(byte == STORAGE_RESDATA for byte in data)
 
     # use lib search data by type and item name
-    def __get_data_from_addr_lib(self, item_list, sec_type, name):
-        data = bytes()
-        self._lib.UICallback_Search(sec_type, name, data, )
+    def __get_data_from_addr_lib(self, sec_type, name):
+        data = [0] * 1024
+        size = [0]
+        
+        arr_type = ctypes.c_uint8 * len(data)
+        ptr_data = arr_type(*data)
+        uint16_ptr_type = ctypes.c_uint16 * 1
+        ptr_size = uint16_ptr_type(*size)
+
+        self._lib.UICallback_Search(int(sec_type), name, ptr_data, ptr_size)
+        print(ptr_size[0])
+        print([ptr_data[i] for i in range(1024)])
 
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
@@ -342,12 +351,12 @@ class StructureDisplay:
         for item in item_list:
             item_tree.insert('', 'end', values = (item.name))
 
-        if frame == self._user_tab:
+        if tab_data == self._user_tab:
             sec_type = StorageTabType.STORAGE_TAB_TYPE_USER
-        elif frame == self.__sys_tab:
+        elif tab_data == self.__sys_tab:
             sec_type = StorageTabType.STORAGE_TAB_TYPE_SYS
 
-        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, sec_type, item_list))
+        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, sec_type.value, item_list))
 
         v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item_tree.yview)
         item_tree.config(yscrollcommand = v_scrollbar.set)

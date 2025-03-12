@@ -127,24 +127,21 @@ bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t *len)
 
     memset(data_tmp.name, 0, sizeof(strlen(name)));
     strcpy(data_tmp.name, name);
-    if (data_tmp.data == NULL)
-    {
-        CALLBACK_INFO("search", "Data space malloc failed");
-        free(data_tmp.name);
-        return false;
-    }
     
     if (search_cb != NULL)
     {
         state = search_cb(&data_tmp);
-        memcpy(data, data_tmp.data, data_tmp.size);
-        *len = data_tmp.size;
+
+        if (data && data_tmp.data)
+        {
+            memcpy(data, data_tmp.data, data_tmp.size);
+            *len = data_tmp.size;
+            free(data_tmp.data);
+        }
     }
 
     free(data_tmp.name);
-    if (data_tmp.data != NULL)
-        free(data_tmp.data);
-
+    CALLBACK_INFO("search", "done");
     return state;
 }
 
