@@ -161,14 +161,14 @@ class StructureDisplay:
         ptr_data = arr_type(*data)
         uint16_ptr_type = ctypes.c_uint16 * 1
         ptr_size = uint16_ptr_type(*size)
-
-        self._lib.UICallback_Search(int(sec_type), name, ptr_data, ptr_size)
-        print(ptr_size[0])
-        print([ptr_data[i] for i in range(1024)])
+        if self._lib.UICallback_Search(int(sec_type), name, ptr_data, ptr_size) == 1:
+            return [True, ptr_size[0], ctypes.string_at(ctypes.pointer(ptr_data), ptr_size[0])]
+        return [False, 0, bytes()]
 
     def __get_data_from_addr(self, addr):
         search_addr = addr - self._stor_offset
         data = bytes()
+        data_size = 0
         data_slot_h = Storage_DataSlot_h_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_h_TypeDef)])
         if data_slot_h.check():
             # header valid
@@ -187,17 +187,25 @@ class StructureDisplay:
             # crc include the align data
             if not data_slot_e.check() or util.CusCrc16(data_tmp) != data_slot_e.slot_crc:
                 self.__debug_print__("get data", "data slot ender invalid")
-                return data
+                return [False, 0, bytes()]
 
             data = data + data_tmp[:-data_slot_h.align_size]
+            data_size = data_slot_h.cur_slot_size - data_slot_h.align_size
             if data_slot_h.next_addr:
                 data_tmp = self.__get_data_from_addr(data_slot_h.next_addr)
-                if len(data_tmp):
-                    data = data + data_tmp
+
+                if not data_tmp[0]:
+                    return [False, 0, bytes()]
+
+                data_size = data_size + data_tmp[1]
+
+                if len(data_tmp[2]):
+                    data = data + data_tmp[2]
         else:
             self.__debug_print__("get data", "data slot header invalid")
+            return [False, 0, bytes()]
 
-        return data
+        return [True, data_size, data]
 
     def update_simdata(self):
         if not self._init_state:
@@ -388,11 +396,15 @@ class StructureDisplay:
         # get data in data section
         data_by_file = self.__get_data_from_addr(item.data_addr)
         data_by_lib = self.__get_data_from_addr_lib(sec_type, item.name)
-        
+
+        store_state = 'Normal'
+        if data_by_file != data_by_lib:
+            store_state = 'Error'
+
         # create window
         w_item = tk.Toplevel(self._root)
         w_item.title('Item Info')
-        w_item.geometry('290x355')
+        w_item.geometry('290x385')
         w_item.resizable(False, False)
 
         # show item info and storaged data
@@ -400,24 +412,27 @@ class StructureDisplay:
         l_item_addr = tk.Label(w_item, text = "[ store addr ] ")
         l_item_size = tk.Label(w_item, text = "[ store size ] ")
         l_data_size = tk.Label(w_item, text = "[ data  size ] ")
-        l_item_data = tk.Label(w_item, text = "[ store data ] ")
+        l_data_state = tk.Label(w_item, text = "[ store state ] ")
 
         l_item_name.place(x = 5, y = 5)
         l_item_addr.place(x = 5, y = 25)
         l_item_size.place(x = 5, y = 45)
         l_data_size.place(x = 5, y = 65)
-        l_item_data.place(x = 5, y = 85)
+        l_data_state.place(x = 5, y = 85)
 
         l_name_v = tk.Label(w_item, text = item.name.decode('UTF-8'))
         l_addr_v = tk.Label(w_item, text = hex(item.data_addr))
         l_item_size_v = tk.Label(w_item, text = str(item.len))
-        l_data_size_v = tk.Label(w_item, text = str(len(data_by_file)))
+        l_data_size_v = tk.Label(w_item, text = str(len(data_by_file[2])))
+        l_data_state_v = tk.Label(w_item, text = store_state)
 
         l_name_v.place(x = 105, y = 5)
         l_addr_v.place(x = 105, y = 25)
 
         l_item_size_v.place(x = 105, y = 45)
         l_data_size_v.place(x = 105, y = 65)
+
+        l_data_state_v.place(x = 105, y = 85)
 
         # create a table display store data
         column = ['R \ C']
@@ -434,12 +449,12 @@ class StructureDisplay:
         v_scrollbar = ttk.Scrollbar(tab_frame, orient = tk.VERTICAL, command = data_tab.yview)
         data_tab.configure(yscrollcommand = v_scrollbar.set)
 
-        dsp_data = data_by_file
+        dsp_data = data_by_file[2]
         if (len(dsp_data) % 4):
             dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b''
 
         font_color = tuple(['green'] * 4)
-        for i in range(0, len(data_by_file), 4):
+        for i in range(0, len(data_by_file[2]), 4):
             val = (hex(i).upper(), ) + tuple(dsp_data[i : (i + 4)].decode())
             data_tab.insert('', 'end', values = val)
 

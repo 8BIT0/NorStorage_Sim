@@ -296,7 +296,7 @@ static bool Sim_Storage_Search_Callback(TriggerData_TypeDef *data)
     }
 
     if ((search_out.item_addr == 0) || (search_out.item.len == 0) || \
-        (Storage.get(cls, search_out.item, data->data, data->size) != Storage_Error_None))
+        (Storage.get(cls, search_out.item, data->data, &data->size) != Storage_Error_None))
     {
         SIMULATION_PRINT("get item", "%s failed", data->name);
         data->size = 0;

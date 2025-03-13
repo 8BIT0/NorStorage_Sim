@@ -59,7 +59,7 @@ static Storage_ItemSearchOut_TypeDef Storage_Search(Storage_ParaClassType_List _
 static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name);
 static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _class, const char *name, uint8_t *p_data, uint16_t size);
 static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List _class, storage_handle data_slot_hdl, uint8_t *p_data, uint16_t size);
-static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List _class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t size);
+static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List _class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t *size);
 static Storage_ErrorCode_List Storage_Get_DevInfo(StorageDevObj_TypeDef *info);
 
 Storage_TypeDef Storage = {
@@ -515,9 +515,10 @@ static Storage_ErrorCode_List Storage_ItemSlot_Update(uint32_t tab_addr, uint8_t
     return Storage_Error_None;
 }
 
-static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t size)
+static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class, Storage_Item_TypeDef item, uint8_t *p_data, uint16_t *size)
 {
-    uint32_t data_len = 0;
+    int32_t data_len = 0;
+    uint16_t valid_size = 0;
     uint32_t data_addr = 0;
     uint8_t *p_read_out = NULL;
     uint8_t *crc_buf = NULL;
@@ -527,7 +528,7 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
     uint8_t *p_data_start = NULL;
 
     memset(&DataSlot, 0, sizeof(Storage_DataSlot_TypeDef));
-    if (item.data_addr && p_data && (size >= item.len))
+    if (item.data_addr && p_data)
     {
         data_len = item.len;
         data_addr = item.data_addr;
@@ -579,6 +580,10 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
 
             memcpy(p_data, p_data_start, DataSlot.cur_slot_size - DataSlot.align_size);
             data_len -= DataSlot.cur_slot_size;
+            valid_size += DataSlot.cur_slot_size - DataSlot.align_size;
+
+            if (data_len < 0)
+                return Storage_GetData_Error;
 
             if (DataSlot.nxt_addr)
             {
@@ -593,6 +598,9 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
                 return Storage_GetData_Error;
             }
         }
+
+        if (size)
+            *size = valid_size;
 
         return Storage_Error_None;
     }
