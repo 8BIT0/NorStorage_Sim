@@ -189,7 +189,15 @@ class StructureDisplay:
                 self.__debug_print__("get data", "data slot ender invalid")
                 return [False, 0, bytes()]
 
-            data = data + data_tmp[:-data_slot_h.align_size]
+            if data_slot_h.align_size >= 4:
+                self.__debug_print__("get data", "align siz error", data_slot_h.align_size)
+                return [False, 0, bytes()]
+
+            if data_slot_h.align_size > 0 and data_slot_h.align_size < 4:
+                data = data + data_tmp[:-data_slot_h.align_size]
+            elif data_slot_h.align_size == 0:
+                data = data + data_tmp
+
             data_size = data_slot_h.cur_slot_size - data_slot_h.align_size
             if data_slot_h.next_addr:
                 data_tmp = self.__get_data_from_addr(data_slot_h.next_addr)
@@ -361,7 +369,7 @@ class StructureDisplay:
 
         if tab_data == self._user_tab:
             sec_type = StorageTabType.STORAGE_TAB_TYPE_USER
-        elif tab_data == self.__sys_tab:
+        elif tab_data == self._sys_tab:
             sec_type = StorageTabType.STORAGE_TAB_TYPE_SYS
 
         item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, sec_type.value, item_list))
@@ -398,8 +406,10 @@ class StructureDisplay:
         data_by_lib = self.__get_data_from_addr_lib(sec_type, item.name)
 
         store_state = 'Normal'
+        store_size = data_by_lib[1]
         if data_by_file != data_by_lib:
             store_state = 'Error'
+            store_size = 0
 
         # create window
         w_item = tk.Toplevel(self._root)
@@ -453,13 +463,12 @@ class StructureDisplay:
         if (len(dsp_data) % 4):
             dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b''
 
-        font_color = tuple(['green'] * 4)
         for i in range(0, len(data_by_file[2]), 4):
             val = (hex(i).upper(), ) + tuple(dsp_data[i : (i + 4)].decode())
             data_tab.insert('', 'end', values = val)
 
         # add modify button
-        button = tk.Button(w_item, text = "update", width = 27, height = 1)
+        button = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(store_size, item, data_tab))
 
         # display data table
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
@@ -467,6 +476,20 @@ class StructureDisplay:
         data_tab.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
     
+    def _on_modify_trigger(self, store_size, store_item, table):
+        # get all data in table
+        data = []
+        for tab_item in table.get_children():
+            for d in list(table.item(tab_item, 'values'))[1:]:
+                if (len(data) < store_size):
+                    data.append(d)
+
+        # use lib update data
+        store_data = ctypes.c_char_p(''.join(data).encode())
+        if self._lib.UICallback_Modify(store_item._class, store_item.name, store_data, store_size) == 0:
+            # modify failed or error
+            pass
+
     def _show_create(self):
         sec = StorageTabType.STORAGE_TAB_TYPE_USER.value
         select_tab = self._sec_notebook.select()

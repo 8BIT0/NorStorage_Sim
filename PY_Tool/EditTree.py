@@ -41,7 +41,7 @@ class EditableTreeView(ttk.Treeview):
     
     def _enter(self, event):
         new_val = self._entry.get()
-        self.set(self._item_id, self._col, new_val)
+        self.set(self._item_id, self._col, new_val[0])
         self._entry.destroy()
         self._entry = None
 
