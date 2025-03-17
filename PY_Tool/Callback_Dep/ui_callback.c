@@ -117,7 +117,7 @@ bool UICallback_Search(Sec_List type, char *name, uint8_t *data, uint16_t *len)
     CALLBACK_INFO("search", "Name %s ", name);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
-    data_tmp.type = Trigger_Create;
+    data_tmp.type = Trigger_Search;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {
@@ -153,7 +153,8 @@ bool UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
     CALLBACK_INFO("modify", "Name %s data size %d", name, len);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
-    data_tmp.type = Trigger_Create;
+    data_tmp.size = len;
+    data_tmp.type = Trigger_Modify;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {
@@ -191,7 +192,7 @@ bool UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len)
     CALLBACK_INFO("delete", "Name %s data size %d", name, len);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
-    data_tmp.type = Trigger_Create;
+    data_tmp.type = Trigger_Delete;
     data_tmp.name = malloc(strlen(name));
     if (data_tmp.name == NULL)
     {

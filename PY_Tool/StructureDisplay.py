@@ -367,12 +367,7 @@ class StructureDisplay:
         for item in item_list:
             item_tree.insert('', 'end', values = (item.name))
 
-        if tab_data == self._user_tab:
-            sec_type = StorageTabType.STORAGE_TAB_TYPE_USER
-        elif tab_data == self._sys_tab:
-            sec_type = StorageTabType.STORAGE_TAB_TYPE_SYS
-
-        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, sec_type.value, item_list))
+        item_tree.bind("<ButtonRelease-1>", lambda event: self._show_item_detial(event, item_list))
 
         v_scrollbar = ttk.Scrollbar(v_frame, orient = tk.VERTICAL, command = item_tree.yview)
         item_tree.config(yscrollcommand = v_scrollbar.set)
@@ -388,7 +383,7 @@ class StructureDisplay:
 
         return [item_tree, label_pack]
 
-    def _show_item_detial(self, event, sec_type, tab_item):
+    def _show_item_detial(self, event, tab_item):
         tree = event.widget
         selected_id = tree.selection()
         if selected_id:
@@ -400,6 +395,13 @@ class StructureDisplay:
                 return
         else:
             return
+        
+        select_tab = self._sec_notebook.select()
+        tab_name = self._sec_notebook.tab(select_tab, 'text')
+
+        sec_type = StorageTabType.STORAGE_TAB_TYPE_USER.value
+        if tab_name == 'system':
+            sec_type = StorageTabType.STORAGE_TAB_TYPE_SYS.value
         
         # get data in data section
         data_by_file = self.__get_data_from_addr(item.data_addr)
@@ -468,7 +470,7 @@ class StructureDisplay:
             data_tab.insert('', 'end', values = val)
 
         # add modify button
-        button = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(store_size, item, data_tab))
+        button = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(sec_type, store_size, item, data_tab))
 
         # display data table
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
@@ -476,7 +478,7 @@ class StructureDisplay:
         data_tab.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
     
-    def _on_modify_trigger(self, store_size, store_item, table):
+    def _on_modify_trigger(self, sec_type, store_size, store_item, table):
         # get all data in table
         data = []
         for tab_item in table.get_children():
@@ -486,7 +488,7 @@ class StructureDisplay:
 
         # use lib update data
         store_data = ctypes.c_char_p(''.join(data).encode())
-        if self._lib.UICallback_Modify(store_item._class, store_item.name, store_data, store_size) == 0:
+        if self._lib.UICallback_Modify(sec_type, store_item.name, store_data, store_size) == 0:
             # modify failed or error
             pass
 

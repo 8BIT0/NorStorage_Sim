@@ -20,7 +20,6 @@ class EditableTreeView(ttk.Treeview):
                 self._col = str(self._col)
                 # get item data in table
                 def_val = self.set(self._item_id, self._col)
-                print(def_val)
                 # get space coordinate and size
                 x, y, width, height = self.bbox(self._item_id, self._col)
                 # create entry
