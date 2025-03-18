@@ -166,14 +166,15 @@ static bool SimModule_Init(char *app_path)
         SIMULATION_PRINT("option", "%d ---- W25Q128", Storage_ChipType_W25Q128);
         while (true)
         {
-            if ((scanf("%d", &type) == 0) || \
-                (type < Storage_ChipType_W25Q08) || \
-                (type > Storage_ChipType_W25Q128))
-            {
-                SIMULATION_PRINT("selection", "unknow type input %d", type);
-                rewind(stdin);
-                continue;
-            }
+            // if ((scanf("%d", &type) == 0) || \
+            //     (type < Storage_ChipType_W25Q08) || \
+            //     (type > Storage_ChipType_W25Q128))
+            // {
+            //     SIMULATION_PRINT("selection", "unknow type input %d", type);
+            //     rewind(stdin);
+            //     continue;
+            // }
+            type = Storage_ChipType_W25Q128;
 
             /* check input type */
             switch (type)

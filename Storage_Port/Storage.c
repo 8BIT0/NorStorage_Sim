@@ -663,19 +663,18 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
     p_slotdata = NULL;
     while(true)
     {
-        p_read_tmp = page_data_tmp;
         p_slotdata = (Storage_DataSlot_TypeDef *)p_read_tmp;
 
         /* get data from handle */
         if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, read_addr, p_read_tmp, read_size))
             return Storage_Read_Error;
-
-        p_slotdata->head_tag = *((uint32_t *)p_read_tmp);
+        
+            p_slotdata->head_tag = *((uint32_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->head_tag);
         if (p_slotdata->head_tag != STORAGE_SLOT_HEAD_TAG)
             return Storage_DataInfo_Error;
 
-        memcpy(p_slotdata->res, 0, sizeof(p_slotdata->res));
+        memset(p_slotdata->res, 0, sizeof(p_slotdata->res));
         p_read_tmp += sizeof(p_slotdata->res);
 
         p_slotdata->total_data_size = *((uint32_t *)p_read_tmp);
@@ -691,12 +690,6 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
 
         p_slotdata->nxt_addr = *((uint32_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->nxt_addr);
-        if (p_slotdata->nxt_addr)
-        {
-            if ((p_slotdata->nxt_addr < p_Sec->data_sec_addr) || \
-                (p_slotdata->nxt_addr > p_Sec->data_sec_addr + p_Sec->data_sec_size))
-                return Storage_DataInfo_Error;
-        }
 
         p_slotdata->align_size = *((uint8_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->align_size);
@@ -722,6 +715,12 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
             /* compare update data size and valid_data_size */
             if (size != valid_data_size)
                 return Storage_Update_DataSize_Error;
+        }
+        else
+        {
+            if ((p_slotdata->nxt_addr < p_Sec->data_sec_addr) || \
+                (p_slotdata->nxt_addr > p_Sec->data_sec_addr + p_Sec->data_sec_size))
+                return Storage_DataInfo_Error; 
         }
 
         memcpy(p_read_tmp, &crc, sizeof(crc));
