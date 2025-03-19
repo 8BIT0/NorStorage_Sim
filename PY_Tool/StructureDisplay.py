@@ -470,11 +470,12 @@ class StructureDisplay:
             data_tab.insert('', 'end', values = val)
 
         # add modify button
-        button = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(sec_type, store_size, item, data_tab))
+        modify_b = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(sec_type, store_size, item, data_tab))
+        delete_b = tk.Button(w_item, text = "delete", width = 27, height = 1, command = lambda:self._delete_tab_item())
 
         # display data table
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
-        button.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
+        modify_b.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         data_tab.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
     
@@ -490,7 +491,13 @@ class StructureDisplay:
         store_data = ctypes.c_char_p(''.join(data).encode())
         if self._lib.UICallback_Modify(sec_type, store_item.name, store_data, store_size) == 0:
             # modify failed or error
-            pass
+            self.__debug_print__('Modify', 'item ', store_item.name.decode(), ' failed')
+        else:
+            # re-update
+            self.update_simdata()
+            self._show_flash_info()
+            self._show_sec_tab()
+            self.__debug_print__('Modify', 'item ', store_item.name.decode(), ' done')
 
     def _show_create(self):
         sec = StorageTabType.STORAGE_TAB_TYPE_USER.value
@@ -526,9 +533,6 @@ class StructureDisplay:
             self.update_simdata()
             self._show_flash_info()
             self._show_sec_tab()
-
-    def _show_delete(self):
-        pass
 
     def _sec_tab_change(self, event):
         pass
