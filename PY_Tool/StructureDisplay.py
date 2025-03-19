@@ -5,6 +5,7 @@ from StructDef import *
 from enum import Enum
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import compile as compile_module
 import platform
 import ctypes
@@ -333,13 +334,13 @@ class StructureDisplay:
         _user_pack[1][0].config(text = 'num: ' + str(self._flash_info.user_sec.para_num))
         _user_pack[1][1].config(text = 'usage: ' + str(self._flash_info.user_sec.para_size) + '/' + str(self._flash_info.user_sec.data_sec_size))
 
-        # right click item in treeview show delete option
         _system_pack[1][0].config(text = 'num: ' + str(self._flash_info.sys_sec.para_num))
         _system_pack[1][1].config(text = 'usage: ' + str(self._flash_info.sys_sec.para_size) + '/' + str(self._flash_info.sys_sec.data_sec_size))
 
     # bind with item tree right click
     def _delete_tab_item(self):
-        pass
+        # jump out comfirm window
+        confirm_w = messagebox.askyesno()
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         TREEVIEW_X = 5
