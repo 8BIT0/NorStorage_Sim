@@ -345,6 +345,7 @@ class StructureDisplay:
         confirm_w = messagebox.askyesno('confirm delete', 'delete ' + item.name.decode())
         if confirm_w:
             # call item delete function
+            self._lib.UICallback_Delete()
             window.destroy()
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):

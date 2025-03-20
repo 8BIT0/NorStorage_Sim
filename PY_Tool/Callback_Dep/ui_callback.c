@@ -184,12 +184,12 @@ bool UICallback_Modify(Sec_List type, char *name, uint8_t *data, uint16_t len)
     return state;
 }
 
-bool UICallback_Delete(Sec_List type, char *name, uint8_t *data, uint16_t len)
+bool UICallback_Delete(Sec_List type, char *name)
 {
     bool state = false;
     TriggerData_TypeDef data_tmp;
 
-    CALLBACK_INFO("delete", "Name %s data size %d", name, len);
+    CALLBACK_INFO("delete", "Name %s");
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Delete;
