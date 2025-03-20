@@ -331,16 +331,21 @@ class StructureDisplay:
 
         # set user parameter section num label
         # set user parameter section usage label
+        user_usage = 100 - ((self._flash_info.user_sec.free_space_size / self._flash_info.user_sec.data_sec_size) * 100)
         _user_pack[1][0].config(text = 'num: ' + str(self._flash_info.user_sec.para_num))
-        _user_pack[1][1].config(text = 'usage: ' + str(self._flash_info.user_sec.para_size) + '/' + str(self._flash_info.user_sec.data_sec_size))
+        _user_pack[1][1].config(text = 'usage: ' + str(user_usage) + '%')
 
+        sys_usage = 100 - ((self._flash_info.sys_sec.free_space_size / self._flash_info.sys_sec.data_sec_size) * 100)
         _system_pack[1][0].config(text = 'num: ' + str(self._flash_info.sys_sec.para_num))
-        _system_pack[1][1].config(text = 'usage: ' + str(self._flash_info.sys_sec.para_size) + '/' + str(self._flash_info.sys_sec.data_sec_size))
+        _system_pack[1][1].config(text = 'usage: ' + str(sys_usage) + '%')
 
     # bind with item tree right click
-    def _delete_tab_item(self):
+    def _delete_tab_item(self, window, item):
         # jump out comfirm window
-        confirm_w = messagebox.askyesno()
+        confirm_w = messagebox.askyesno('confirm delete', 'delete ' + item.name.decode())
+        if confirm_w:
+            # call item delete function
+            window.destroy()
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         TREEVIEW_X = 5
@@ -417,7 +422,7 @@ class StructureDisplay:
         # create window
         w_item = tk.Toplevel(self._root)
         w_item.title('Item Info')
-        w_item.geometry('290x385')
+        w_item.geometry('290x415')
         w_item.resizable(False, False)
 
         # show item info and storaged data
@@ -472,11 +477,12 @@ class StructureDisplay:
 
         # add modify button
         modify_b = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(sec_type, store_size, item, data_tab))
-        delete_b = tk.Button(w_item, text = "delete", width = 27, height = 1, command = lambda:self._delete_tab_item())
+        delete_b = tk.Button(w_item, text = "delete", width = 27, height = 1, command = lambda:self._delete_tab_item(w_item, item))
 
         # display data table
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)
         modify_b.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
+        delete_b.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         data_tab.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
         tab_frame.pack(side = tk.BOTTOM, anchor = tk.NW, padx = 5, pady = 5)
     
@@ -496,7 +502,6 @@ class StructureDisplay:
         else:
             # re-update
             self.update_simdata()
-            self._show_flash_info()
             self._show_sec_tab()
             self.__debug_print__('Modify', 'item ', store_item.name.decode(), ' done')
 
