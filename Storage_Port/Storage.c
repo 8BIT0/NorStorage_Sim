@@ -1009,10 +1009,12 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, addr, page_data_tmp, read_size))
         return false;
 
-    STORAGE_INFO("delete", "start delete item data slot");
     data_slot.head_tag = *((uint32_t *)p_read);
     if (data_slot.head_tag != STORAGE_SLOT_HEAD_TAG)
+    {
+        STORAGE_INFO("delete", "addr 0x%08x header 0x%08x / 0x%08x error", data_slot.head_tag, STORAGE_SLOT_HEAD_TAG);
         return false;
+    }
 
     p_read += sizeof(data_slot.head_tag);
     
@@ -1021,12 +1023,20 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     
     data_slot.total_data_size = *((uint32_t *)p_read);
     if (data_slot.total_data_size != total_size)
+    {
+        STORAGE_INFO("delete", "addr 0x%08x total data size %d / %d error", addr, data_slot.total_data_size, total_size);
         return false;
+    }
 
     p_read += sizeof(data_slot.total_data_size);
     data_slot.cur_slot_size = *((uint32_t *)p_read);
-    if (data_slot.cur_slot_size > data_slot.total_data_size)
+    if (data_slot.total_data_size && \
+        (data_slot.cur_slot_size == 0) || \
+        (data_slot.cur_slot_size > data_slot.total_data_size))
+    {
+        STORAGE_INFO("delete", "addr 0x%08x current slot size %d error", addr, data_slot.cur_slot_size);
         return false;
+    }
 
     /* now have current slot size read data in slot again */
     read_size += data_slot.cur_slot_size;
