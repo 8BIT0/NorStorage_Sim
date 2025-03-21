@@ -189,7 +189,7 @@ bool UICallback_Delete(Sec_List type, char *name)
     bool state = false;
     TriggerData_TypeDef data_tmp;
 
-    CALLBACK_INFO("delete", "Name %s");
+    CALLBACK_INFO("delete", "Name %s", name);
     memset(&data_tmp, 0, sizeof(TriggerData_TypeDef));
     data_tmp.sec = type;
     data_tmp.type = Trigger_Delete;

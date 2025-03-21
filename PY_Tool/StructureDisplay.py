@@ -340,12 +340,12 @@ class StructureDisplay:
         _system_pack[1][1].config(text = 'usage: ' + str(sys_usage) + '%')
 
     # bind with item tree right click
-    def _delete_tab_item(self, window, item):
+    def _delete_tab_item(self, sec_type, window, item):
         # jump out comfirm window
         confirm_w = messagebox.askyesno('confirm delete', 'delete ' + item.name.decode())
         if confirm_w:
             # call item delete function
-            self._lib.UICallback_Delete()
+            self._lib.UICallback_Delete(sec_type, item.name)
             window.destroy()
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
@@ -478,7 +478,7 @@ class StructureDisplay:
 
         # add modify button
         modify_b = tk.Button(w_item, text = "update", width = 27, height = 1, command = lambda:self._on_modify_trigger(sec_type, store_size, item, data_tab))
-        delete_b = tk.Button(w_item, text = "delete", width = 27, height = 1, command = lambda:self._delete_tab_item(w_item, item))
+        delete_b = tk.Button(w_item, text = "delete", width = 27, height = 1, command = lambda:self._delete_tab_item(sec_type, w_item, item))
 
         # display data table
         v_scrollbar.pack(side = tk.RIGHT, fill = tk.Y)

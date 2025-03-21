@@ -330,8 +330,22 @@ static bool Sim_Storage_Search_Callback(TriggerData_TypeDef *data)
 
 static bool Sim_Storage_Delete_Callback(TriggerData_TypeDef *data)
 {
-    if (data == NULL)
+    Storage_ParaClassType_List cls = Para_Sys;
+    Storage_ErrorCode_List err_code = Storage_Error_None;
+
+    if ((data == NULL) || \
+        (data->name == NULL) || \
+        (strlen(data->name) == 0))
         return false;
+
+    if (data->sec == UserSec)
+        cls = Para_User;
+    
+    err_code = Storage.delete(cls, data->name);
+    if (err_code != Storage_Error_None)
+    {
+        SIMULATION_PRINT("delete item", "Failed error code %d", err_code);
+    }
 
     return true;
 }
