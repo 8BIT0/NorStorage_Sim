@@ -81,7 +81,8 @@ typedef struct
 typedef struct
 {
     uint32_t head_tag;
-    uint8_t res[9];
+    uint8_t res[8];
+    uint8_t frag_len;
     uint32_t total_data_size;
     uint32_t cur_slot_size;
     uint32_t nxt_addr;
@@ -89,14 +90,14 @@ typedef struct
     /* storage data insert */
     /*
      * for example: storage 13 byte name as "data_1" then data slot should be like the diagram down below
-     *  _________________________________________________________________________________________________________________________________________
-     * |    head    |   Name  | total data size | cur slot | nxt addr | align size | storage data |   align    |       slot crc    |     end    |
-     * | 0xEF0110EF |  data_1 |       16        |    16    |     0    |      3     | ............ |            |   comput crc by   | 0xFE1001FE |
-     * |   4Byte    |  41Byte |      4Byte      |  4Byte   |   4Byte  |    1Byte   |     13Byte   |   3Byte    | current slot data |     4Byte  |
-     * |____________|_________|_________________|__________|__________|____________|______________|____________|___________________|____________|
-     *                                                                                     |______________|               ↑
-     *                                                                                            |         16Byte        |
-     *                                                                                            |______ comput crc _____|
+     *  _______________________________________________________________________________________________________________________________________________________________________
+     * |    head    |   res   |  frag   | total data size | cur slot | nxt addr | align size | storage data |   align    |       slot crc    |     end    |   fregment area   |
+     * | 0xEF0110EF |  data_1 |  len    |       16        |    16    |     0    |      3     | ............ |            |   comput crc by   | 0xFE1001FE |    (if have)      |
+     * |   4Byte    |  8Byte  |  1Byte  |      4Byte      |  4Byte   |   4Byte  |    1Byte   |     13Byte   |   3Byte    | current slot data |     4Byte  |                   |
+     * |____________|_________|_________|_________________|__________|__________|____________|______________|____________|___________________|____________|___________________|
+     *                                                                                               |______________|               ↑
+     *                                                                                                      |         16Byte        |
+     *                                                                                                      |______ comput crc _____|
      * 
      */
     uint16_t slot_crc;

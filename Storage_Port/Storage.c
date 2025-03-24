@@ -838,9 +838,8 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
         }
 
         nxt_freeslot_addr = FreeSlot_Info.nxt_addr;
-        p_Sec->free_space_size += new_freeslot->slot_size;
 
-        /* circumstance 1: new free slot in front of the old free slot */
+        /* circumstance 1: new free slot in the front and near the old free slot */
         if (slot_addr + new_freeslot->slot_size == freeslot_addr)
         {
             STORAGE_INFO("slot merge", "New free slot in front of the old one");
@@ -903,6 +902,7 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
 
         /* update front free slot address */
         freeslot_addr = nxt_freeslot_addr;
+        p_Sec->free_space_size += new_freeslot->slot_size;
     }
 
     return Storage_Delete_Error;
@@ -1153,11 +1153,12 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
     memcpy(ItemSearch.item.name, STORAGE_FREEITEM_NAME, strlen(STORAGE_FREEITEM_NAME));
 
     Storage_Comput_ItemSlot_CRC(&ItemSearch.item);
-
     if (Storage_ItemSlot_Update(ItemSearch.item_addr, ItemSearch.item_index, p_Sec, ItemSearch.item) != Storage_Error_None)
         return Storage_ItemUpdate_Error;
 
     /* update base info */
+
+
     return Storage_Delete_Error;
 }
 
