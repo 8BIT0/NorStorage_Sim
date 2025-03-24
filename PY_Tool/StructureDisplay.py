@@ -334,10 +334,12 @@ class StructureDisplay:
         user_usage = 100 - ((self._flash_info.user_sec.free_space_size / self._flash_info.user_sec.data_sec_size) * 100)
         _user_pack[1][0].config(text = 'num: ' + str(self._flash_info.user_sec.para_num))
         _user_pack[1][1].config(text = 'usage: ' + str(user_usage) + '%')
+        _user_pack[1][2].config(text = 'free suze: ' + str(self._flash_info.user_sec.free_space_size))
 
         sys_usage = 100 - ((self._flash_info.sys_sec.free_space_size / self._flash_info.sys_sec.data_sec_size) * 100)
         _system_pack[1][0].config(text = 'num: ' + str(self._flash_info.sys_sec.para_num))
         _system_pack[1][1].config(text = 'usage: ' + str(sys_usage) + '%')
+        _system_pack[1][2].config(text = 'free size: ' + str(self._flash_info.sys_sec.free_space_size))
 
     # bind with item tree right click
     def _delete_tab_item(self, sec_type, window, item):
@@ -347,6 +349,9 @@ class StructureDisplay:
             # call item delete function
             self._lib.UICallback_Delete(sec_type, item.name)
             window.destroy()
+
+            # update display
+            self._show_sec_tab()
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
         TREEVIEW_X = 5
@@ -358,12 +363,13 @@ class StructureDisplay:
 
         l_para_size = tk.Label(frame, text = "num: ")
         l_usage = tk.Label(frame, text = "usage: ")
+        l_free_size = tk.Label(frame, text = "free size: ")
 
-        label_pack = [l_para_size, l_usage]
+        label_pack = [l_para_size, l_usage, l_free_size]
 
         # set label position
         for i in range(len(label_pack)):
-            label_pack[i].place(x = 10, y = 15 + i * 20)
+            label_pack[i].place(x = 10, y = 2 + i * 20)
 
         column = ["item name"]
         item_tree = ttk.Treeview(frame, columns = column, show = 'headings')
