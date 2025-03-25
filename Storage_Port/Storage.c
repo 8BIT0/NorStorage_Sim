@@ -791,7 +791,8 @@ static bool Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free
     return true;
 }
 
-/* developping & untested */
+/* developping */
+/* bug inside */
 static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, Storage_FreeSlot_TypeDef *new_freeslot, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
     Storage_FreeSlot_TypeDef FreeSlot_Info;
