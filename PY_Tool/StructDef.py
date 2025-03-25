@@ -151,10 +151,11 @@ class Storage_Item_Def(Structure_Tool):
     
 class Storage_DataSlot_h_TypeDef(Structure_Tool):
     _pack_ = 1
-    _res_size = 9
+    _res_size = 8
     _fields_ = [
         ("head_tag",        c_uint32),
         ("res",             c_uint8 * _res_size),
+        ("frag_len",        c_uint8),
         ("total_data_size", c_uint32),
         ("cur_slot_size",   c_uint32),
         ("next_addr",       c_uint32),

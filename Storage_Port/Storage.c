@@ -838,6 +838,10 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
         }
 
         nxt_freeslot_addr = FreeSlot_Info.nxt_addr;
+        STORAGE_INFO("new freeslot", "head  tag: 0x%08X",   new_freeslot->head_tag);
+        STORAGE_INFO("new freeslot", "end   tag: 0x%08X",   new_freeslot->end_tag);
+        STORAGE_INFO("new freeslot", "slot size: %d",       new_freeslot->slot_size);
+        STORAGE_INFO("new freeslot", "next addr: 0x%08X",   new_freeslot->nxt_addr);
 
         /* circumstance 1: new free slot in the front and near the old free slot */
         if (slot_addr + new_freeslot->slot_size == freeslot_addr)

@@ -166,56 +166,6 @@ class StructureDisplay:
             return [True, ptr_size[0], ctypes.string_at(ctypes.pointer(ptr_data), ptr_size[0])]
         return [False, 0, bytes()]
 
-    def __get_data_from_addr(self, addr):
-        search_addr = addr - self._stor_offset
-        data = bytes()
-        data_size = 0
-        data_slot_h = Storage_DataSlot_h_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_h_TypeDef)])
-        if data_slot_h.check():
-            # header valid
-            # check data slot info
-            # get data
-            data_s = search_addr + sizeof(Storage_DataSlot_h_TypeDef)
-            data_e = data_s + data_slot_h.cur_slot_size
-
-            data_tmp = self._sim_data[data_s : data_e]
-
-            # get data slot end
-            search_addr = data_s + data_slot_h.cur_slot_size
-            data_slot_e = Storage_DataSlot_e_TypeDef.from_buffer_copy(self._sim_data[search_addr : search_addr + sizeof(Storage_DataSlot_e_TypeDef)])
-
-            # check slot crc and ender
-            # crc include the align data
-            if not data_slot_e.check() or util.CusCrc16(data_tmp) != data_slot_e.slot_crc:
-                self.__debug_print__("get data", "data slot ender invalid")
-                return [False, 0, bytes()]
-
-            if data_slot_h.align_size >= 4:
-                self.__debug_print__("get data", "align siz error", data_slot_h.align_size)
-                return [False, 0, bytes()]
-
-            if data_slot_h.align_size > 0 and data_slot_h.align_size < 4:
-                data = data + data_tmp[:-data_slot_h.align_size]
-            elif data_slot_h.align_size == 0:
-                data = data + data_tmp
-
-            data_size = data_slot_h.cur_slot_size - data_slot_h.align_size
-            if data_slot_h.next_addr:
-                data_tmp = self.__get_data_from_addr(data_slot_h.next_addr)
-
-                if not data_tmp[0]:
-                    return [False, 0, bytes()]
-
-                data_size = data_size + data_tmp[1]
-
-                if len(data_tmp[2]):
-                    data = data + data_tmp[2]
-        else:
-            self.__debug_print__("get data", "data slot header invalid")
-            return [False, 0, bytes()]
-
-        return [True, data_size, data]
-
     def update_simdata(self):
         if not self._init_state:
             return False
@@ -351,6 +301,8 @@ class StructureDisplay:
             window.destroy()
 
             # update display
+            self.update_simdata()
+            self._show_flash_info()
             self._show_sec_tab()
 
     def _tab_data_2_item_TreeView(self, frame, tab_data):
@@ -417,12 +369,11 @@ class StructureDisplay:
             sec_type = StorageTabType.STORAGE_TAB_TYPE_SYS.value
         
         # get data in data section
-        data_by_file = self.__get_data_from_addr(item.data_addr)
         data_by_lib = self.__get_data_from_addr_lib(sec_type, item.name)
 
         store_state = 'Normal'
         store_size = data_by_lib[1]
-        if data_by_file != data_by_lib:
+        if not data_by_lib[0]:
             store_state = 'Error'
             store_size = 0
 
@@ -448,7 +399,7 @@ class StructureDisplay:
         l_name_v = tk.Label(w_item, text = item.name.decode('UTF-8'))
         l_addr_v = tk.Label(w_item, text = hex(item.data_addr))
         l_item_size_v = tk.Label(w_item, text = str(item.len))
-        l_data_size_v = tk.Label(w_item, text = str(len(data_by_file[2])))
+        l_data_size_v = tk.Label(w_item, text = str(len(data_by_lib[2])))
         l_data_state_v = tk.Label(w_item, text = store_state)
 
         l_name_v.place(x = 105, y = 5)
@@ -474,11 +425,11 @@ class StructureDisplay:
         v_scrollbar = ttk.Scrollbar(tab_frame, orient = tk.VERTICAL, command = data_tab.yview)
         data_tab.configure(yscrollcommand = v_scrollbar.set)
 
-        dsp_data = data_by_file[2]
+        dsp_data = data_by_lib[2]
         if (len(dsp_data) % 4):
             dsp_data = dsp_data + (4 - (len(dsp_data) % 4)) * b''
 
-        for i in range(0, len(data_by_file[2]), 4):
+        for i in range(0, len(data_by_lib[2]), 4):
             val = (hex(i).upper(), ) + tuple(dsp_data[i : (i + 4)].decode())
             data_tab.insert('', 'end', values = val)
 
