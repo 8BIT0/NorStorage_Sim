@@ -154,12 +154,11 @@ class Storage_DataSlot_h_TypeDef(Structure_Tool):
     _res_size = 8
     _fields_ = [
         ("head_tag",        c_uint32),
-        ("res",             c_uint8 * _res_size),
-        ("frag_len",        c_uint8),
-        ("total_data_size", c_uint32),
-        ("cur_slot_size",   c_uint32),
+        ("total_data_size", c_uint16),
+        ("cur_slot_size",   c_uint16),
         ("next_addr",       c_uint32),
-        ("align_size",      c_uint8)
+        ("frag_len",        c_uint16),
+        ("align_size",      c_uint16)
     ]
 
     def check(self):
@@ -171,6 +170,7 @@ class Storage_DataSlot_e_TypeDef(Structure_Tool):
     _pack_ = 1
     _fields_ = [
         ("slot_crc",    c_uint16),
+        ("res",         c_uint16),
         ("end_tag",     c_uint32)
     ]
 

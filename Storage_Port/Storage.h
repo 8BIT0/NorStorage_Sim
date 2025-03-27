@@ -81,12 +81,11 @@ typedef struct
 typedef struct
 {
     uint32_t head_tag;
-    uint8_t res[8];
-    uint8_t frag_len;
-    uint32_t total_data_size;
-    uint32_t cur_slot_size;
+    uint16_t total_data_size;
+    uint16_t cur_slot_size;
     uint32_t nxt_addr;
-    uint8_t align_size;
+    uint16_t frag_len;
+    uint16_t align_size;
     /* storage data insert */
     /*
      * for example: storage 13 byte name as "data_1" then data slot should be like the diagram down below
@@ -101,6 +100,7 @@ typedef struct
      * 
      */
     uint16_t slot_crc;
+    uint16_t res;
     uint32_t end_tag;
 } Storage_DataSlot_TypeDef;
 

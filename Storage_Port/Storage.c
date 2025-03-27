@@ -544,9 +544,6 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
             if (DataSlot.head_tag != STORAGE_SLOT_HEAD_TAG)
                 return Storage_GetData_Error;
 
-            memset(DataSlot.res, 0, sizeof(DataSlot.res));
-            p_read_out += sizeof(DataSlot.res);
-
             memcpy(&DataSlot.total_data_size, p_read_out, sizeof(DataSlot.total_data_size));
             p_read_out += sizeof(DataSlot.total_data_size);
             if (DataSlot.total_data_size == 0)
@@ -559,6 +556,9 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
 
             memcpy(&DataSlot.nxt_addr, p_read_out, sizeof(DataSlot.nxt_addr));
             p_read_out += sizeof(DataSlot.nxt_addr);
+
+            memcpy(&DataSlot.frag_len, p_read_out, sizeof(DataSlot.frag_len));
+            p_read_out += sizeof(DataSlot.frag_len);
 
             memcpy(&DataSlot.align_size, p_read_out, sizeof(DataSlot.align_size));
             p_read_out += sizeof(DataSlot.align_size);
@@ -573,6 +573,9 @@ static Storage_ErrorCode_List Storage_Get_Data(Storage_ParaClassType_List class,
             p_read_out += sizeof(DataSlot.slot_crc);
             if (crc != DataSlot.slot_crc)
                 return Storage_GetData_Error;
+            
+            memcpy(&DataSlot.res, p_read_out, sizeof(DataSlot.res));
+            p_read_out += sizeof(DataSlot.res);
 
             memcpy(&DataSlot.end_tag, p_read_out, sizeof(DataSlot.end_tag));
             if (DataSlot.end_tag != STORAGE_SLOT_END_TAG)
@@ -674,9 +677,6 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
         if (p_slotdata->head_tag != STORAGE_SLOT_HEAD_TAG)
             return Storage_DataInfo_Error;
 
-        memset(p_slotdata->res, 0, sizeof(p_slotdata->res));
-        p_read_tmp += sizeof(p_slotdata->res);
-
         p_slotdata->total_data_size = *((uint32_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->total_data_size);
         if ((p_slotdata->total_data_size == 0) || \
@@ -690,6 +690,9 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
 
         p_slotdata->nxt_addr = *((uint32_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->nxt_addr);
+
+        p_slotdata->frag_len = *((uint8_t *)p_read_tmp);
+        p_read_tmp += sizeof(p_slotdata->frag_len);
 
         p_slotdata->align_size = *((uint8_t *)p_read_tmp);
         p_read_tmp += sizeof(p_slotdata->align_size);
@@ -727,6 +730,8 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
         
         p_data += p_slotdata->cur_slot_size - p_slotdata->align_size;
         p_read_tmp += sizeof(p_slotdata->slot_crc);
+
+        p_read_tmp += sizeof(p_slotdata->res);
 
         if (*(uint32_t *)p_read_tmp != STORAGE_SLOT_END_TAG)
             return Storage_DataInfo_Error;
@@ -1039,9 +1044,6 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
 
     p_read += sizeof(data_slot.head_tag);
     
-    memcpy(data_slot.res, p_read, sizeof(data_slot.res));
-    p_read += sizeof(data_slot.res);
-    
     data_slot.total_data_size = *((uint32_t *)p_read);
     if (data_slot.total_data_size != total_size)
     {
@@ -1304,7 +1306,6 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 /* step 2: comput storage data size and set data slot */
                 DataSlot.head_tag = STORAGE_SLOT_HEAD_TAG;
                 DataSlot.end_tag = STORAGE_SLOT_END_TAG;
-                memset(DataSlot.res, 0, sizeof(DataSlot.res));
                 
                 if (FreeSlot.slot_size <= sizeof(Storage_DataSlot_TypeDef))
                     return Storage_No_Enough_Space;
@@ -1343,6 +1344,12 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                     /* update current free slot adderess */
                     cur_freeslot_addr += DataSlot.cur_slot_size + sizeof(Storage_DataSlot_TypeDef);
                     FreeSlot.slot_size -= DataSlot.cur_slot_size + sizeof(Storage_DataSlot_TypeDef);
+                    
+                    if (FreeSlot.slot_size <= sizeof(Storage_DataSlot_TypeDef))
+                    {
+                        DataSlot.frag_len = FreeSlot.slot_size;
+                        FreeSlot.slot_size = 0;
+                    }
                 }
 
                 p_Sec->free_space_size -= DataSlot.cur_slot_size;
@@ -1352,14 +1359,14 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 slot_update_ptr = page_data_tmp;
                 memcpy(slot_update_ptr, &DataSlot.head_tag, sizeof(DataSlot.head_tag));
                 slot_update_ptr += sizeof(DataSlot.head_tag);
-                memset(slot_update_ptr, 0, sizeof(DataSlot.res));
-                slot_update_ptr += sizeof(DataSlot.res);
                 memcpy(slot_update_ptr, &DataSlot.total_data_size, sizeof(DataSlot.total_data_size));
                 slot_update_ptr += sizeof(DataSlot.total_data_size);
                 memcpy(slot_update_ptr, &DataSlot.cur_slot_size, sizeof(DataSlot.cur_slot_size));
                 slot_update_ptr += sizeof(DataSlot.cur_slot_size);
                 memcpy(slot_update_ptr, &DataSlot.nxt_addr, sizeof(DataSlot.nxt_addr));
                 slot_update_ptr += sizeof(DataSlot.nxt_addr);
+                memcpy(slot_update_ptr, &DataSlot.frag_len, sizeof(DataSlot.frag_len));
+                slot_update_ptr += sizeof(DataSlot.frag_len);
                 memcpy(slot_update_ptr, &DataSlot.align_size, sizeof(DataSlot.align_size));
                 slot_update_ptr += sizeof(DataSlot.align_size);
                 crc_buf = slot_update_ptr;
@@ -1375,6 +1382,8 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 DataSlot.slot_crc = Common_CRC16(crc_buf, DataSlot.cur_slot_size);
                 memcpy(slot_update_ptr, &DataSlot.slot_crc, sizeof(DataSlot.slot_crc));
                 slot_update_ptr += sizeof(DataSlot.slot_crc);
+                memcpy(slot_update_ptr, &DataSlot.res, sizeof(DataSlot.res));
+                slot_update_ptr += sizeof(DataSlot.res);
                 memcpy(slot_update_ptr, &DataSlot.end_tag, sizeof(DataSlot.end_tag));
                 slot_update_ptr += sizeof(DataSlot.end_tag);
 
