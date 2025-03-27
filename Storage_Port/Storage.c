@@ -921,11 +921,12 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
 /* untested */
 static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
-    uint32_t cur_slot_size = 0;
-    uint32_t inc_free_space = sizeof(Storage_DataSlot_TypeDef);
+    uint16_t cur_slot_size = 0;
+    uint16_t inc_free_space = sizeof(Storage_DataSlot_TypeDef);
     uint8_t *p_freeslot_start = NULL;
     uint8_t *p_freeslot_data = NULL;
     uint8_t *data_w = NULL;
+    uint16_t frag_size = 0;
 
     if ((slot_addr == 0) || \
         (p_Sec == NULL) || \
@@ -947,23 +948,27 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
     p_data += STORAGE_NAME_LEN;
 
     /* clear total data size */
-    *((uint32_t *)p_data) = 0;
-    p_data += sizeof(uint32_t);
+    *((uint16_t *)p_data) = 0;
+    p_data += sizeof(uint16_t);
 
     /* get current slot data size */
-    cur_slot_size = *((uint32_t *)p_data);
+    cur_slot_size = *((uint16_t *)p_data);
     inc_free_space += cur_slot_size;
     
     /* clear current slot data size */
-    *((uint32_t *)p_data) = 0;
-    p_data += sizeof(uint32_t);
+    *((uint16_t *)p_data) = 0;
+    p_data += sizeof(uint16_t);
 
     /* clear next data slot address */
     *((uint32_t *)p_data) = 0;
     p_data += sizeof(uint32_t);
 
+    /* clear frag len */
+    *((uint16_t *)p_data) = 0;
+    p_data += sizeof(uint16_t);
+
     /* clear align size */
-    *((uint8_t *)p_data) = 0;
+    *((uint16_t *)p_data) = 0;
     p_data += sizeof(uint8_t);
 
     /* clear data */
@@ -971,6 +976,10 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
     p_data += cur_slot_size;
 
     /* clear crc */
+    *((uint16_t *)p_data) = 0;
+    p_data += sizeof(uint16_t);
+
+    /* clear res */
     *((uint16_t *)p_data) = 0;
     p_data += sizeof(uint16_t);
 
@@ -1032,6 +1041,7 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     memset(&data_slot, 0, sizeof(data_slot));
     name_len = strlen(name);
 
+    memset(page_data_tmp, 0, Storage_TabSize);
     if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, addr, page_data_tmp, read_size))
         return false;
 
@@ -1044,7 +1054,7 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
 
     p_read += sizeof(data_slot.head_tag);
     
-    data_slot.total_data_size = *((uint32_t *)p_read);
+    data_slot.total_data_size = *((uint16_t *)p_read);
     if (data_slot.total_data_size != total_size)
     {
         STORAGE_INFO("delete", "addr 0x%08x total data size %d / %d error", addr, data_slot.total_data_size, total_size);
@@ -1052,7 +1062,7 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     }
 
     p_read += sizeof(data_slot.total_data_size);
-    data_slot.cur_slot_size = *((uint32_t *)p_read);
+    data_slot.cur_slot_size = *((uint16_t *)p_read);
     if (data_slot.total_data_size && \
         (data_slot.cur_slot_size == 0) || \
         (data_slot.cur_slot_size > data_slot.total_data_size))
@@ -1077,6 +1087,8 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     }
 
     p_read += sizeof(data_slot.nxt_addr);
+    p_read += sizeof(data_slot.frag_len);
+
     data_slot.align_size = *((uint8_t *)p_read);    
     if (data_slot.align_size >= STORAGE_DATA_ALIGN)
     {
@@ -1106,6 +1118,9 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     /* clear crc */
     *((uint16_t *)p_read) = 0;
     p_read += sizeof(data_slot.slot_crc);
+
+    *((uint16_t *)p_read) = 0;
+    p_read += sizeof(data_slot.res);
 
     /* ender error */
     if (*((uint32_t *)p_read) != STORAGE_SLOT_END_TAG)
