@@ -908,7 +908,10 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
         }
 
         if (FreeSlot_Info.nxt_addr == 0)
+        {
+            STORAGE_INFO("slot merge", "error none");
             return Storage_Error_None;
+        }
 
         /* update front free slot address */
         freeslot_addr = nxt_freeslot_addr;
@@ -942,10 +945,6 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
     p_freeslot_start = p_data;
     data_w = p_freeslot_start;
     p_data += sizeof(uint32_t);
-
-    /* clear current slot name */
-    memset(p_data, 0, STORAGE_NAME_LEN);
-    p_data += STORAGE_NAME_LEN;
 
     /* clear total data size */
     *((uint16_t *)p_data) = 0;
@@ -995,7 +994,7 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
         p_freeslot_data += sizeof(uint32_t);
 
         /* update current free slot size */
-        *(uint32_t *)p_freeslot_data = cur_slot_size;
+        *(uint32_t *)p_freeslot_data = cur_slot_size + sizeof(Storage_DataSlot_TypeDef);
         p_freeslot_data += sizeof(uint32_t);
 
         /* reset next freeslot addr
@@ -1013,12 +1012,12 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
         return false;
 
     /* update to data section */
-    if (StorageDev.param_write(Storage_Monitor.ExtDev_ptr, slot_addr, data_w, inc_free_space))
-    {
-        /* check free slot and merge */
-        if (Storage_FreeSlot_CheckMerge(slot_addr, (Storage_FreeSlot_TypeDef *)p_freeslot_start, p_Sec) == Storage_Error_None)
-            return true;
-    }
+    if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, slot_addr, data_w, inc_free_space))
+        return false;
+
+    /* check free slot and merge */
+    if (Storage_FreeSlot_CheckMerge(slot_addr, (Storage_FreeSlot_TypeDef *)p_freeslot_start, p_Sec) == Storage_Error_None)
+        return true;
     
     return false;
 }
@@ -1166,7 +1165,7 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
         (ItemSearch.item.end_tag != STORAGE_ITEM_END_TAG) || \
         !Storage_DeleteAllDataSlot(ItemSearch.item.data_addr, (char *)name, ItemSearch.item.len, p_Sec))
     {
-        STORAGE_INFO("delete", "filed");
+        STORAGE_INFO("delete slot", "filed");
         return Storage_Delete_Error;
     }
 
@@ -1176,10 +1175,13 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
 
     Storage_Comput_ItemSlot_CRC(&ItemSearch.item);
     if (Storage_ItemSlot_Update(ItemSearch.item_addr, ItemSearch.item_index, p_Sec, ItemSearch.item) != Storage_Error_None)
+    {
+        STORAGE_INFO("delete item", "failed");
         return Storage_ItemUpdate_Error;
+    }
 
     /* update base info */
-
+    
 
     return Storage_Delete_Error;
 }
