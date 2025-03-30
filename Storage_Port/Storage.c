@@ -1181,7 +1181,8 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
     }
 
     /* update base info */
-    
+    memset(page_data_tmp, 0, Storage_TabSize);
+    memcpy(page_data_tmp, &Storage_Monitor.info, sizeof(Storage_FlashInfo_TypeDef));
 
     return Storage_Delete_Error;
 }
