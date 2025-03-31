@@ -42,6 +42,7 @@ const uint8_t version[STORAGE_VERSION_LEN] = {0, 0, 1};
 static bool Storage_Build_StorageInfo(void);
 static bool Storage_Get_StorageInfo(void);
 static bool Storage_Format(void);
+static bool Storage_UpdateBaseInfo(void);
 static bool Storage_Compare_ItemSlot_CRC(const Storage_Item_TypeDef item);
 static bool Storage_Comput_ItemSlot_CRC(Storage_Item_TypeDef *p_item);
 static Storage_BaseSecInfo_TypeDef* Storage_Get_SecInfo(Storage_FlashInfo_TypeDef *info, Storage_ParaClassType_List class);
@@ -185,6 +186,22 @@ reformat_external_flash_info:
     return Storage_Monitor.init_state;
 }
 
+static bool Storage_UpdateBaseInfo(void)
+{
+    uint16_t crc = 0;
+
+    /* update base info CRC */
+    memset(page_data_tmp, 0, Storage_InfoPageSize);
+    memcpy(page_data_tmp, &Storage_Monitor.info, sizeof(Storage_FlashInfo_TypeDef));
+    crc = Common_CRC16(page_data_tmp, Storage_InfoPageSize - sizeof(crc));
+    memcpy(&page_data_tmp[Storage_InfoPageSize - sizeof(crc)], &crc, sizeof(crc));
+
+    if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_TabSize))
+        return false;
+
+    return true;
+}
+
 static Storage_ErrorCode_List Storage_Get_DevInfo(StorageDevObj_TypeDef *info)
 {
     StorageDevObj_TypeDef *p_dev = NULL;
@@ -282,13 +299,27 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
             (free_slot_addr < sec_start_addr) || \
             (free_slot_addr > sec_end_addr) || \
             !StorageDev.param_read(Storage_Monitor.ExtDev_ptr, free_slot_addr, page_data_tmp, Storage_TabSize))
+        {
+            if ((free_slot_addr < sec_start_addr) || \
+                (free_slot_addr > sec_end_addr))
+            {
+                STORAGE_INFO("check tab", "free slot addr error");
+                STORAGE_INFO("check tab", "sec start addr %d", sec_start_addr);
+                STORAGE_INFO("check tab", "sec end   addr %d", sec_end_addr);
+                STORAGE_INFO("check tab", "free slot addr %d", free_slot_addr);
+            }
+
             return false;
+        }
 
         FreeSlot_Info = (Storage_FreeSlot_TypeDef *)page_data_tmp;
 
         if ((FreeSlot_Info->head_tag != STORAGE_SLOT_HEAD_TAG) || \
             (FreeSlot_Info->end_tag != STORAGE_SLOT_END_TAG))
+        {
+            STORAGE_INFO("check tab", "free slot tag error");
             return false;
+        }
 
         free_i ++;
         if (FreeSlot_Info->nxt_addr == 0)
@@ -330,13 +361,19 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
                     crc_len -= sizeof(p_ItemList[item_i].head_tag);
                     crc_len -= sizeof(p_ItemList[item_i].end_tag);
                     crc_len -= sizeof(p_ItemList[item_i].crc16);
-                    store_param_size += p_ItemList[item_i].len;
                     
                     crc16 = Common_CRC16(crc_buf, crc_len);
                     if (crc16 != p_ItemList[item_i].crc16)
+                    {
+                        STORAGE_INFO("check tab", "item[%d] %s crc error", item_i, p_ItemList[item_i].name);
                         return false;
-
-                    store_param_found ++;
+                    }
+                    
+                    if (memcmp(p_ItemList[item_i].name, STORAGE_FREEITEM_NAME, strlen(STORAGE_FREEITEM_NAME)) != 0)
+                    {
+                        store_param_found ++;
+                        store_param_size += p_ItemList[item_i].len;
+                    }
                 }
             }
 
@@ -353,6 +390,7 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
 
 static bool Storage_Get_StorageInfo(void)
 {
+    bool tab_state = true;
     Storage_FlashInfo_TypeDef *p_Info = NULL;
     Storage_FlashInfo_TypeDef Info_r;
     uint16_t crc = 0;
@@ -390,13 +428,27 @@ static bool Storage_Get_StorageInfo(void)
     memcpy(&crc_read, &page_data_tmp[Storage_InfoPageSize - sizeof(uint16_t)], sizeof(uint16_t));
     crc = Common_CRC16(page_data_tmp, Storage_InfoPageSize - sizeof(crc));
     if (crc != crc_read)
+    {
+        STORAGE_INFO("info sec", "CRC Error");
         return false;
+    }
 
     memset(page_data_tmp, 0, Storage_TabSize);
     /* check system section tab & free slot info & stored item */
     /* check  user  section tab & free slot info & stored item */
-    if (Storage_Check_Tab(&Info_r.sys_sec) && \
-        Storage_Check_Tab(&Info_r.user_sec))
+    if (!Storage_Check_Tab(&Info_r.sys_sec))
+    {
+        tab_state = false;
+        STORAGE_INFO("info", "sys tab error");
+    }
+    
+    if (!Storage_Check_Tab(&Info_r.user_sec))
+    {
+        tab_state = false;
+        STORAGE_INFO("info", "user tab error");
+    }
+
+    if (tab_state)
     {
         STORAGE_INFO("info", "all tab checked");
         memcpy(p_Info, &Info_r, sizeof(Storage_FlashInfo_TypeDef));
@@ -497,10 +549,7 @@ static Storage_ErrorCode_List Storage_ItemSlot_Update(uint32_t tab_addr, uint8_t
     if ((tab_addr == 0) || \
         (p_Sec == NULL) || \
         (item.head_tag != STORAGE_ITEM_HEAD_TAG) || \
-        (item.end_tag != STORAGE_ITEM_END_TAG) || \
-        (item.data_addr == 0) || \
-        (item.data_addr > (p_Sec->data_sec_addr + p_Sec->data_sec_size)) || \
-        (item.data_addr < p_Sec->data_sec_addr))
+        (item.end_tag != STORAGE_ITEM_END_TAG))
         return Storage_Param_Error;
 
     if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, tab_addr, &page_data_tmp[Storage_TabSize], Storage_TabSize))
@@ -968,7 +1017,7 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
 
     /* clear align size */
     *((uint16_t *)p_data) = 0;
-    p_data += sizeof(uint8_t);
+    p_data += sizeof(uint16_t);
 
     /* clear data */
     memset(p_data, 0, cur_slot_size);
@@ -1138,6 +1187,7 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
 /* developping */
 static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name)
 {
+    uint16_t info_crc = 0;
     Storage_FlashInfo_TypeDef *p_Flash = NULL;
     Storage_BaseSecInfo_TypeDef *p_Sec = NULL;
     Storage_ItemSearchOut_TypeDef ItemSearch;
@@ -1169,9 +1219,26 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
         return Storage_Delete_Error;
     }
 
+    /* update base info */
+    memset(page_data_tmp, 0, Storage_TabSize);
+    
+    p_Sec->free_slot_addr = ItemSearch.item.data_addr;
+    p_Sec->free_space_size += ItemSearch.item.len + sizeof(Storage_DataSlot_TypeDef);
+    p_Sec->para_num -= 1;
+    p_Sec->para_size -= ItemSearch.item.len;
+    
+    if (!Storage_UpdateBaseInfo())
+        return Storage_Delete_Error;
+
+    /* write base info to info section */
+    if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_InfoPageSize))
+        return false;
+
     /* update item slot tab */
     memset(ItemSearch.item.name, '\0', STORAGE_NAME_LEN);
     memcpy(ItemSearch.item.name, STORAGE_FREEITEM_NAME, strlen(STORAGE_FREEITEM_NAME));
+    ItemSearch.item.len = 0;
+    ItemSearch.item.data_addr = 0;
 
     Storage_Comput_ItemSlot_CRC(&ItemSearch.item);
     if (Storage_ItemSlot_Update(ItemSearch.item_addr, ItemSearch.item_index, p_Sec, ItemSearch.item) != Storage_Error_None)
@@ -1180,11 +1247,7 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
         return Storage_ItemUpdate_Error;
     }
 
-    /* update base info */
-    memset(page_data_tmp, 0, Storage_TabSize);
-    memcpy(page_data_tmp, &Storage_Monitor.info, sizeof(Storage_FlashInfo_TypeDef));
-
-    return Storage_Delete_Error;
+    return Storage_Error_None;
 }
 
 static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _class, const char *name, uint8_t *p_data, uint16_t size)
@@ -1539,15 +1602,7 @@ static bool Storage_Establish_Tab(Storage_ParaClassType_List class)
         if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_TabSize))
             return false;
 
-        memset(page_data_tmp, 0, Storage_InfoPageSize);
-        memcpy(page_data_tmp, p_Flash, sizeof(Storage_FlashInfo_TypeDef));
-
-        /* comput crc */
-        crc = Common_CRC16(page_data_tmp, Storage_InfoPageSize - sizeof(crc));
-        memcpy(&page_data_tmp[Storage_InfoPageSize - sizeof(crc)], &crc, sizeof(crc));
-
-        /* erase sector first then write into the target sector */
-        if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_TabSize))
+        if (!Storage_UpdateBaseInfo())
             return false;
 
         return true;
@@ -1654,14 +1709,7 @@ static bool Storage_Build_StorageInfo(void)
     STORAGE_INFO("build info", "user data addr 0x%08x", Storage_Monitor.info.user_sec.data_sec_addr);
 
     /* write 0 to info section */
-    memset(page_data_tmp, 0, Storage_InfoPageSize);
-    memcpy(page_data_tmp, &Storage_Monitor.info, sizeof(Storage_FlashInfo_TypeDef));
-    crc = Common_CRC16(page_data_tmp, Storage_InfoPageSize - sizeof(crc));
-    memcpy(&page_data_tmp[Storage_InfoPageSize - sizeof(crc)], &crc, sizeof(crc));
-
-    /* write base info to info section */
-    /* write into flash chip */
-    if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_InfoPageSize))
+    if (!Storage_UpdateBaseInfo())
         return false;
 
     /* read out again */
