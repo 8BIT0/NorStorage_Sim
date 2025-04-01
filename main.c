@@ -243,6 +243,7 @@ static void* Sim_Polling_Thread(void *arg)
 static bool Sim_Storage_Create_Callback(TriggerData_TypeDef *data)
 {
     Storage_ParaClassType_List cls = Para_Sys;
+    Storage_ErrorCode_List err;
 
     if (data == NULL)
         return false;
@@ -250,9 +251,10 @@ static bool Sim_Storage_Create_Callback(TriggerData_TypeDef *data)
     if (data->sec == UserSec)
         cls = Para_User;
 
-    if (Storage.create(cls, data->name, data->data, data->size) != Storage_Error_None)
+    err = Storage.create(cls, data->name, data->data, data->size); 
+    if (err != Storage_Error_None)
     {
-        SIMULATION_PRINT("create item", "%s failed", data->name);
+        SIMULATION_PRINT("create item", "%s failed error code %d", data->name, err);
         return false;
     }
 

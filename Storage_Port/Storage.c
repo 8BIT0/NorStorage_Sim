@@ -818,6 +818,7 @@ static bool Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free
     memset(&front_slot, 0, sizeof(Storage_FreeSlot_TypeDef));
     memset(&behind_slot, 0, sizeof(Storage_FreeSlot_TypeDef));
 
+    STORAGE_INFO("slot merge", "Linking free slot");
 /* 
  *
  *       address N                    address X                   address Y
@@ -949,6 +950,8 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
         else if (((freeslot_addr + FreeSlot_Info.slot_size + sizeof(Storage_FreeSlot_TypeDef)) < slot_addr) && \
                  (nxt_freeslot_addr > (slot_addr + new_freeslot->slot_size + sizeof(Storage_FreeSlot_TypeDef))))
         {
+            STORAGE_INFO("slot merge", "No free slot near by");
+            
             /* link free slot */
             if (Storage_Link_FreeSlot(freeslot_addr, nxt_freeslot_addr, slot_addr, new_freeslot))
                 return Storage_Error_None;
@@ -1388,13 +1391,16 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 DataSlot.head_tag = STORAGE_SLOT_HEAD_TAG;
                 DataSlot.end_tag = STORAGE_SLOT_END_TAG;
                 
+                STORAGE_INFO("create", "current free slot size %d", FreeSlot.slot_size);
+
                 if (FreeSlot.slot_size <= sizeof(Storage_DataSlot_TypeDef))
                     return Storage_No_Enough_Space;
 
                 p_data += stored_size;
                 slot_useful_size = FreeSlot.slot_size - sizeof(Storage_DataSlot_TypeDef);
+                STORAGE_INFO("create", "free slot useful size %d store size %d", slot_useful_size, storage_data_size);
                 /* current have space for new data need to be storage */
-                if (slot_useful_size < storage_data_size)
+                if (slot_useful_size <= storage_data_size)
                 {
                     /*
                      * UNTESTED IN THIS BRANCH
@@ -1403,7 +1409,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                     DataSlot.cur_slot_size = slot_useful_size;
                     stored_size += DataSlot.cur_slot_size;
                     unstored_size -= stored_size;
-                    DataSlot.align_size = 0;
+                    DataSlot.align_size = align_byte;
                     
                     /* current free slot full fill can not split any space for next free slot`s start */
                     DataSlot.nxt_addr = FreeSlot.nxt_addr;
