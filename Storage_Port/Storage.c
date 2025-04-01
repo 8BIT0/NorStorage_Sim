@@ -1274,6 +1274,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
     Storage_DataSlot_TypeDef DataSlot;
     Storage_ItemSearchOut_TypeDef search;
     uint8_t align_byte = 0;
+    bool update_freeslot = true;
 
     memset(&search, 0, sizeof(Storage_ItemSearchOut_TypeDef));
     memset(&crt_item_slot, 0, sizeof(crt_item_slot));
@@ -1400,7 +1401,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                 slot_useful_size = FreeSlot.slot_size - sizeof(Storage_DataSlot_TypeDef);
                 STORAGE_INFO("create", "free slot useful size %d store size %d", slot_useful_size, storage_data_size);
                 /* current have space for new data need to be storage */
-                if (slot_useful_size <= storage_data_size)
+                if (slot_useful_size < storage_data_size)
                 {
                     /*
                      * UNTESTED IN THIS BRANCH
@@ -1436,6 +1437,9 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                     {
                         DataSlot.frag_len = FreeSlot.slot_size;
                         FreeSlot.slot_size = 0;
+
+                        cur_freeslot_addr = FreeSlot.nxt_addr;
+                        update_freeslot = false;
                     }
                 }
 
@@ -1483,7 +1487,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
                     if (DataSlot.total_data_size == stored_size)
                     {
                         /* step 4: update free slot */
-                        if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, cur_freeslot_addr, (uint8_t *)&FreeSlot, sizeof(FreeSlot)))
+                        if (update_freeslot && !StorageDev.param_write(Storage_Monitor.ExtDev_ptr, cur_freeslot_addr, (uint8_t *)&FreeSlot, sizeof(FreeSlot)))
                             return Storage_Write_Error;
 
                         break;
