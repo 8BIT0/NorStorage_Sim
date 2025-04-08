@@ -48,14 +48,16 @@ typedef enum
     Storage_GetData_Error,
     Storage_CRC_Error,
     Storage_Update_DataSize_Error,
+    Storage_Merge_Error,
     Storage_Delete_Error,
 } Storage_ErrorCode_List;
 
 typedef enum
 {
-    Internal_Flash = 0,
-    External_Flash,
-} Storage_MediumType_List;
+    Link_Done = 0,
+    Link_Failed,
+    Link_Searching,
+} Link_State_List;
 
 typedef enum
 {
