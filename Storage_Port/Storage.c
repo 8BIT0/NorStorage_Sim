@@ -48,7 +48,7 @@ static bool Storage_Comput_ItemSlot_CRC(Storage_Item_TypeDef *p_item);
 static Storage_BaseSecInfo_TypeDef* Storage_Get_SecInfo(Storage_FlashInfo_TypeDef *info, Storage_ParaClassType_List class);
 static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, Storage_BaseSecInfo_TypeDef *p_Sec);
 static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, Storage_FreeSlot_TypeDef *slot_info, Storage_BaseSecInfo_TypeDef *p_Sec);
-static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free_addr, uint32_t new_free_addr, Storage_FreeSlot_TypeDef *new_free_slot);
+static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free_addr, uint32_t new_free_addr, Storage_FreeSlot_TypeDef *new_free_slot, Storage_BaseSecInfo_TypeDef *p_Sec);
 static Storage_ErrorCode_List Storage_ItemSlot_Update(uint32_t tab_addr, uint8_t item_index, Storage_BaseSecInfo_TypeDef *p_Sec, Storage_Item_TypeDef item);
 static bool Storage_Clear_Tab(uint32_t addr, uint32_t tab_num);
 static bool Storage_Establish_Tab(Storage_ParaClassType_List class);
@@ -806,7 +806,7 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
 }
 
 /* BUG INSIDE */
-static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free_addr, uint32_t new_free_addr, Storage_FreeSlot_TypeDef *new_free_slot)
+static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t behind_free_addr, uint32_t new_free_addr, Storage_FreeSlot_TypeDef *new_free_slot, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
     Storage_FreeSlot_TypeDef front_slot;
     Storage_FreeSlot_TypeDef behind_slot;
@@ -818,7 +818,8 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
     if ((new_free_addr == 0) || \
         (new_free_slot == NULL) || \
         (front_free_addr == 0) || \
-        (front_free_addr == new_free_addr))
+        (front_free_addr == new_free_addr) || \
+        (p_Sec == NULL))
         return Link_Failed;
 
     memset(&front_slot, 0, sizeof(Storage_FreeSlot_TypeDef));
@@ -844,6 +845,7 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
         if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, new_free_addr, (uint8_t *)new_free_slot, sizeof(Storage_FreeSlot_TypeDef)))
             return Link_Failed;
         
+        p_Sec->free_slot_addr = new_free_addr;
         return Link_Done;
     }
     
@@ -958,7 +960,6 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
             }
 
             p_Sec->free_slot_addr = slot_addr;
-            p_Sec->free_space_size += sizeof(Storage_FreeSlot_TypeDef);
         }
         /* circumstance 2: new free slot is behind of the old free slot */
         else if (freeslot_addr + FreeSlot_Info.slot_size == slot_addr)
@@ -984,7 +985,7 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
         else
         {
             STORAGE_INFO("slot merge", "No free slot near by");
-            slot_link_state = Storage_Link_FreeSlot(freeslot_addr, nxt_freeslot_addr, slot_addr, new_freeslot);
+            slot_link_state = Storage_Link_FreeSlot(freeslot_addr, nxt_freeslot_addr, slot_addr, new_freeslot, p_Sec);
 
             /* link free slot */
             if (slot_link_state == Link_Failed)
@@ -1103,6 +1104,8 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
     /* update to data section */
     if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, slot_addr, data_w, inc_free_space))
         return false;
+
+    p_Sec->free_space_size += inc_free_space;
 
     /* check free slot and merge */
     if (Storage_FreeSlot_CheckMerge(slot_addr, (Storage_FreeSlot_TypeDef *)p_freeslot_start, p_Sec) == Storage_Error_None)
@@ -1262,17 +1265,11 @@ static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _cla
     /* update base info */
     memset(page_data_tmp, 0, Storage_TabSize);
     
-    p_Sec->free_slot_addr = ItemSearch.item.data_addr;
-    p_Sec->free_space_size += ItemSearch.item.len + sizeof(Storage_DataSlot_TypeDef);
     p_Sec->para_num -= 1;
     p_Sec->para_size -= ItemSearch.item.len;
-    
+
     if (!Storage_UpdateBaseInfo())
         return Storage_Delete_Error;
-
-    /* write base info to info section */
-    if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, Storage_Monitor.info.base_addr, page_data_tmp, Storage_InfoPageSize))
-        return false;
 
     /* update item slot tab */
     memset(ItemSearch.item.name, '\0', STORAGE_NAME_LEN);
@@ -1558,6 +1555,7 @@ static Storage_ErrorCode_List Storage_CreateItem(Storage_ParaClassType_List _cla
 
         /* update base info crc */
         uint8_t *tmp_buf = &page_data_tmp[Storage_InfoPageSize];
+        memset(tmp_buf, 0, Storage_InfoPageSize);
         memcpy(tmp_buf, p_Flash, sizeof(Storage_FlashInfo_TypeDef));
         base_info_crc = Common_CRC16(tmp_buf, Storage_InfoPageSize - sizeof(base_info_crc));
         memcpy(&tmp_buf[Storage_InfoPageSize - sizeof(base_info_crc)], &base_info_crc, sizeof(base_info_crc));
