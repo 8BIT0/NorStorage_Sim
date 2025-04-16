@@ -695,11 +695,7 @@ static Storage_ErrorCode_List Storage_SlotData_Update(Storage_ParaClassType_List
     read_addr = data_slot_hdl;
     memset(page_data_tmp, 0, sizeof(Storage_DataSlot_TypeDef));
     if (size % STORAGE_DATA_ALIGN)
-    {
         align_byte = STORAGE_DATA_ALIGN - size % STORAGE_DATA_ALIGN;
-    }
-    else
-        align_byte = 0;
 
     /* get data slot first */
     if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, read_addr, p_read_tmp, sizeof(Storage_DataSlot_TypeDef)))
