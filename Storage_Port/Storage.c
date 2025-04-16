@@ -927,7 +927,6 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
     return Link_Done;
 }
 
-/* BUG INSIDE */
 static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, Storage_FreeSlot_TypeDef *new_freeslot, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
     Storage_FreeSlot_TypeDef FreeSlot_Info;
@@ -1000,7 +999,6 @@ static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, St
     return Storage_Delete_Error;
 }
 
-/* untested */
 static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
     uint16_t cur_slot_size = 0;
@@ -1103,7 +1101,6 @@ static bool Storage_DeleteSingleDataSlot(uint32_t slot_addr, uint8_t *p_data, St
     return false;
 }
 
-/* developping & untested */
 static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_size, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
     Storage_DataSlot_TypeDef data_slot;
@@ -1216,7 +1213,6 @@ static bool Storage_DeleteAllDataSlot(uint32_t addr, char *name, uint32_t total_
     return true;
 }
 
-/* developping */
 static Storage_ErrorCode_List Storage_DeleteItem(Storage_ParaClassType_List _class, const char *name)
 {
     uint16_t info_crc = 0;
