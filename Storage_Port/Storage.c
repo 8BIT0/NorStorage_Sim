@@ -281,7 +281,7 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
     uint16_t crc16 = 0;
     uint8_t *crc_buf = NULL;
     uint16_t crc_len = 0;
-    Storage_FreeSlot_TypeDef *FreeSlot_Info = NULL;
+    Storage_FreeSlot_TypeDef FreeSlot_Info;
     Storage_Item_TypeDef *p_ItemList = NULL;
 
     if (sec_info == NULL)
@@ -294,11 +294,12 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
 
     for(uint32_t free_i = 0; ;)
     {
+        STORAGE_INFO("check tab", "freeslot %d addr 0x%08X", free_i, free_slot_addr);
         /* check free slot */
         if ((free_slot_addr == 0) || \
             (free_slot_addr < sec_start_addr) || \
             (free_slot_addr > sec_end_addr) || \
-            !StorageDev.param_read(Storage_Monitor.ExtDev_ptr, free_slot_addr, page_data_tmp, Storage_TabSize))
+            !StorageDev.param_read(Storage_Monitor.ExtDev_ptr, free_slot_addr, (uint8_t *)&FreeSlot_Info, sizeof(Storage_FreeSlot_TypeDef)))
         {
             if ((free_slot_addr < sec_start_addr) || \
                 (free_slot_addr > sec_end_addr))
@@ -312,20 +313,20 @@ static bool Storage_Check_Tab(Storage_BaseSecInfo_TypeDef *sec_info)
             break;
         }
 
-        FreeSlot_Info = (Storage_FreeSlot_TypeDef *)page_data_tmp;
+        STORAGE_INFO("check tab", "freeslot %d addr 0x%08X", free_i, free_slot_addr);
 
-        if ((FreeSlot_Info->head_tag != STORAGE_SLOT_HEAD_TAG) || \
-            (FreeSlot_Info->end_tag != STORAGE_SLOT_END_TAG))
+        if ((FreeSlot_Info.head_tag != STORAGE_SLOT_HEAD_TAG) || \
+            (FreeSlot_Info.end_tag != STORAGE_SLOT_END_TAG))
         {
             STORAGE_INFO("check tab", "free slot tag error");
             return false;
         }
 
         free_i ++;
-        if (FreeSlot_Info->nxt_addr == 0)
+        if (FreeSlot_Info.nxt_addr == 0)
             break;
 
-        free_slot_addr = FreeSlot_Info->nxt_addr;
+        free_slot_addr = FreeSlot_Info.nxt_addr;
     }
     
     if (sec_info->para_num)
@@ -439,12 +440,14 @@ static bool Storage_Get_StorageInfo(void)
     memset(page_data_tmp, 0, Storage_TabSize);
     /* check system section tab & free slot info & stored item */
     /* check  user  section tab & free slot info & stored item */
+    STORAGE_INFO("info", "check sys tab");
     if (!Storage_Check_Tab(&Info_r.sys_sec))
     {
         tab_state = false;
         STORAGE_INFO("info", "sys tab error");
     }
     
+    STORAGE_INFO("info", "check user tab");
     if (!Storage_Check_Tab(&Info_r.user_sec))
     {
         tab_state = false;
@@ -811,9 +814,10 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
     Storage_FreeSlot_TypeDef front_slot;
     Storage_FreeSlot_TypeDef behind_slot;
 
-    STORAGE_INFO("link free slot", "new    free slot addr %d", new_free_addr);
-    STORAGE_INFO("link free slot", "front  free slot addr %d", front_free_addr);
-    STORAGE_INFO("link free slot", "behind free slot addr %d", behind_free_addr);
+    STORAGE_INFO("link free slot", "new    free slot addr 0x%08X", new_free_addr);
+    STORAGE_INFO("link free slot", "new    free slot size %d",     new_free_slot->size);
+    STORAGE_INFO("link free slot", "front  free slot addr 0x%08X", front_free_addr);
+    STORAGE_INFO("link free slot", "behind free slot addr 0x%08X", behind_free_addr);
 
     if ((new_free_addr == 0) || \
         (new_free_slot == NULL) || \
@@ -844,6 +848,8 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
 
     if ((new_free_addr + new_free_slot->size) <= front_free_addr)
     {
+        STORAGE_INFO("link", "In front of the old free slot");
+        
         /* new free slot in front of the old free slot */
         if ((new_free_addr + new_free_slot->size) < front_free_addr)
         {
@@ -851,6 +857,7 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
         }
         else
         {
+            STORAGE_INFO("link", "Merge with the front");
             new_free_slot->size += front_slot.size;
             new_free_slot->nxt_addr = front_slot.nxt_addr;
             memset(&front_slot, 0, sizeof(front_slot));
@@ -865,15 +872,10 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
         p_Sec->free_slot_addr = new_free_addr;
     }
 
-    if (behind_free_addr == 0)
+    if (behind_free_addr != 0)
     {
-        front_slot.nxt_addr = new_free_addr;
+        STORAGE_INFO("link", "Check behind free slot");
 
-        if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, front_free_addr, (uint8_t *)&front_slot, sizeof(Storage_FreeSlot_TypeDef)))
-            return Link_Failed;
-    }
-    else
-    {
         /* get behind free slot info */
         if (!StorageDev.param_read(Storage_Monitor.ExtDev_ptr, behind_free_addr, (uint8_t *)&behind_slot, sizeof(Storage_FreeSlot_TypeDef)) || \
             (behind_slot.head_tag != STORAGE_SLOT_HEAD_TAG) || (behind_slot.end_tag != STORAGE_SLOT_END_TAG))
@@ -884,15 +886,22 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
 
         if (behind_free_addr < new_free_addr)
             return Link_Searching;
-
+        
+        new_free_slot->nxt_addr = behind_free_addr;
         if ((new_free_addr + new_free_slot->size) == behind_free_addr)
         {
+            STORAGE_INFO("link", "Merge with the behind");
+
             new_free_slot->nxt_addr = behind_slot.nxt_addr;
             new_free_slot->size += behind_slot.size;
-
+            
             memset(&behind_slot, 0, sizeof(Storage_FreeSlot_TypeDef));
+            STORAGE_INFO("link", "Update behind slot addr 0x%08X", behind_free_addr);
             if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, behind_free_addr, (uint8_t *)&behind_slot, sizeof(Storage_FreeSlot_TypeDef)))
                 return Link_Failed;
+            
+            if (behind_slot.nxt_addr == 0)
+                behind_free_addr = 0;
         }
 
         if ((front_slot.size + front_free_addr) != new_free_addr)
@@ -902,7 +911,8 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
         }
         else
         {
-            front_slot.nxt_addr = behind_free_addr;
+            STORAGE_INFO("link", "Merge with the front");
+            front_slot.nxt_addr = new_free_slot->nxt_addr;
             front_slot.size += new_free_slot->size;
             memset(new_free_slot, 0, sizeof(Storage_FreeSlot_TypeDef));
         }
@@ -910,15 +920,14 @@ static Link_State_List Storage_Link_FreeSlot(uint32_t front_free_addr, uint32_t 
         if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, front_free_addr, (uint8_t *)&front_slot, sizeof(Storage_FreeSlot_TypeDef)))
             return Link_Failed;
     }
-
+    
     if (!StorageDev.param_write(Storage_Monitor.ExtDev_ptr, new_free_addr, (uint8_t *)new_free_slot, sizeof(Storage_FreeSlot_TypeDef)))
         return Link_Failed;
 
     return Link_Done;
 }
 
-/* developping */
-/* bug inside */
+/* BUG INSIDE */
 static Storage_ErrorCode_List Storage_FreeSlot_CheckMerge(uint32_t slot_addr, Storage_FreeSlot_TypeDef *new_freeslot, Storage_BaseSecInfo_TypeDef *p_Sec)
 {
     Storage_FreeSlot_TypeDef FreeSlot_Info;

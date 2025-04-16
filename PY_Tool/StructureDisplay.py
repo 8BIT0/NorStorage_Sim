@@ -136,7 +136,7 @@ class StructureDisplay:
             return False
 
         # temporary test
-        print(self._flash_info.format_str())
+        # print(self._flash_info.format_str())
         return True
 
     def _list_tab(self, tab_data):
